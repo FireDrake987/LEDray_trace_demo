@@ -20,13 +20,22 @@ WCHAR szWindowClass[MAX_LOADSTRING];            // the main window class name
 ATOM                MyRegisterClass(HINSTANCE hInstance);
 BOOL                InitInstance(HINSTANCE, int);
 LRESULT CALLBACK    WndProc(HWND, UINT, WPARAM, LPARAM);
-INT_PTR CALLBACK    About(HWND, UINT, WPARAM, LPARAM);
 
-const auto STARTTIME = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now().time_since_epoch()).count();
-UINT framecount = 0;
-auto fpsTime = STARTTIME;
-std::wstring lastKeyDown = L"";
-std::wstring lastKeyUp = L"";
+const auto START_TIME = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now().time_since_epoch()).count();
+POINT centerPoint;
+
+struct AppState {
+    UINT framecount = 0;
+    bool mouseCaptured = false;
+    POINT mousePos = {0, 0};
+    std::wstring lastKeyDown = L"";
+    std::wstring lastKeyUp = L"";
+    long long fpsTime = START_TIME;
+    HMENU hMainMenu = nullptr;
+    HMENU hFramerateMenu = nullptr;
+};
+
+AppState state;
 
 int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
                      _In_opt_ HINSTANCE hPrevInstance,
@@ -93,35 +102,91 @@ ATOM MyRegisterClass(HINSTANCE hInstance)
 }
 
 //
+//  FUNCTION: CenterCursor(HWND)
+//
+//  PURPOSE: Centers the cursor for when mouse is being captured
+//
+void CenterCursor(HWND hWnd) {
+    RECT rect;
+    GetClientRect(hWnd, &rect);
+    POINT pt;
+    pt.x = (rect.right - rect.left) / 2;
+    pt.y = (rect.bottom - rect.top) / 2;
+    ClientToScreen(hWnd, &pt);
+    centerPoint = pt;
+    SetCursorPos(pt.x, pt.y);
+}
+
+
+//
+//  FUNCTION: EnableMouseCapture(HWND)
+//
+//  PURPOSE: Captures the mouse
+//
+void EnableMouseCapture(HWND hwnd) {
+    SetCapture(hwnd);         // Capture mouse input
+    ShowCursor(FALSE);        // Hide cursor
+    CenterCursor(hwnd);       // Center it
+    state.mouseCaptured = true;
+}
+
+//
+//  FUNCTION: DisableMouseCapture()
+//
+//  PURPOSE: Releases the mouse
+//
+void DisableMouseCapture() {
+    ReleaseCapture();
+    ShowCursor(TRUE);
+    state.mouseCaptured = false;
+}
+
+//
 //   FUNCTION: UpdateToolbar(HWND)
 //
 //   PURPOSE: Creates the toolbar for the main window settings features
 //
-void UpdateToolbar(HWND hWnd, UINT RadioId) {
-    HMENU hMenu = CreateMenu();
+void CreateMenuBar(HWND hWnd) {
+    state.hMainMenu = CreateMenu();
 
     //Start Menu Items here, remember to append to hMenu!
 
-    HMENU hFramerates = CreateMenu();
-    AppendMenuW(hFramerates, MF_DEFAULT, IDM_FRAMERATE_LOW, L"&5");
-    AppendMenuW(hFramerates, MF_DEFAULT, IDM_FRAMERATE_MEDIUM, L"&15");
-    AppendMenuW(hFramerates, MF_DEFAULT, IDM_FRAMERATE_HIGH, L"&30");
-    AppendMenuW(hFramerates, MF_DEFAULT, IDM_FRAMERATE_UNLIMITED, L"&Unlimited (VSync)");
-    AppendMenuW(hFramerates, MF_DEFAULT, IDM_FRAMERATE_CUSTOM, L"&Custom ...");
-    CheckMenuRadioItem(hFramerates, IDM_FRAMERATE_RADIO_BEGIN, IDM_FRAMERATE_RADIO_END, RadioId, MF_BYCOMMAND);
-    AppendMenuW(hMenu, MF_POPUP, (UINT_PTR) hFramerates, L"&Refresh Rate");
+    state.hFramerateMenu = CreateMenu();
+    AppendMenuW(state.hFramerateMenu, MF_DEFAULT, IDM_FRAMERATE_LOW, L"&5");
+    AppendMenuW(state.hFramerateMenu, MF_DEFAULT, IDM_FRAMERATE_MEDIUM, L"&15");
+    AppendMenuW(state.hFramerateMenu, MF_DEFAULT, IDM_FRAMERATE_HIGH, L"&30");
+    AppendMenuW(state.hFramerateMenu, MF_DEFAULT, IDM_FRAMERATE_UNLIMITED, L"&Unlimited (VSync)");
+    AppendMenuW(state.hFramerateMenu, MF_DEFAULT, IDM_FRAMERATE_CUSTOM, L"&Custom ...");
+    CheckMenuRadioItem(state.hFramerateMenu, IDM_FRAMERATE_RADIO_BEGIN, IDM_FRAMERATE_RADIO_END, IDM_FRAMERATE_LOW, MF_BYCOMMAND);
+    AppendMenuW(state.hMainMenu, MF_POPUP, (UINT_PTR) state.hFramerateMenu, L"&Refresh Rate");
 
-    AppendMenuW(hMenu, MF_DEFAULT, IDM_EXIT, L"&Exit");
+    AppendMenuW(state.hMainMenu, MF_DEFAULT, IDM_EXIT, L"&Exit");
 
     //End Menu Items here
 
-    SetMenu(hWnd, hMenu);
+    SetMenu(hWnd, state.hMainMenu);
     DrawMenuBar(hWnd);
 }
 
+//
+//  FUNCTION: UpdateFramerateRadio(UINT)
+//
+//  PURPOSE: Updates which radio item is checked
+//
+void UpdateFramerateRadio(UINT id) {
+    CheckMenuRadioItem(
+        state.hFramerateMenu,
+        IDM_FRAMERATE_RADIO_BEGIN,
+        IDM_FRAMERATE_RADIO_END,
+        id,
+        MF_BYCOMMAND
+    );
+}
+
+
 void resetFramerateCounter() {
-    fpsTime = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now().time_since_epoch()).count();
-    framecount = 0;
+    state.fpsTime = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now().time_since_epoch()).count();
+    state.framecount = 0;
 }
 
 //
@@ -148,7 +213,7 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 
    ShowWindow(hWnd, nCmdShow);
 
-   UpdateToolbar(hWnd, IDM_FRAMERATE_LOW);
+   CreateMenuBar(hWnd);
 
    SetTimer(hWnd, 1, 200, NULL);
 
@@ -217,40 +282,34 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             switch (wmId)
             {
             case IDM_FRAMERATE_LOW: 
-                UpdateToolbar(hWnd, IDM_FRAMERATE_LOW);
+                UpdateFramerateRadio(IDM_FRAMERATE_LOW);
                 SetTimer(hWnd, 1, 200, NULL);
                 resetFramerateCounter();
                 break;
             case IDM_FRAMERATE_MEDIUM: 
-                UpdateToolbar(hWnd, IDM_FRAMERATE_MEDIUM);
+                UpdateFramerateRadio(IDM_FRAMERATE_MEDIUM);
                 SetTimer(hWnd, 1, 66, NULL);
                 resetFramerateCounter();
                 break;
             case IDM_FRAMERATE_HIGH: 
-                UpdateToolbar(hWnd, IDM_FRAMERATE_HIGH);
+                UpdateFramerateRadio(IDM_FRAMERATE_HIGH);
                 SetTimer(hWnd, 1, 33, NULL);
                 resetFramerateCounter();
                 break;
             case IDM_FRAMERATE_UNLIMITED: 
-                UpdateToolbar(hWnd, IDM_FRAMERATE_UNLIMITED);
+                UpdateFramerateRadio(IDM_FRAMERATE_UNLIMITED);
                 SetTimer(hWnd, 1, 0, NULL);
                 resetFramerateCounter();
                 break;
-            case IDM_FRAMERATE_CUSTOM:
-            {
+            case IDM_FRAMERATE_CUSTOM: {
                 int fps = DialogBox(hInst, MAKEINTRESOURCE(IDD_CUSTOM_FRAMERATE), hWnd, CustomFramerateProc);
-
-                if (fps > 0)
-                {
-                    // Update menu radio selection
-                    UpdateToolbar(hWnd, IDM_FRAMERATE_CUSTOM);
-
-                    // Convert FPS to timer interval
+                if (fps > 0) {
+                    UpdateFramerateRadio(IDM_FRAMERATE_CUSTOM);
                     UINT interval = 1000 / fps;
                     SetTimer(hWnd, 1, interval, NULL);
                 }
             }
-            break;
+                break;
             case IDM_EXIT:
                 DestroyWindow(hWnd);
                 break;
@@ -261,9 +320,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         break;
     case WM_PAINT:
         {
-            framecount++;
+            state.framecount++;
             auto currentTime = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now().time_since_epoch()).count();
-            auto elapsedTime = currentTime-fpsTime;
+            auto elapsedTime = currentTime-state.fpsTime;
             if(elapsedTime < 1) {
                 elapsedTime = 1;
             }
@@ -271,13 +330,21 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             HDC hdc = BeginPaint(hWnd, &ps);
             RECT fpsLocation = {10, 10, 200, 25};
             std::wstringstream wss;
-            wss<<std::fixed<<std::setprecision(2)<<((1000.0*framecount)/elapsedTime);
+            wss<<std::fixed<<std::setprecision(2)<<((1000.0*state.framecount)/elapsedTime);
             std::wstring fps = wss.str();
             DrawTextW(hdc, (L"Refresh Rate: "+fps).c_str(), -1, &fpsLocation, DT_LEFT);
             RECT keydownLocation = {10, 35, 200, 50};
-            DrawTextW(hdc, (L"Last KeyDown: "+lastKeyDown).c_str(), -1, &keydownLocation, DT_LEFT);
+            DrawTextW(hdc, (L"Last KeyDown: "+state.lastKeyDown).c_str(), -1, &keydownLocation, DT_LEFT);
             RECT keyupLocation = {10, 60, 200, 75};
-            DrawTextW(hdc, (L"Last KeyUp: "+lastKeyUp).c_str(), -1, &keyupLocation, DT_LEFT);
+            DrawTextW(hdc, (L"Last KeyUp: "+state.lastKeyUp).c_str(), -1, &keyupLocation, DT_LEFT);
+            RECT mouseCapturedLocation = {10, 85, 200, 100};
+            std::wstring mouseCap = (state.mouseCaptured) ? L"True" : L"False";
+            DrawTextW(hdc, (L"Mouse Captured? "+mouseCap).c_str(), -1, &mouseCapturedLocation, DT_LEFT);
+            RECT mousePosLocation = {10, 110, 300, 125};
+            std::wstringstream wss2;
+            wss2<<"Mouse Position: ("<<state.mousePos.x<<", "<<state.mousePos.y<<")";
+            std::wstring mPos = wss2.str();
+            DrawTextW(hdc, mPos.c_str(), -1, &mousePosLocation, DT_LEFT);
             //TODO: Draw stuff here
             EndPaint(hWnd, &ps);
             if(elapsedTime > 1000) {
@@ -286,18 +353,41 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         }
         break;
     case WM_KEYDOWN: 
-        lastKeyDown = std::to_wstring(wParam);
-        InvalidateRect(hWnd, NULL, FALSE);
+        state.lastKeyDown = std::to_wstring(wParam);
+        InvalidateRect(hWnd, NULL, TRUE);
+        if(wParam == VK_ESCAPE) {
+            DisableMouseCapture();
+        }
         break;
     case WM_KEYUP: 
-        lastKeyUp = std::to_wstring(wParam);
-        InvalidateRect(hWnd, NULL, FALSE);
+        state.lastKeyUp = std::to_wstring(wParam);
+        InvalidateRect(hWnd, NULL, TRUE);
+        break;
+    case WM_MOUSEMOVE:
+        if (state.mouseCaptured) {
+            POINT current;
+            GetCursorPos(&current);
+
+            int dx = current.x - centerPoint.x;
+            int dy = current.y - centerPoint.y;
+
+            state.mousePos.x += dx;
+            state.mousePos.y += dy;
+
+            if (dx != 0 || dy != 0) {
+                CenterCursor(hWnd); // Reset to center for next frame
+            }
+        }
+        break;
+    case WM_LBUTTONDOWN: 
+        EnableMouseCapture(hWnd);
         break;
     case WM_DESTROY:
+        DisableMouseCapture();
         PostQuitMessage(0);
         break;
     case WM_TIMER: 
-        InvalidateRect(hWnd, NULL, FALSE);
+        InvalidateRect(hWnd, NULL, TRUE);
         break;
     default:
         return DefWindowProc(hWnd, message, wParam, lParam);
