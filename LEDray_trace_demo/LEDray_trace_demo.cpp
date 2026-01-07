@@ -5,11 +5,15 @@
 #include "LEDray_trace_demo.h"
 #include <chrono>
 #include <thread>
+#include <mutex>
 #include <string>
 #include <sstream>
 #include <iomanip>
 
 #define MAX_LOADSTRING 100
+
+#define RAYTRACE_WIDTH 1200
+#define RAYTRACE_HEIGHT 600
 
 // Global Variables:
 HINSTANCE hInst;                                // current instance
@@ -33,9 +37,14 @@ struct AppState {
     long long fpsTime = START_TIME;
     HMENU hMainMenu = nullptr;
     HMENU hFramerateMenu = nullptr;
+    std::mutex mut;
+    HDC hdesktop = nullptr;
+    HBITMAP output = nullptr;
+    HDC outputDC = nullptr;
 };
 
 AppState state;
+
 
 int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
                      _In_opt_ HINSTANCE hPrevInstance,
@@ -93,7 +102,7 @@ ATOM MyRegisterClass(HINSTANCE hInstance)
     wcex.hInstance      = hInstance;
     wcex.hIcon          = LoadIcon(hInstance, MAKEINTRESOURCE(IDI_LEDRAYTRACEDEMO));
     wcex.hCursor        = LoadCursor(nullptr, IDC_ARROW);
-    wcex.hbrBackground  = (HBRUSH)(COLOR_WINDOW+1);
+    wcex.hbrBackground  = NULL;
     wcex.lpszMenuName   = MAKEINTRESOURCEW(IDC_LEDRAYTRACEDEMO);
     wcex.lpszClassName  = szWindowClass;
     wcex.hIconSm        = LoadIcon(wcex.hInstance, MAKEINTRESOURCE(IDI_SMALL));
@@ -125,7 +134,7 @@ void CenterCursor(HWND hWnd) {
 //
 void EnableMouseCapture(HWND hwnd) {
     SetCapture(hwnd);         // Capture mouse input
-    ShowCursor(FALSE);        // Hide cursor
+    SetCursor(NULL);        // Hide cursor
     CenterCursor(hwnd);       // Center it
     state.mouseCaptured = true;
 }
@@ -137,7 +146,7 @@ void EnableMouseCapture(HWND hwnd) {
 //
 void DisableMouseCapture() {
     ReleaseCapture();
-    ShowCursor(TRUE);
+    SetCursor(LoadCursor(NULL, IDC_ARROW));
     state.mouseCaptured = false;
 }
 
@@ -155,7 +164,7 @@ void CreateMenuBar(HWND hWnd) {
     AppendMenuW(state.hFramerateMenu, MF_DEFAULT, IDM_FRAMERATE_LOW, L"&5");
     AppendMenuW(state.hFramerateMenu, MF_DEFAULT, IDM_FRAMERATE_MEDIUM, L"&15");
     AppendMenuW(state.hFramerateMenu, MF_DEFAULT, IDM_FRAMERATE_HIGH, L"&30");
-    AppendMenuW(state.hFramerateMenu, MF_DEFAULT, IDM_FRAMERATE_UNLIMITED, L"&Unlimited (VSync)");
+    AppendMenuW(state.hFramerateMenu, MF_DEFAULT, IDM_FRAMERATE_VHIGH, L"&60");
     AppendMenuW(state.hFramerateMenu, MF_DEFAULT, IDM_FRAMERATE_CUSTOM, L"&Custom ...");
     CheckMenuRadioItem(state.hFramerateMenu, IDM_FRAMERATE_RADIO_BEGIN, IDM_FRAMERATE_RADIO_END, IDM_FRAMERATE_LOW, MF_BYCOMMAND);
     AppendMenuW(state.hMainMenu, MF_POPUP, (UINT_PTR) state.hFramerateMenu, L"&Refresh Rate");
@@ -210,6 +219,12 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
    {
       return FALSE;
    }
+
+   state.hdesktop = GetDC(0);
+   state.output = CreateCompatibleBitmap(state.hdesktop, RAYTRACE_WIDTH, RAYTRACE_HEIGHT);
+   state.outputDC = CreateCompatibleDC(state.hdesktop);
+
+   SelectObject(state.outputDC, state.output);
 
    ShowWindow(hWnd, nCmdShow);
 
@@ -296,9 +311,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                 SetTimer(hWnd, 1, 33, NULL);
                 resetFramerateCounter();
                 break;
-            case IDM_FRAMERATE_UNLIMITED: 
-                UpdateFramerateRadio(IDM_FRAMERATE_UNLIMITED);
-                SetTimer(hWnd, 1, 0, NULL);
+            case IDM_FRAMERATE_VHIGH: 
+                UpdateFramerateRadio(IDM_FRAMERATE_VHIGH);
+                SetTimer(hWnd, 1, 16, NULL);
                 resetFramerateCounter();
                 break;
             case IDM_FRAMERATE_CUSTOM: {
@@ -326,26 +341,38 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             if(elapsedTime < 1) {
                 elapsedTime = 1;
             }
-            PAINTSTRUCT ps;
-            HDC hdc = BeginPaint(hWnd, &ps);
+            //Dont mind all the overlay
             RECT fpsLocation = {10, 10, 200, 25};
             std::wstringstream wss;
             wss<<std::fixed<<std::setprecision(2)<<((1000.0*state.framecount)/elapsedTime);
             std::wstring fps = wss.str();
-            DrawTextW(hdc, (L"Refresh Rate: "+fps).c_str(), -1, &fpsLocation, DT_LEFT);
+            DrawTextW(state.outputDC, (L"Refresh Rate: "+fps).c_str(), -1, &fpsLocation, DT_LEFT);
             RECT keydownLocation = {10, 35, 200, 50};
-            DrawTextW(hdc, (L"Last KeyDown: "+state.lastKeyDown).c_str(), -1, &keydownLocation, DT_LEFT);
+            DrawTextW(state.outputDC, (L"Last KeyDown: "+state.lastKeyDown).c_str(), -1, &keydownLocation, DT_LEFT);
             RECT keyupLocation = {10, 60, 200, 75};
-            DrawTextW(hdc, (L"Last KeyUp: "+state.lastKeyUp).c_str(), -1, &keyupLocation, DT_LEFT);
+            DrawTextW(state.outputDC, (L"Last KeyUp: "+state.lastKeyUp).c_str(), -1, &keyupLocation, DT_LEFT);
             RECT mouseCapturedLocation = {10, 85, 200, 100};
             std::wstring mouseCap = (state.mouseCaptured) ? L"True" : L"False";
-            DrawTextW(hdc, (L"Mouse Captured? "+mouseCap).c_str(), -1, &mouseCapturedLocation, DT_LEFT);
+            DrawTextW(state.outputDC, (L"Mouse Captured? "+mouseCap).c_str(), -1, &mouseCapturedLocation, DT_LEFT);
             RECT mousePosLocation = {10, 110, 300, 125};
             std::wstringstream wss2;
             wss2<<"Mouse Position: ("<<state.mousePos.x<<", "<<state.mousePos.y<<")";
             std::wstring mPos = wss2.str();
-            DrawTextW(hdc, mPos.c_str(), -1, &mousePosLocation, DT_LEFT);
-            //TODO: Draw stuff here
+            DrawTextW(state.outputDC, mPos.c_str(), -1, &mousePosLocation, DT_LEFT);
+
+            PAINTSTRUCT ps;
+            HDC hdc = BeginPaint(hWnd, &ps);
+
+            RECT rect;
+            GetClientRect(hWnd, &rect);
+            {
+                std::lock_guard<std::mutex> lock(state.mut);
+                StretchBlt(hdc, 0, 0, rect.right-rect.left, rect.bottom-rect.top, state.outputDC, 0, 0, RAYTRACE_WIDTH, RAYTRACE_HEIGHT, SRCCOPY);
+                //RECT backRect = {0, 0, RAYTRACE_WIDTH, RAYTRACE_HEIGHT};
+                //HBRUSH brush = (HBRUSH)GetStockObject(BLACK_BRUSH);
+                //FillRect(state.outputDC, &backRect, brush);
+
+            }
             EndPaint(hWnd, &ps);
             if(elapsedTime > 1000) {
                 resetFramerateCounter();
@@ -384,10 +411,17 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         break;
     case WM_DESTROY:
         DisableMouseCapture();
+        DeleteObject(state.output);
+        DeleteDC(state.outputDC);
+        ReleaseDC(NULL, state.hdesktop);
         PostQuitMessage(0);
         break;
     case WM_TIMER: 
         InvalidateRect(hWnd, NULL, TRUE);
+        break;
+    case WM_KILLFOCUS: 
+    case WM_CAPTURECHANGED: 
+        DisableMouseCapture();
         break;
     default:
         return DefWindowProc(hWnd, message, wParam, lParam);

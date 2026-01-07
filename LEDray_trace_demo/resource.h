@@ -14,7 +14,7 @@
 #define IDM_FRAMERATE_LOW               1001
 #define IDM_FRAMERATE_MEDIUM            1002
 #define IDM_FRAMERATE_HIGH              1003
-#define IDM_FRAMERATE_UNLIMITED         1004
+#define IDM_FRAMERATE_VHIGH             1004
 #define IDM_FRAMERATE_CUSTOM            1005
 #define IDC_FRAMERATE_NUMERIC_VALUE_CHANGE 1006
 #define IDD_CUSTOM_FRAMERATE            1007
