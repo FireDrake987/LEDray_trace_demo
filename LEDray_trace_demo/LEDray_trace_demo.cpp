@@ -51,10 +51,7 @@ AppState state;
 std::mutex jobMut;
 std::condition_variable cond;
 
-struct Job {
-    void (*work)();
-};
-struct RenderingJob : Job{
+struct RenderingJob {
     void (*work)(HDC* outputDC, RECT bounds, std::mutex outputMut);
 };
 
