@@ -9,6 +9,7 @@
 #include <string>
 #include <sstream>
 #include <iomanip>
+#include <vector>
 
 #define MAX_LOADSTRING 100
 
@@ -41,9 +42,56 @@ struct AppState {
     HDC hdesktop = nullptr;
     HBITMAP output = nullptr;
     HDC outputDC = nullptr;
+    int numThreads;
 };
 
 AppState state;
+
+//Work jobs
+std::mutex jobMut;
+std::condition_variable cond;
+
+struct Job {
+    void (*work)();
+};
+struct RenderingJob : Job{
+    void (*work)(HDC* outputDC, RECT bounds, std::mutex outputMut);
+};
+
+std::vector<RenderingJob> renderJobs = std::vector<RenderingJob>();
+
+struct RenderingThread {
+    std::thread *worker;
+    bool terminate = false;
+    RenderingThread(std::thread *t) {
+        worker = t;
+    }
+};
+
+std::vector<RenderingThread> renderThreads = std::vector<RenderingThread>();
+
+void work(int id) {
+    RenderingJob w;
+    while (!renderThreads.at(id).terminate) {
+        {
+            std::lock_guard<std::mutex> lock(jobMut);
+            if(renderJobs.size() > 0) {
+                w = renderJobs.at(0);
+
+            }
+        }
+    }
+}
+
+void createThreads() {
+    for (int i = 0; i < renderThreads.size(); i++) {
+        renderThreads.at(i).terminate = true;
+    }
+    renderThreads = std::vector<RenderingThread>();
+    for (int i = 0; i < state.numThreads; i++) {
+        renderThreads.push_back(RenderingThread(&std::thread(work, std::ref(i))));
+    }
+}
 
 
 int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
@@ -54,7 +102,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
     UNREFERENCED_PARAMETER(hPrevInstance);
     UNREFERENCED_PARAMETER(lpCmdLine);
 
-    // TODO: Place code here.
+    
 
     // Initialize global strings
     LoadStringW(hInstance, IDS_APP_TITLE, szTitle, MAX_LOADSTRING);
