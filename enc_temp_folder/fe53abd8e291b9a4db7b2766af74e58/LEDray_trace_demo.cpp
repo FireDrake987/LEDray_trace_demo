@@ -130,15 +130,6 @@ void createThreads() {
 }
 
 //
-//  FUNCTION: renderWork()
-//
-//  PURPOSE: The worker function for rendering calls of the game loop
-//
-void renderWork(HDC *hdc, RECT bounds) {
-
-}
-
-//
 //  FUNCTION: loop()
 //
 //  PURPOSE: Runs game loop, automatically refreshes. Designed to be run on separate thread
@@ -150,14 +141,7 @@ void loop() {
         auto currentTime = std::chrono::steady_clock::now();
         auto deltaTime = currentTime - lastTime;
         lastTime = currentTime;
-        //TODO: remove test rendering and put in ray tracing
-        {
-            //RECT backRect = {0, 0, RAYTRACE_WIDTH, RAYTRACE_HEIGHT};
-            //HBRUSH brush = (HBRUSH)GetStockObject(BLACK_BRUSH);
-            //FillRect(state.outputDC, &backRect, brush);
-            RenderingJob job(renderWork, state.outputDC, RECT{ 0, 0, RAYTRACE_WIDTH, RAYTRACE_HEIGHT })
-            renderJobs.push_back(job);
-        }
+        //TODO: make stuff happen here
         auto timeTaken = std::chrono::steady_clock::now() - currentTime;
         if (timeTaken < frameLength) {
             std::this_thread::sleep_for(frameLength - timeTaken);
@@ -165,11 +149,6 @@ void loop() {
     }
 }
 
-//
-//  FUNCTION: wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance _In_ LPWSTR lpCmdLine, _In_ int nCmdShow)
-//
-//  PURPOSE: Entry point for project
-//
 int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
                      _In_opt_ HINSTANCE hPrevInstance,
                      _In_ LPWSTR    lpCmdLine,
@@ -344,8 +323,6 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
       return FALSE;
    }
 
-   createThreads();
-
    state.hdesktop = GetDC(0);
    state.output = CreateCompatibleBitmap(state.hdesktop, RAYTRACE_WIDTH, RAYTRACE_HEIGHT);
    state.outputDC = CreateCompatibleDC(state.hdesktop);
@@ -504,6 +481,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             {
                 std::lock_guard<std::mutex> lock(state.mut);
                 StretchBlt(hdc, 0, 0, rect.right-rect.left, rect.bottom-rect.top, state.outputDC, 0, 0, RAYTRACE_WIDTH, RAYTRACE_HEIGHT, SRCCOPY);
+                //RECT backRect = {0, 0, RAYTRACE_WIDTH, RAYTRACE_HEIGHT};
+                //HBRUSH brush = (HBRUSH)GetStockObject(BLACK_BRUSH);
+                //FillRect(state.outputDC, &backRect, brush);
 
             }
             EndPaint(hWnd, &ps);
