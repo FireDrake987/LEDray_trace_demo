@@ -155,8 +155,8 @@ void loop() {
             //RECT backRect = {0, 0, RAYTRACE_WIDTH, RAYTRACE_HEIGHT};
             //HBRUSH brush = (HBRUSH)GetStockObject(BLACK_BRUSH);
             //FillRect(state.outputDC, &backRect, brush);
-            RenderingJob job(renderWork, state.outputDC, RECT{ 0, 0, RAYTRACE_WIDTH, RAYTRACE_HEIGHT })
-            renderJobs.push_back(job);
+            //RenderingJob job(renderWork, state.outputDC, RECT{ 0, 0, RAYTRACE_WIDTH, RAYTRACE_HEIGHT })
+            //renderJobs.push_back(job);
         }
         auto timeTaken = std::chrono::steady_clock::now() - currentTime;
         if (timeTaken < frameLength) {
