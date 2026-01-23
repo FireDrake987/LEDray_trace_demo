@@ -10,6 +10,8 @@
 #include <sstream>
 #include <iomanip>
 #include <vector>
+#include <functional>
+#include <random>
 
 #define MAX_LOADSTRING 100
 
@@ -58,47 +60,45 @@ std::condition_variable cv;
 struct RenderingJob {
     HDC *hdc;
     RECT bounds;
-    void (*work)(HDC *outputDC, RECT bounds);
-    RenderingJob(void (*work)(HDC *outputDC, RECT bounds), HDC* outputDC, RECT bounds) {
+    std::function<void(HDC*, RECT)> work;
+    //void (*work)(HDC *outputDC, RECT bounds);
+    RenderingJob(std::function<void(HDC*, RECT)> work /*void (*work)(HDC* outputDC, RECT bounds)*/, HDC* outputDC, RECT bounds) {
         this->work = work;
         this->hdc = outputDC;
         this->bounds = bounds;
     }
+    RenderingJob() {}
 };
 
 std::vector<RenderingJob> renderJobs = std::vector<RenderingJob>();
 
 struct RenderingThread {
-    std::thread *worker;
+    std::thread worker;
     bool terminate = false;
-    RenderingThread(std::thread *t) {
-        worker = t;
-    }
 };
 
 std::vector<RenderingThread> renderThreads = std::vector<RenderingThread>();
 int runningThreads = 0;
 
 void work(int id) {
-    RenderingJob *w{};
+    RenderingJob w{};
     while (!renderThreads.at(id).terminate) {
-        int runThreads = 0;
         {
             std::unique_lock<std::mutex> lock(jobMut);
             if (!renderJobs.empty()) {
-                w = &renderJobs.at(renderJobs.size() - 1);
+                w = renderJobs.back();
                 renderJobs.pop_back();
                 runningThreads++;
-                runThreads = 1;
+            }
+            else {
+                cv.wait(lock);
+                continue;
             }
         }
-        if (runThreads) {
-            w->work(w->hdc, w->bounds);
-        }
+        w.work(w.hdc, w.bounds);
         {
             std::unique_lock<std::mutex> lock(jobMut);
-            runningThreads -= runThreads;
-            cv.wait(lock);
+            runningThreads --;
         }
     }
 }
@@ -110,8 +110,15 @@ void work(int id) {
 //
 void clearThreads() {
     for (int i = 0; i < renderThreads.size(); i++) {
-        renderThreads.at(i).terminate = true;
-        renderThreads.at(i).worker->join();
+        RenderingThread &rt = renderThreads.at(i);
+        rt.terminate = true;
+    }
+    cv.notify_all();
+    for (int i = 0; i < renderThreads.size(); i++) {
+        RenderingThread& rt = renderThreads.at(i);
+        if (rt.worker.joinable()) {
+            rt.worker.join();
+        }
     }
 }
 
@@ -122,10 +129,11 @@ void clearThreads() {
 //
 void createThreads() {
     clearThreads();
-    renderThreads = std::vector<RenderingThread>();
+    renderThreads.clear();
+    renderThreads.reserve(state.numThreads);
     for (int i = 0; i < state.numThreads; i++) {
-        std::thread t = std::thread(work, std::ref(i));
-        renderThreads.push_back(RenderingThread(&t));
+        renderThreads.emplace_back();
+        renderThreads.back().worker = std::thread(work, i);
     }
 }
 
@@ -135,7 +143,23 @@ void createThreads() {
 //  PURPOSE: The worker function for rendering calls of the game loop
 //
 void renderWork(HDC *hdc, RECT bounds) {
-
+    //TODO: Add raytracing hookup here
+    HDC buffer = CreateCompatibleDC(0);
+    unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
+    std::mt19937 gen(seed);
+    std::uniform_int_distribution<> distrib(0, 16777215);
+    int random_num = distrib(gen);
+    int r = random_num % 256;
+    int g = (random_num / 256) % 256;
+    int b = (random_num / 256 / 256) % 256;
+    for (int x = bounds.left; x <= bounds.right; x++) {
+        for (int y = bounds.top; y <= bounds.bottom; y++) {
+            SetPixel(buffer, x, y, RGB(r, g, b));
+        }
+    }
+    {
+        
+    }
 }
 
 //
@@ -152,11 +176,10 @@ void loop() {
         lastTime = currentTime;
         //TODO: remove test rendering and put in ray tracing
         {
-            //RECT backRect = {0, 0, RAYTRACE_WIDTH, RAYTRACE_HEIGHT};
-            //HBRUSH brush = (HBRUSH)GetStockObject(BLACK_BRUSH);
-            //FillRect(state.outputDC, &backRect, brush);
-            //RenderingJob job(renderWork, state.outputDC, RECT{ 0, 0, RAYTRACE_WIDTH, RAYTRACE_HEIGHT })
-            //renderJobs.push_back(job);
+            std::function<void(HDC*, RECT)> render = renderWork;
+            RenderingJob job(render, &state.outputDC, RECT{ 0, 0, RAYTRACE_WIDTH, RAYTRACE_HEIGHT });
+            renderJobs.push_back(job);
+            cv.notify_one();
         }
         auto timeTaken = std::chrono::steady_clock::now() - currentTime;
         if (timeTaken < frameLength) {
