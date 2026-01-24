@@ -531,35 +531,39 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                 elapsedTime = 1;
             }
             //Dont mind all the overlay
-            RECT fpsLocation = {10, 10, 200, 25};
-            std::wstringstream wss;
-            wss<<std::fixed<<std::setprecision(2)<<((1000.0*state.framecount)/elapsedTime);
-            std::wstring fps = wss.str();
-            DrawTextW(state.outputDC, (L"Refresh Rate: "+fps).c_str(), -1, &fpsLocation, DT_LEFT);
-            RECT keydownLocation = {10, 35, 200, 50};
-            DrawTextW(state.outputDC, (L"Last KeyDown: "+state.lastKeyDown).c_str(), -1, &keydownLocation, DT_LEFT);
-            RECT keyupLocation = {10, 60, 200, 75};
-            DrawTextW(state.outputDC, (L"Last KeyUp: "+state.lastKeyUp).c_str(), -1, &keyupLocation, DT_LEFT);
-            RECT mouseCapturedLocation = {10, 85, 200, 100};
-            std::wstring mouseCap = (state.mouseCaptured) ? L"True" : L"False";
-            DrawTextW(state.outputDC, (L"Mouse Captured? "+mouseCap).c_str(), -1, &mouseCapturedLocation, DT_LEFT);
-            RECT mousePosLocation = {10, 110, 300, 125};
-            std::wstringstream wss2;
-            wss2<<"Mouse Position: ("<<state.mousePos.x<<", "<<state.mousePos.y<<")";
-            std::wstring mPos = wss2.str();
-            DrawTextW(state.outputDC, mPos.c_str(), -1, &mousePosLocation, DT_LEFT);
-
-            PAINTSTRUCT ps;
-            HDC hdc = BeginPaint(hWnd, &ps);
-
-            RECT rect;
-            GetClientRect(hWnd, &rect);
             {
-                std::lock_guard<std::mutex> lock(state.mut);
+                std::unique_lock<std::mutex> lock(state.mut);
+                RECT fpsLocation = {10, 10, 200, 25};
+                std::wstringstream wss;
+                wss<<std::fixed<<std::setprecision(2)<<((1000.0*state.framecount)/elapsedTime);
+                std::wstring fps = wss.str();
+                DrawTextW(state.outputDC, (L"Refresh Rate: "+fps).c_str(), -1, &fpsLocation, DT_LEFT);
+                RECT keydownLocation = {10, 35, 200, 50};
+                DrawTextW(state.outputDC, (L"Last KeyDown: "+state.lastKeyDown).c_str(), -1, &keydownLocation, DT_LEFT);
+                RECT keyupLocation = {10, 60, 200, 75};
+                DrawTextW(state.outputDC, (L"Last KeyUp: "+state.lastKeyUp).c_str(), -1, &keyupLocation, DT_LEFT);
+                RECT mouseCapturedLocation = {10, 85, 200, 100};
+                std::wstring mouseCap = (state.mouseCaptured) ? L"True" : L"False";
+                DrawTextW(state.outputDC, (L"Mouse Captured? "+mouseCap).c_str(), -1, &mouseCapturedLocation, DT_LEFT);
+                RECT mousePosLocation = {10, 110, 300, 125};
+                std::wstringstream wss2;
+                wss2<<"Mouse Position: ("<<state.mousePos.x<<", "<<state.mousePos.y<<")";
+                std::wstring mPos = wss2.str();
+                DrawTextW(state.outputDC, mPos.c_str(), -1, &mousePosLocation, DT_LEFT);
+                RECT numJobsLocation = {10, 135, 200, 150};
+                std::wstring jobsString = L"# Jobs: " + std::to_wstring(renderJobs.size());
+                DrawTextW(state.outputDC, jobsString.c_str(), -1, &numJobsLocation, DT_LEFT);
+
+                PAINTSTRUCT ps;
+                HDC hdc = BeginPaint(hWnd, &ps);
+
+                RECT rect;
+                GetClientRect(hWnd, &rect);
+
                 StretchBlt(hdc, 0, 0, rect.right-rect.left, rect.bottom-rect.top, state.outputDC, 0, 0, RAYTRACE_WIDTH, RAYTRACE_HEIGHT, SRCCOPY);
 
+                EndPaint(hWnd, &ps);
             }
-            EndPaint(hWnd, &ps);
             if(elapsedTime > 1000) {
                 resetFramerateCounter();
             }
