@@ -60,14 +60,16 @@ std::condition_variable cv;
 struct RenderingJob {
     HDC *hdc;
     RECT bounds;
-    std::function<void(HDC*, RECT)> work;
-    //void (*work)(HDC *outputDC, RECT bounds);
-    RenderingJob(std::function<void(HDC*, RECT)> work /*void (*work)(HDC* outputDC, RECT bounds)*/, HDC* outputDC, RECT bounds) {
+    std::function<void(HDC*, RECT, HDC)> work;
+    RenderingJob(std::function<void(HDC*, RECT, HDC)> work, HDC* outputDC, RECT bounds) {
         this->work = work;
         this->hdc = outputDC;
         this->bounds = bounds;
     }
-    RenderingJob() {}
+    RenderingJob() {
+        bounds = RECT{0, 0, 0, 0};
+        hdc = nullptr;
+    }
 };
 
 std::vector<RenderingJob> renderJobs = std::vector<RenderingJob>();
@@ -75,6 +77,7 @@ std::vector<RenderingJob> renderJobs = std::vector<RenderingJob>();
 struct RenderingThread {
     std::thread worker;
     bool terminate = false;
+    HDC buffer = CreateCompatibleDC(0);
 };
 
 std::vector<RenderingThread> renderThreads = std::vector<RenderingThread>();
@@ -95,7 +98,7 @@ void work(int id) {
                 continue;
             }
         }
-        w.work(w.hdc, w.bounds);
+        w.work(w.hdc, w.bounds, renderThreads.at(id).buffer);
         {
             std::unique_lock<std::mutex> lock(jobMut);
             runningThreads --;
@@ -142,9 +145,21 @@ void createThreads() {
 //
 //  PURPOSE: The worker function for rendering calls of the game loop
 //
-void renderWork(HDC *hdc, RECT bounds) {
-    //TODO: Add raytracing hookup here
-    HDC buffer = CreateCompatibleDC(0);
+void renderWork(HDC *hdc, RECT bounds, HDC buffer) {
+
+    BITMAPINFO bmi{};
+    bmi.bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
+    bmi.bmiHeader.biWidth = bounds.right - bounds.left;
+    bmi.bmiHeader.biHeight = -(bounds.bottom - bounds.top);
+    bmi.bmiHeader.biPlanes = 1;
+    bmi.bmiHeader.biBitCount = 24;
+    bmi.bmiHeader.biCompression = BI_RGB;
+    void* pixels;
+    HBITMAP bufferBitmap = CreateDIBSection(buffer, &bmi, DIB_RGB_COLORS, &pixels, nullptr, 0);
+    if(!bufferBitmap) return;
+    SelectObject(buffer, bufferBitmap);
+
+    //TODO: replace this block with a hookup to the raytracer
     unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
     std::mt19937 gen(seed);
     std::uniform_int_distribution<> distrib(0, 16777215);
@@ -152,14 +167,24 @@ void renderWork(HDC *hdc, RECT bounds) {
     int r = random_num % 256;
     int g = (random_num / 256) % 256;
     int b = (random_num / 256 / 256) % 256;
-    for (int x = bounds.left; x <= bounds.right; x++) {
-        for (int y = bounds.top; y <= bounds.bottom; y++) {
-            SetPixel(buffer, x, y, RGB(r, g, b));
+    uint8_t* row = static_cast<uint8_t*>(pixels);
+    int width = bounds.right - bounds.left;
+    int height = bounds.bottom - bounds.top;
+    int stride = ((width * 3 + 3) & ~3);
+    for (int y = 0; y < height; y ++) {
+        uint8_t* px = row + y * stride;
+        for (int x = 0; x < width; x ++) {
+            px[x*3 + 0] = b; // blue
+            px[x*3 + 1] = g; // green
+            px[x*3 + 2] = r; // red
         }
     }
+
     {
-        
+        std::unique_lock<std::mutex> lock(state.mut);
+        BitBlt(*hdc, bounds.left, bounds.top, bounds.right - bounds.left, bounds.bottom - bounds.top, buffer, 0, 0, SRCCOPY);
     }
+    DeleteObject(bufferBitmap);
 }
 
 //
@@ -176,10 +201,15 @@ void loop() {
         lastTime = currentTime;
         //TODO: remove test rendering and put in ray tracing
         {
-            std::function<void(HDC*, RECT)> render = renderWork;
-            RenderingJob job(render, &state.outputDC, RECT{ 0, 0, RAYTRACE_WIDTH, RAYTRACE_HEIGHT });
-            renderJobs.push_back(job);
-            cv.notify_one();
+            std::unique_lock<std::mutex> lock(jobMut);
+            for(int i = 0, x = 0; i < 4; x += (int)(RAYTRACE_WIDTH / 4), i ++) {
+                for(int j = 0, y = 0; j < 4; y += (int)(RAYTRACE_HEIGHT / 4), j ++) {
+                    std::function<void(HDC*, RECT, HDC)> render = renderWork;
+                    RenderingJob job(render, &state.outputDC, RECT{ x, y, x + RAYTRACE_WIDTH/4, y + RAYTRACE_HEIGHT/4});
+                    renderJobs.push_back(job);
+                    cv.notify_one();
+                }
+            }
         }
         auto timeTaken = std::chrono::steady_clock::now() - currentTime;
         if (timeTaken < frameLength) {
@@ -238,7 +268,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 //
 ATOM MyRegisterClass(HINSTANCE hInstance)
 {
-    WNDCLASSEXW wcex;
+    WNDCLASSEXW wcex{};
 
     wcex.cbSize = sizeof(WNDCLASSEX);
 
@@ -265,7 +295,7 @@ ATOM MyRegisterClass(HINSTANCE hInstance)
 void CenterCursor(HWND hWnd) {
     RECT rect;
     GetClientRect(hWnd, &rect);
-    POINT pt;
+    POINT pt{};
     pt.x = (rect.right - rect.left) / 2;
     pt.y = (rect.bottom - rect.top) / 2;
     ClientToScreen(hWnd, &pt);

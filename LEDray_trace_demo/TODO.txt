@@ -1,3 +1,2 @@
 TODO: 
-1) Include <functional> and use std::function to fix the code
-2) Make the hookup to allow ray tracing
+1) Implement the ray tracing hookup and finish the ray tracing phase
