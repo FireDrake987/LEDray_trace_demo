@@ -128,13 +128,9 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="framework.h" />
-    <ClInclude Include="LEDmath.h" />
     <ClInclude Include="LEDray_trace_demo.h" />
-    <ClInclude Include="Point3D.h" />
-    <ClInclude Include="Quaternion.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="targetver.h" />
-    <ClInclude Include="Vector.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="LEDray_trace_demo.cpp" />
@@ -145,9 +141,6 @@
   <ItemGroup>
     <Image Include="LEDray_trace_demo.ico" />
     <Image Include="small.ico" />
-  </ItemGroup>
-  <ItemGroup>
-    <Library Include="LEDmath.lib" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="TODO.txt" />

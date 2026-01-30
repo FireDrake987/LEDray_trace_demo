@@ -27,18 +27,6 @@
     <ClInclude Include="LEDray_trace_demo.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="LEDmath.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Point3D.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Quaternion.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Vector.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="LEDray_trace_demo.cpp">
@@ -57,11 +45,6 @@
     <Image Include="LEDray_trace_demo.ico">
       <Filter>Resource Files</Filter>
     </Image>
-  </ItemGroup>
-  <ItemGroup>
-    <Library Include="LEDmath.lib">
-      <Filter>Resource Files</Filter>
-    </Library>
   </ItemGroup>
   <ItemGroup>
     <Text Include="TODO.txt" />
