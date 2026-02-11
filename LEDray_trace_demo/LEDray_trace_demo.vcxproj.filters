@@ -27,6 +27,42 @@
     <ClInclude Include="LEDray_trace_demo.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Camera.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="intersectionInfoStruct.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="LEDmath.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="LEDray_trace.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Material.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Plane.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Point3D.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Quaternion.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Ray.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Triangle.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Vector.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="BGRPixel.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="LEDray_trace_demo.cpp">
@@ -48,5 +84,13 @@
   </ItemGroup>
   <ItemGroup>
     <Text Include="TODO.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Library Include="LEDray_traceDebug.lib">
+      <Filter>Resource Files</Filter>
+    </Library>
+    <Library Include="LEDray_trace.lib">
+      <Filter>Resource Files</Filter>
+    </Library>
   </ItemGroup>
 </Project>

@@ -12,6 +12,13 @@
 #include <vector>
 #include <functional>
 #include <random>
+#include "Point3D.h"
+#include "Vector.h"
+#include "Quaternion.h"
+#include "Material.h"
+#include "Plane.h"
+#include "Triangle.h"
+#include "Camera.h"
 
 #define MAX_LOADSTRING 100
 
@@ -49,6 +56,7 @@ struct AppState {
     int numThreads = 1;
     bool stopping = false;
     std::thread gameLoop = std::thread(loop);
+    Camera cam = Camera(0, 0, 0, RAYTRACE_WIDTH, RAYTRACE_HEIGHT, Quaternion());
 };
 
 AppState state;
@@ -160,7 +168,7 @@ void renderWork(HDC *hdc, RECT bounds, HDC buffer) {
     SelectObject(buffer, bufferBitmap);
 
     //TODO: replace this block with a hookup to the raytracer
-    unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
+    /*unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
     std::mt19937 gen(seed);
     std::uniform_int_distribution<> distrib(0, 16777215);
     int random_num = distrib(gen);
@@ -178,7 +186,14 @@ void renderWork(HDC *hdc, RECT bounds, HDC buffer) {
             px[x*3 + 1] = g; // green
             px[x*3 + 2] = r; // red
         }
+    }*/
+
+    std::vector<std::vector<BGRPixel>> data = state.cam.render(bounds.left, bounds.top, bounds.right, bounds.bottom);
+    std::vector<BGRPixel> dataAsOne = std::vector<BGRPixel>();
+    for (std::vector<BGRPixel> arr : data) {
+        dataAsOne.insert(dataAsOne.end(), arr.begin(), arr.end());
     }
+    pixels = dataAsOne.data();
 
     {
         std::unique_lock<std::mutex> lock(state.mut);
@@ -199,7 +214,6 @@ void loop() {
         auto currentTime = std::chrono::steady_clock::now();
         auto deltaTime = currentTime - lastTime;
         lastTime = currentTime;
-        //TODO: remove test rendering and put in ray tracing
         {
             std::unique_lock<std::mutex> lock(jobMut);
             for(int i = 0, x = 0; i < 4; x += (int)(RAYTRACE_WIDTH / 4), i ++) {
@@ -216,6 +230,17 @@ void loop() {
             std::this_thread::sleep_for(frameLength - timeTaken);
         }
     }
+}
+
+//
+//  FUNCTION: setupScene()
+//
+//  PURPOSE: Defines the scene to be raytraced
+//
+void setupScene() {
+    state.cam.scene = std::vector<Plane>();
+    state.cam.scene.push_back(Triangle(Material(BGRPixel{ 255, 0, 0 }), Point3D(1, 1, 1), Point3D(1, 0, 1), Point3D(0, 0, 1)));
+    state.cam.scene.push_back(Triangle(Material(BGRPixel{ 0, 255, 0 }), Point3D(1, 1, -1), Point3D(1, 0, -1), Point3D(0, 0, -1)));
 }
 
 //
@@ -412,6 +437,8 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
    SetTimer(hWnd, 1, 200, NULL);
 
    state.frameDelay = 200;
+
+   setupScene();
 
    return TRUE;
 }
