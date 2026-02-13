@@ -167,14 +167,7 @@ void renderWork(HDC *hdc, RECT bounds, HDC buffer) {
     if(!bufferBitmap) return;
     SelectObject(buffer, bufferBitmap);
 
-    //TODO: replace this block with a hookup to the raytracer
-    /*unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
-    std::mt19937 gen(seed);
-    std::uniform_int_distribution<> distrib(0, 16777215);
-    int random_num = distrib(gen);
-    int r = random_num % 256;
-    int g = (random_num / 256) % 256;
-    int b = (random_num / 256 / 256) % 256;
+    std::vector<std::vector<BGRPixel>> data = state.cam.render(bounds.left, bounds.top, bounds.right, bounds.bottom);
     uint8_t* row = static_cast<uint8_t*>(pixels);
     int width = bounds.right - bounds.left;
     int height = bounds.bottom - bounds.top;
@@ -182,18 +175,19 @@ void renderWork(HDC *hdc, RECT bounds, HDC buffer) {
     for (int y = 0; y < height; y ++) {
         uint8_t* px = row + y * stride;
         for (int x = 0; x < width; x ++) {
-            px[x*3 + 0] = b; // blue
-            px[x*3 + 1] = g; // green
-            px[x*3 + 2] = r; // red
+            BGRPixel* ref = &data.at(y).at(x);
+            px[x*3 + 0] = ref->b; // blue
+            px[x*3 + 1] = ref->g; // green
+            px[x*3 + 2] = ref->r; // red
         }
-    }*/
+    }
 
-    std::vector<std::vector<BGRPixel>> data = state.cam.render(bounds.left, bounds.top, bounds.right, bounds.bottom);
+    /*std::vector<std::vector<BGRPixel>> data = state.cam.render(bounds.left, bounds.top, bounds.right, bounds.bottom);
     std::vector<BGRPixel> dataAsOne = std::vector<BGRPixel>();
     for (std::vector<BGRPixel> arr : data) {
         dataAsOne.insert(dataAsOne.end(), arr.begin(), arr.end());
     }
-    pixels = dataAsOne.data();
+    pixels = dataAsOne.data();*/
 
     {
         std::unique_lock<std::mutex> lock(state.mut);
@@ -627,6 +621,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         EnableMouseCapture(hWnd);
         break;
     case WM_DESTROY:
+        clearThreads();
         DisableMouseCapture();
         DeleteObject(state.output);
         DeleteDC(state.outputDC);
