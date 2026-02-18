@@ -127,7 +127,7 @@ void clearThreads() {
     cv.notify_all();
     for(int i = 0; i < renderThreads.size(); i++) {
         RenderingThread& rt = renderThreads.at(i);
-        if(rt.worker.joinable()) {
+        while(rt.worker.joinable()) {
             rt.worker.join();
         }
     }
@@ -214,7 +214,9 @@ void loop() {
                 for(int j = 0, y = 0; j < 4; y += (int)(RAYTRACE_HEIGHT / 4), j ++) {
                     std::function<void(HDC*, RECT, HDC)> render = renderWork;
                     RenderingJob job(render, &state.outputDC, RECT{ x, y, x + RAYTRACE_WIDTH/4, y + RAYTRACE_HEIGHT/4});
-                    renderJobs.push_back(job);
+                    if (renderJobs.size() < 100) {//Nobody has that many cores
+                        renderJobs.push_back(job);
+                    }
                     cv.notify_one();
                 }
             }
@@ -233,8 +235,8 @@ void loop() {
 //
 void setupScene() {
     state.cam.scene = std::vector<Plane>();
-    state.cam.scene.push_back(Triangle(Material(BGRPixel{ 255, 0, 0 }), Point3D(1, 1, 1), Point3D(1, 0, 1), Point3D(0, 0, 1)));
-    state.cam.scene.push_back(Triangle(Material(BGRPixel{ 0, 255, 0 }), Point3D(1, 1, -1), Point3D(1, 0, -1), Point3D(0, 0, -1)));
+    state.cam.scene.push_back(Triangle(Material(BGRPixel{ 254, 0, 0 }), Point3D(1, 1, 1), Point3D(1, 0, 1), Point3D(0, 0, 1)));
+    state.cam.scene.push_back(Triangle(Material(BGRPixel{ 0, 254, 0 }), Point3D(1, 1, -1), Point3D(1, 0, -1), Point3D(0, 0, -1)));
 }
 
 //
