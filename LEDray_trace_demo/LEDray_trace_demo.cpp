@@ -120,14 +120,14 @@ void work(int id) {
 //  PURPOSE: Clear out the threads for deinitialization
 //
 void clearThreads() {
-    for (int i = 0; i < renderThreads.size(); i++) {
-        RenderingThread &rt = renderThreads.at(i);
+    for(int i = 0; i < renderThreads.size(); i++) {
+        RenderingThread& rt = renderThreads.at(i);
         rt.terminate = true;
     }
     cv.notify_all();
-    for (int i = 0; i < renderThreads.size(); i++) {
+    for(int i = 0; i < renderThreads.size(); i++) {
         RenderingThread& rt = renderThreads.at(i);
-        if (rt.worker.joinable()) {
+        if(rt.worker.joinable()) {
             rt.worker.join();
         }
     }
