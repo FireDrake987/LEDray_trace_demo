@@ -16,6 +16,6 @@ public:
 	Material(BGRPixel col);
 	Material();
 
-	BGRPixel getColAtPoint(Point3D relPoint, Point3D absPoint) const { return col; };
-	BGRPixel getColAtPoint(Point3D relPoint) const { return col; }
+	virtual BGRPixel getColAtPoint(Point3D relPoint, Point3D absPoint) const { return col; };
+	virtual BGRPixel getColAtPoint(Point3D relPoint) const { return col; }
 };

@@ -17,7 +17,7 @@ class Camera {
 	bool ready;
 
 public:
-	std::vector<Plane> scene;
+	std::vector<Plane*> scene;
 
 	enum CameraType {
 		FLAT, CURVED

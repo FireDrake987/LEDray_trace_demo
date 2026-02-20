@@ -14,7 +14,7 @@ public:
 	Plane(Material mat, double a, double b, double c, double d);
 	Plane();
 
-	intersectionInfoStruct getIntersection(Ray ray);
+	virtual intersectionInfoStruct getIntersection(Ray ray);
 
 	inline double getA() const { return A; }
 	inline double getB() const { return B; }

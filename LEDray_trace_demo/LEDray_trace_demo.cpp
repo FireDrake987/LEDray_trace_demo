@@ -56,7 +56,7 @@ struct AppState {
     int numThreads = 1;
     bool stopping = false;
     std::thread gameLoop = std::thread(loop);
-    Camera cam = Camera(0, 0, 0, RAYTRACE_WIDTH, RAYTRACE_HEIGHT, Quaternion());
+    Camera cam = Camera(0.5, 0.5, -5, RAYTRACE_WIDTH, RAYTRACE_HEIGHT, Quaternion());
 };
 
 AppState state;
@@ -127,7 +127,7 @@ void clearThreads() {
     cv.notify_all();
     for(int i = 0; i < renderThreads.size(); i++) {
         RenderingThread& rt = renderThreads.at(i);
-        while(rt.worker.joinable()) {
+        if(rt.worker.joinable()) {
             rt.worker.join();
         }
     }
@@ -204,7 +204,7 @@ void renderWork(HDC *hdc, RECT bounds, HDC buffer) {
 void loop() {
     auto lastTime = std::chrono::steady_clock::now();
     const std::chrono::nanoseconds frameLength(state.frameDelay * 1000000);
-    while (!state.stopping) {
+    while(!state.stopping) {
         auto currentTime = std::chrono::steady_clock::now();
         auto deltaTime = currentTime - lastTime;
         lastTime = currentTime;
@@ -233,10 +233,12 @@ void loop() {
 //
 //  PURPOSE: Defines the scene to be raytraced
 //
+Triangle tri1 = Triangle(Material(BGRPixel{ 254, 0, 0 }), Point3D(1, 1, 1), Point3D(1, 0, 1), Point3D(0, 0, 1));
+Triangle tri2 = Triangle(Material(BGRPixel{ 0, 254, 0 }), Point3D(1, 1, -1), Point3D(1, 0, -1), Point3D(0, 0, -1)); 
 void setupScene() {
-    state.cam.scene = std::vector<Plane>();
-    state.cam.scene.push_back(Triangle(Material(BGRPixel{ 254, 0, 0 }), Point3D(1, 1, 1), Point3D(1, 0, 1), Point3D(0, 0, 1)));
-    state.cam.scene.push_back(Triangle(Material(BGRPixel{ 0, 254, 0 }), Point3D(1, 1, -1), Point3D(1, 0, -1), Point3D(0, 0, -1)));
+    state.cam.scene = std::vector<Plane*>();
+    state.cam.scene.push_back(&tri1);
+    state.cam.scene.push_back(&tri2);
 }
 
 //
