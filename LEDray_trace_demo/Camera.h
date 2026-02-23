@@ -49,4 +49,9 @@ public:
 	std::vector<std::vector<BGRPixel>> render(int x1, int y1, int x2, int y2);//Automatically calls build() when ready!=true
 
 	Vector angleToVector(double yaw, double pitch);
+
+	void setFOV(double x, double y) {
+		this->FOVx = x;
+		this->FOVy = y;
+	}
 };

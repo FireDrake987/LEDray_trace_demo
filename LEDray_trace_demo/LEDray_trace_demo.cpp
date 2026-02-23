@@ -22,8 +22,8 @@
 
 #define MAX_LOADSTRING 100
 
-#define RAYTRACE_WIDTH 1200
-#define RAYTRACE_HEIGHT 600
+#define RAYTRACE_WIDTH 400
+#define RAYTRACE_HEIGHT 200
 
 // Global Variables:
 HINSTANCE hInst;                                // current instance
@@ -202,6 +202,8 @@ void renderWork(HDC *hdc, RECT bounds, HDC buffer) {
 //  PURPOSE: Runs game loop, automatically refreshes. Designed to be run on separate thread
 //
 void loop() {
+    state.cam.setFOV(2 * 3.1415, 2 * 3.1415);
+    state.cam.invalidate();
     auto lastTime = std::chrono::steady_clock::now();
     const std::chrono::nanoseconds frameLength(state.frameDelay * 1000000);
     while(!state.stopping) {
@@ -210,14 +212,14 @@ void loop() {
         lastTime = currentTime;
         {
             std::unique_lock<std::mutex> lock(jobMut);
-            for(int i = 0, x = 0; i < 4; x += (int)(RAYTRACE_WIDTH / 4), i ++) {
-                for(int j = 0, y = 0; j < 4; y += (int)(RAYTRACE_HEIGHT / 4), j ++) {
-                    std::function<void(HDC*, RECT, HDC)> render = renderWork;
-                    RenderingJob job(render, &state.outputDC, RECT{ x, y, x + RAYTRACE_WIDTH/4, y + RAYTRACE_HEIGHT/4});
-                    if (renderJobs.size() < 100) {//Nobody has that many cores
+            if(renderJobs.size() == 0) {//Only actually render when the previous frame is done
+                for(int i = 0, x = 0; i < 2; x += (int)(RAYTRACE_WIDTH / 2), i++) {
+                    for(int j = 0, y = 0; j < 2; y += (int)(RAYTRACE_HEIGHT / 2), j++) {
+                        std::function<void(HDC*, RECT, HDC)> render = renderWork;
+                        RenderingJob job(render, &state.outputDC, RECT{ x, y, x + RAYTRACE_WIDTH / 2, y + RAYTRACE_HEIGHT / 2 });
                         renderJobs.push_back(job);
+                        cv.notify_all();
                     }
-                    cv.notify_one();
                 }
             }
         }
@@ -233,12 +235,60 @@ void loop() {
 //
 //  PURPOSE: Defines the scene to be raytraced
 //
-Triangle tri1 = Triangle(Material(BGRPixel{ 254, 0, 0 }), Point3D(1, 1, 1), Point3D(1, 0, 1), Point3D(0, 0, 1));
-Triangle tri2 = Triangle(Material(BGRPixel{ 0, 254, 0 }), Point3D(1, 1, -1), Point3D(1, 0, -1), Point3D(0, 0, -1)); 
+//Triangle tri1 = Triangle(Material(BGRPixel{ 254, 0, 0 }), Point3D(1, 1, 1), Point3D(1, 0, 1), Point3D(0, 0, 1));
+//Triangle tri2 = Triangle(Material(BGRPixel{ 0, 254, 0 }), Point3D(1, 1, -1), Point3D(1, 0, -1), Point3D(0, 0, -1)); 
+//DEBUG TRIANGLES:: TODO:FIX THIS
+Triangle tri1 = Triangle(
+    Material(BGRPixel{ 254, 0, 0 }),
+    Point3D(0, 0, -4),
+    Point3D(1, 0, -4),
+    Point3D(0, 1, -4)
+);
+
+Triangle tri2 = Triangle(
+    Material(BGRPixel{ 0, 254, 0 }),
+    Point3D(0, 0, -6),
+    Point3D(0, 1, -6),
+    Point3D(1, 0, -6)
+);
+
+Triangle tri3 = Triangle(
+    Material(BGRPixel{ 0, 0, 254 }),
+    Point3D(0, 0, -6),
+    Point3D(0, 0, -4),
+    Point3D(0, 1, -6)
+);
+
+Triangle tri4 = Triangle(
+    Material(BGRPixel{ 254, 254, 0 }),
+    Point3D(1, 0, -6),
+    Point3D(1, 1, -6),
+    Point3D(1, 0, -4)
+);
+
+Triangle tri5 = Triangle(
+    Material(BGRPixel{ 0, 254, 254 }),
+    Point3D(0, 0, -6),
+    Point3D(1, 0, -6),
+    Point3D(0, 0, -4)
+);
+
+Triangle tri6 = Triangle(
+    Material(BGRPixel{ 254, 0, 254 }),
+    Point3D(0, 1, -6),
+    Point3D(0, 1, -4),
+    Point3D(1, 1, -6)
+);
+
+
 void setupScene() {
-    state.cam.scene = std::vector<Plane*>();
+    state.cam.scene.clear();
     state.cam.scene.push_back(&tri1);
     state.cam.scene.push_back(&tri2);
+    state.cam.scene.push_back(&tri3);
+    state.cam.scene.push_back(&tri4);
+    state.cam.scene.push_back(&tri5);
+    state.cam.scene.push_back(&tri6);
 }
 
 //
