@@ -54,22 +54,22 @@ public:
 		this->z = this->getZ() - other.z;
 		return Vector(this->x, this->y, this->z);
 	}
-	inline Vector operator*(const int& scalar) const {
+	inline Vector operator*(const double& scalar) const {
 		return Vector(asPoint() * scalar);
 	}
-	inline Vector operator*=(const int& other) {
+	inline Vector operator*=(const double& other) {
 		this->x = this->getX() * other;
 		this->y = this->getY() * other;
 		this->z = this->getZ() * other;
 		return Vector(this->x, this->y, this->z);
 	}
-	inline friend Vector operator*(const int& scalar, const Vector& vector) {
+	inline friend Vector operator*(const double& scalar, const Vector& vector) {
 		return Vector(vector.asPoint() * scalar);
 	}
-	inline Vector operator/(const int& scalar) const {
+	inline Vector operator/(const double& scalar) const {
 		return Vector(asPoint() / scalar);
 	}
-	inline Vector operator/=(const int& scalar) {
+	inline Vector operator/=(const double& scalar) {
 		this->x = this->getX() / scalar;
 		this->y = this->getY() / scalar;
 		this->z = this->getZ() / scalar;

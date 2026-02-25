@@ -27,25 +27,25 @@ public:
 		this->z = this->getZ() - other.getZ();
 		return Point3D(this->x, this->y, this->z);
 	}
-	inline Point3D operator*(const int& other) const {
+	inline Point3D operator*(const double& other) const {
 		return Point3D(this->getX() * other, this->getY() * other, this->getZ() * other);
 	}
-	inline Point3D operator*=(const int& other) {
+	inline Point3D operator*=(const double& other) {
 		this->x = this->getX() * other;
 		this->y = this->getY() * other;
 		this->z = this->getZ() * other;
 		return Point3D(this->x, this->y, this->z);
 	}
-	inline friend Point3D operator*(const int& scalar, const Point3D& point) {
+	inline friend Point3D operator*(const double& scalar, const Point3D& point) {
 		return Point3D(point.getX() * scalar, point.getY() * scalar, point.getZ() * scalar);
 	}
-	inline friend Point3D operator*=(const int& other, Point3D& point) {
+	inline friend Point3D operator*=(const double& other, Point3D& point) {
 		point.x = point.getX() * other;
 		point.y = point.getY() * other;
 		point.z = point.getZ() * other;
 		return Point3D(point.x, point.y, point.z);
 	}
-	inline Point3D operator/(const int& other) const {
+	inline Point3D operator/(const double& other) const {
 		return Point3D(this->getX() / other, this->getY() / other, this->getZ() / other);
 	}
 	inline friend std::ostream& operator<<(std::ostream& os, const Point3D& point) {

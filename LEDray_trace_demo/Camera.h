@@ -42,6 +42,9 @@ public:
 		camRot = camRot * rot;
 		invalidate();
 	}
+	void eulerRotate(double yaw, double pitch);
+	void eulerRotate(double yaw, double pitch, double roll);
+
 	void invalidate();//Sets ready=false, clears output and map
 	void build();//Rebuild Camera based on current data, sets ready=true
 	void buildMap();//Initializes map to proper mapping based on current configurations, called by regenerate

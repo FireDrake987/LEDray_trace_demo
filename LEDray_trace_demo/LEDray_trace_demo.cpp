@@ -56,7 +56,9 @@ struct AppState {
     int numThreads = 1;
     bool stopping = false;
     std::thread gameLoop = std::thread(loop);
-    Camera cam = Camera(0.5, 0.5, -5, RAYTRACE_WIDTH, RAYTRACE_HEIGHT, Quaternion());
+    Camera cam = Camera(0, 0, 0, RAYTRACE_WIDTH, RAYTRACE_HEIGHT, Quaternion());
+    std::mutex camMut;
+    bool debug = false;
 };
 
 AppState state;
@@ -166,8 +168,11 @@ void renderWork(HDC *hdc, RECT bounds, HDC buffer) {
     HBITMAP bufferBitmap = CreateDIBSection(buffer, &bmi, DIB_RGB_COLORS, &pixels, nullptr, 0);
     if(!bufferBitmap) return;
     SelectObject(buffer, bufferBitmap);
-
-    std::vector<std::vector<BGRPixel>> data = state.cam.render(bounds.left, bounds.top, bounds.right, bounds.bottom);
+    std::vector<std::vector<BGRPixel>> data;
+    {
+        std::unique_lock<std::mutex> lock(state.camMut);
+        data = state.cam.render(bounds.left, bounds.top, bounds.right, bounds.bottom);
+    }
     uint8_t* row = static_cast<uint8_t*>(pixels);
     int width = bounds.right - bounds.left;
     int height = bounds.bottom - bounds.top;
@@ -202,8 +207,6 @@ void renderWork(HDC *hdc, RECT bounds, HDC buffer) {
 //  PURPOSE: Runs game loop, automatically refreshes. Designed to be run on separate thread
 //
 void loop() {
-    state.cam.setFOV(2 * 3.1415, 2 * 3.1415);
-    state.cam.invalidate();
     auto lastTime = std::chrono::steady_clock::now();
     const std::chrono::nanoseconds frameLength(state.frameDelay * 1000000);
     while(!state.stopping) {
@@ -212,6 +215,16 @@ void loop() {
         lastTime = currentTime;
         {
             std::unique_lock<std::mutex> lock(jobMut);
+            if(state.mousePos.x != 0 || state.mousePos.y != 0) {
+                state.cam.eulerRotate(state.mousePos.x / 100.0, -state.mousePos.y / 100.0);
+                state.mousePos.x = 0;
+                state.mousePos.y = 0;
+                {
+                    std::unique_lock<std::mutex> lock(state.camMut);
+                    state.cam.invalidate();
+                    renderJobs.clear();
+                }
+            }
             if(renderJobs.size() == 0) {//Only actually render when the previous frame is done
                 for(int i = 0, x = 0; i < 2; x += (int)(RAYTRACE_WIDTH / 2), i++) {
                     for(int j = 0, y = 0; j < 2; y += (int)(RAYTRACE_HEIGHT / 2), j++) {
@@ -240,9 +253,9 @@ void loop() {
 //DEBUG TRIANGLES:: TODO:FIX THIS
 Triangle tri1 = Triangle(
     Material(BGRPixel{ 254, 0, 0 }),
-    Point3D(0, 0, -4),
-    Point3D(1, 0, -4),
-    Point3D(0, 1, -4)
+    Point3D(0.5, 0.5, 1),
+    Point3D(1.5, 0.5, 1),
+    Point3D(0.5, 1.5, 1)
 );
 
 Triangle tri2 = Triangle(
@@ -275,9 +288,9 @@ Triangle tri5 = Triangle(
 
 Triangle tri6 = Triangle(
     Material(BGRPixel{ 254, 0, 254 }),
-    Point3D(0, 1, -6),
-    Point3D(0, 1, -4),
-    Point3D(1, 1, -6)
+    Point3D(-0.5, 1.5, 1),
+    Point3D(0.5, -1.5, 1),
+    Point3D(1.5, 1.5, 1)
 );
 
 
@@ -605,29 +618,31 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             if(elapsedTime < 1) {
                 elapsedTime = 1;
             }
-            //Dont mind all the overlay
             {
                 std::unique_lock<std::mutex> lock(state.mut);
-                RECT fpsLocation = {10, 10, 200, 25};
-                std::wstringstream wss;
-                wss<<std::fixed<<std::setprecision(2)<<((1000.0*state.framecount)/elapsedTime);
-                std::wstring fps = wss.str();
-                DrawTextW(state.outputDC, (L"Refresh Rate: "+fps).c_str(), -1, &fpsLocation, DT_LEFT);
-                RECT keydownLocation = {10, 35, 200, 50};
-                DrawTextW(state.outputDC, (L"Last KeyDown: "+state.lastKeyDown).c_str(), -1, &keydownLocation, DT_LEFT);
-                RECT keyupLocation = {10, 60, 200, 75};
-                DrawTextW(state.outputDC, (L"Last KeyUp: "+state.lastKeyUp).c_str(), -1, &keyupLocation, DT_LEFT);
-                RECT mouseCapturedLocation = {10, 85, 200, 100};
-                std::wstring mouseCap = (state.mouseCaptured) ? L"True" : L"False";
-                DrawTextW(state.outputDC, (L"Mouse Captured? "+mouseCap).c_str(), -1, &mouseCapturedLocation, DT_LEFT);
-                RECT mousePosLocation = {10, 110, 300, 125};
-                std::wstringstream wss2;
-                wss2<<"Mouse Position: ("<<state.mousePos.x<<", "<<state.mousePos.y<<")";
-                std::wstring mPos = wss2.str();
-                DrawTextW(state.outputDC, mPos.c_str(), -1, &mousePosLocation, DT_LEFT);
-                RECT numJobsLocation = {10, 135, 200, 150};
-                std::wstring jobsString = L"# Jobs: " + std::to_wstring(renderJobs.size());
-                DrawTextW(state.outputDC, jobsString.c_str(), -1, &numJobsLocation, DT_LEFT);
+
+                if (state.debug) {
+                    RECT fpsLocation = { 10, 10, 200, 25 };
+                    std::wstringstream wss;
+                    wss << std::fixed << std::setprecision(2) << ((1000.0 * state.framecount) / elapsedTime);
+                    std::wstring fps = wss.str();
+                    DrawTextW(state.outputDC, (L"Refresh Rate: " + fps).c_str(), -1, &fpsLocation, DT_LEFT);
+                    RECT keydownLocation = { 10, 35, 200, 50 };
+                    DrawTextW(state.outputDC, (L"Last KeyDown: " + state.lastKeyDown).c_str(), -1, &keydownLocation, DT_LEFT);
+                    RECT keyupLocation = { 10, 60, 200, 75 };
+                    DrawTextW(state.outputDC, (L"Last KeyUp: " + state.lastKeyUp).c_str(), -1, &keyupLocation, DT_LEFT);
+                    RECT mouseCapturedLocation = { 10, 85, 200, 100 };
+                    std::wstring mouseCap = (state.mouseCaptured) ? L"True" : L"False";
+                    DrawTextW(state.outputDC, (L"Mouse Captured? " + mouseCap).c_str(), -1, &mouseCapturedLocation, DT_LEFT);
+                    RECT mousePosLocation = { 10, 110, 300, 125 };
+                    std::wstringstream wss2;
+                    wss2 << "Mouse Position: (" << state.mousePos.x << ", " << state.mousePos.y << ")";
+                    std::wstring mPos = wss2.str();
+                    DrawTextW(state.outputDC, mPos.c_str(), -1, &mousePosLocation, DT_LEFT);
+                    RECT numJobsLocation = { 10, 135, 200, 150 };
+                    std::wstring jobsString = L"# Jobs: " + std::to_wstring(renderJobs.size());
+                    DrawTextW(state.outputDC, jobsString.c_str(), -1, &numJobsLocation, DT_LEFT);
+                }
 
                 PAINTSTRUCT ps;
                 HDC hdc = BeginPaint(hWnd, &ps);
@@ -649,6 +664,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         InvalidateRect(hWnd, NULL, TRUE);
         if(wParam == VK_ESCAPE) {
             DisableMouseCapture();
+        }
+        if(wParam == 114) {//f3
+            state.debug = !state.debug;
         }
         break;
     case WM_KEYUP: 
