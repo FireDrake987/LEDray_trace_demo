@@ -187,13 +187,6 @@ void renderWork(HDC *hdc, RECT bounds, HDC buffer) {
         }
     }
 
-    /*std::vector<std::vector<BGRPixel>> data = state.cam.render(bounds.left, bounds.top, bounds.right, bounds.bottom);
-    std::vector<BGRPixel> dataAsOne = std::vector<BGRPixel>();
-    for (std::vector<BGRPixel> arr : data) {
-        dataAsOne.insert(dataAsOne.end(), arr.begin(), arr.end());
-    }
-    pixels = dataAsOne.data();*/
-
     {
         std::unique_lock<std::mutex> lock(state.mut);
         BitBlt(*hdc, bounds.left, bounds.top, bounds.right - bounds.left, bounds.bottom - bounds.top, buffer, 0, 0, SRCCOPY);
@@ -248,9 +241,7 @@ void loop() {
 //
 //  PURPOSE: Defines the scene to be raytraced
 //
-//Triangle tri1 = Triangle(Material(BGRPixel{ 254, 0, 0 }), Point3D(1, 1, 1), Point3D(1, 0, 1), Point3D(0, 0, 1));
-//Triangle tri2 = Triangle(Material(BGRPixel{ 0, 254, 0 }), Point3D(1, 1, -1), Point3D(1, 0, -1), Point3D(0, 0, -1)); 
-//DEBUG TRIANGLES:: TODO:FIX THIS
+//DEBUG TRIANGLES:: TODO:PUT BETTER SCENE
 Triangle tri1 = Triangle(
     Material(BGRPixel{ 254, 0, 0 }),
     Point3D(0.5, 0.5, 1),
@@ -667,6 +658,11 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         }
         if(wParam == 114) {//f3
             state.debug = !state.debug;
+        }
+        if (wParam == 113) {//f2
+            std::unique_lock<std::mutex> lock(state.camMut);
+            state.cam.setFOV(3, 3);
+            state.cam.invalidate();
         }
         break;
     case WM_KEYUP: 
