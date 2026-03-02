@@ -93,4 +93,12 @@
       <Filter>Resource Files</Filter>
     </Library>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="..\x64\Release\LEDray_trace_demo.exe">
+      <Filter>Source Files</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Object Include="scene.obj" />
+  </ItemGroup>
 </Project>

@@ -12,6 +12,8 @@
 #include <vector>
 #include <functional>
 #include <random>
+#include <fstream>
+#include <iostream>
 #include "Point3D.h"
 #include "Vector.h"
 #include "Quaternion.h"
@@ -236,63 +238,36 @@ void loop() {
     }
 }
 
+std::vector<Point3D> vertices;
+std::vector<std::unique_ptr<Plane>> planes;
 //
 //  FUNCTION: setupScene()
 //
 //  PURPOSE: Defines the scene to be raytraced
 //
-//DEBUG TRIANGLES:: TODO:PUT BETTER SCENE
-Triangle tri1 = Triangle(
-    Material(BGRPixel{ 254, 0, 0 }),
-    Point3D(0.5, 0.5, 1),
-    Point3D(1.5, 0.5, 1),
-    Point3D(0.5, 1.5, 1)
-);
-
-Triangle tri2 = Triangle(
-    Material(BGRPixel{ 0, 254, 0 }),
-    Point3D(0, 0, -6),
-    Point3D(0, 1, -6),
-    Point3D(1, 0, -6)
-);
-
-Triangle tri3 = Triangle(
-    Material(BGRPixel{ 0, 0, 254 }),
-    Point3D(0, 0, -6),
-    Point3D(0, 0, -4),
-    Point3D(0, 1, -6)
-);
-
-Triangle tri4 = Triangle(
-    Material(BGRPixel{ 254, 254, 0 }),
-    Point3D(1, 0, -6),
-    Point3D(1, 1, -6),
-    Point3D(1, 0, -4)
-);
-
-Triangle tri5 = Triangle(
-    Material(BGRPixel{ 0, 254, 254 }),
-    Point3D(0, 0, -6),
-    Point3D(1, 0, -6),
-    Point3D(0, 0, -4)
-);
-
-Triangle tri6 = Triangle(
-    Material(BGRPixel{ 254, 0, 254 }),
-    Point3D(-0.5, 1.5, 1),
-    Point3D(0.5, -1.5, 1),
-    Point3D(1.5, 1.5, 1)
-);
-
-
 void setupScene() {
-    state.cam.scene.clear();
-    state.cam.scene.push_back(&tri1);
-    state.cam.scene.push_back(&tri2);
-    state.cam.scene.push_back(&tri3);
-    state.cam.scene.push_back(&tri4);
-    state.cam.scene.push_back(&tri5);
-    state.cam.scene.push_back(&tri6);
+	std::ifstream file("scene.obj");
+	std::string line;
+	if (!file.is_open()) {
+        MessageBox(NULL, L"Failed to open scene.obj", L"Error", MB_OK | MB_ICONERROR);
+        return;
+    }
+    while (std::getline(file, line)) {
+        if (line.empty()) continue;
+		if (line.at(0) == 'v') {
+            std::istringstream iss(line.substr(2));
+            float x, y, z;
+            iss >> x >> y >> z;
+            vertices.emplace_back(Point3D(x, y, z));
+        }
+        else if(line.at(0) == 'f') {
+            std::istringstream iss(line.substr(2));
+            int v1, v2, v3;
+            iss >> v1 >> v2 >> v3;
+            Material mat = Material(BGRPixel{255, 255, 255});
+            planes.emplace_back(Triangle(mat, vertices.at(v1-1), vertices.at(v2-1), vertices.at(v3-1)));
+        }
+    }
 }
 
 //
@@ -656,12 +631,32 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         if(wParam == VK_ESCAPE) {
             DisableMouseCapture();
         }
+        if(wParam == 117) {//f6
+            {
+                std::unique_lock<std::mutex> lock(state.camMut);
+                state.cam.setRot(Quaternion());
+                state.cam.setFOV((3.1415) / 2, 5 * (3.1415) / 12);
+                state.cam.invalidate();
+            }
+		}
+		if(wParam == 116) {//f5
+            {
+				std::unique_lock<std::mutex> lock(state.camMut);
+                if (Camera::type == Camera::FLAT) {
+                    Camera::type = Camera::CURVED;
+                }
+                else {
+                    Camera::type = Camera::FLAT;
+                }
+                state.cam.invalidate();
+            }
+        }
         if(wParam == 114) {//f3
             state.debug = !state.debug;
         }
-        if (wParam == 113) {//f2
+        if(wParam == 113) {//f2
             std::unique_lock<std::mutex> lock(state.camMut);
-            state.cam.setFOV(3, 3);
+            state.cam.setFOV(10, 10);
             state.cam.invalidate();
         }
         break;
@@ -683,6 +678,13 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             if (dx != 0 || dy != 0) {
                 CenterCursor(hWnd); // Reset to center for next frame
             }
+        }
+        break;
+    case WM_MOUSEWHEEL:
+        {
+		    std::unique_lock<std::mutex> lock(state.camMut);
+			state.cam.eulerRotate(0, 0, GET_WHEEL_DELTA_WPARAM(wParam) / 1200.0);
+			state.cam.invalidate();
         }
         break;
     case WM_LBUTTONDOWN: 
