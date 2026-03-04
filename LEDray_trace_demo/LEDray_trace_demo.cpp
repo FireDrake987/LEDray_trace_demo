@@ -666,6 +666,30 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             state.cam.setFOV(10, 10);
             state.cam.invalidate();
         }
+		if (wParam == 87) {//w
+            std::unique_lock<std::mutex> lock(state.camMut);
+            state.cam.move(0, 0, 0.1);
+        }
+        if (wParam == 65) {//a
+            std::unique_lock<std::mutex> lock(state.camMut);
+            state.cam.move(-0.1, 0, 0);
+        }
+        if (wParam == 83) {//s
+            std::unique_lock<std::mutex> lock(state.camMut);
+            state.cam.move(0, 0, -0.1);
+        }
+        if (wParam == 68) {//d
+            std::unique_lock<std::mutex> lock(state.camMut);
+            state.cam.move(0.1, 0, 0);
+        }
+        if (wParam == 32) {//space
+            std::unique_lock<std::mutex> lock(state.camMut);
+            state.cam.move(0, -0.1, 0);
+        }
+        if (wParam == 16) {//shift
+            std::unique_lock<std::mutex> lock(state.camMut);
+            state.cam.move(0, 0.1, 0);
+        }
         break;
     case WM_KEYUP: 
         state.lastKeyUp = std::to_wstring(wParam);
