@@ -222,10 +222,10 @@ void loop() {
                 }
             }
             if(renderJobs.size() == 0) {//Only actually render when the previous frame is done
-                for(int i = 0, x = 0; i < 2; x += (int)(RAYTRACE_WIDTH / 2), i++) {
-                    for(int j = 0, y = 0; j < 2; y += (int)(RAYTRACE_HEIGHT / 2), j++) {
+                for(int i = 0, x = 0; i < 4; x += (int)(RAYTRACE_WIDTH / 4), i++) {
+                    for(int j = 0, y = 0; j < 4; y += (int)(RAYTRACE_HEIGHT / 4), j++) {
                         std::function<void(HDC*, RECT, HDC)> render = renderWork;
-                        RenderingJob job(render, &state.outputDC, RECT{ x, y, x + RAYTRACE_WIDTH / 2, y + RAYTRACE_HEIGHT / 2 });
+                        RenderingJob job(render, &state.outputDC, RECT{x, y, x + RAYTRACE_WIDTH / 4, y + RAYTRACE_HEIGHT / 4});
                         renderJobs.push_back(job);
                         cv.notify_all();
                     }

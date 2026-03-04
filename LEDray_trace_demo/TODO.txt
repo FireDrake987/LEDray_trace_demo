@@ -1,2 +1,4 @@
 TODO: 
-1) Implement the ray tracing hookup and finish the ray tracing phase
+1) Rename a few variables and add differing framerate and refreshrate counters
+2) Add more to the debug screen
+3) Add more raytracing components (reflections, refractions, etc.)
