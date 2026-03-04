@@ -58,7 +58,7 @@ struct AppState {
     int numThreads = 1;
     bool stopping = false;
     std::thread gameLoop = std::thread(loop);
-    Camera cam = Camera(0, 0, 0, RAYTRACE_WIDTH, RAYTRACE_HEIGHT, Quaternion());
+    Camera cam = Camera(-2, 1.5, -2, RAYTRACE_WIDTH, RAYTRACE_HEIGHT, Quaternion());
     std::mutex camMut;
     bool debug = false;
 };
@@ -264,9 +264,16 @@ void setupScene() {
             std::istringstream iss(line.substr(2));
             int v1, v2, v3;
             iss >> v1 >> v2 >> v3;
-            Material mat = Material(BGRPixel{255, 255, 255});
-            planes.emplace_back(Triangle(mat, vertices.at(v1-1), vertices.at(v2-1), vertices.at(v3-1)));
+            uint32_t col = rand() % (256 * 256 * 256);
+			uint8_t b = col % 256;
+            uint8_t g = (col / 256) % 256;
+            uint8_t r = ((col / 256) / 256) % 256;
+            Material mat = Material(BGRPixel{b, g, r});
+            planes.emplace_back(std::make_unique<Triangle>(mat, vertices.at(v1-1), vertices.at(v2-1), vertices.at(v3-1)));
         }
+    }
+	for (std::unique_ptr<Plane>& plane : planes) {
+        state.cam.scene.push_back(plane.get());
     }
 }
 
