@@ -21,6 +21,7 @@
 #include "Plane.h"
 #include "Triangle.h"
 #include "Camera.h"
+#include <shared_mutex>
 
 #define MAX_LOADSTRING 100
 
@@ -59,7 +60,7 @@ struct AppState {
     bool stopping = false;
     std::thread gameLoop = std::thread(loop);
     Camera cam = Camera(-2, 1.5, -2, RAYTRACE_WIDTH, RAYTRACE_HEIGHT, Quaternion());
-    std::mutex camMut;
+    std::shared_mutex camMut;
     bool debug = false;
 };
 
@@ -172,7 +173,7 @@ void renderWork(HDC *hdc, RECT bounds, HDC buffer) {
     SelectObject(buffer, bufferBitmap);
     std::vector<std::vector<BGRPixel>> data;
     {
-        std::unique_lock<std::mutex> lock(state.camMut);
+        std::shared_lock<std::shared_mutex> lock(state.camMut);
         data = state.cam.render(bounds.left, bounds.top, bounds.right, bounds.bottom);
     }
     uint8_t* row = static_cast<uint8_t*>(pixels);
@@ -215,7 +216,7 @@ void loop() {
                 state.mousePos.x = 0;
                 state.mousePos.y = 0;
                 {
-                    std::unique_lock<std::mutex> lock(state.camMut);
+                    std::unique_lock<std::shared_mutex> lock(state.camMut);
                     state.cam.invalidate();
                     renderJobs.clear();
                 }
@@ -640,7 +641,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         }
         if(wParam == 117) {//f6
             {
-                std::unique_lock<std::mutex> lock(state.camMut);
+                std::unique_lock<std::shared_mutex> lock(state.camMut);
                 state.cam.setRot(Quaternion());
                 state.cam.setFOV((3.1415) / 2, 5 * (3.1415) / 12);
                 state.cam.invalidate();
@@ -648,7 +649,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		}
 		if(wParam == 116) {//f5
             {
-				std::unique_lock<std::mutex> lock(state.camMut);
+				std::unique_lock<std::shared_mutex> lock(state.camMut);
                 if (Camera::type == Camera::FLAT) {
                     Camera::type = Camera::CURVED;
                 }
@@ -662,32 +663,32 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             state.debug = !state.debug;
         }
         if(wParam == 113) {//f2
-            std::unique_lock<std::mutex> lock(state.camMut);
+            std::unique_lock<std::shared_mutex> lock(state.camMut);
             state.cam.setFOV(10, 10);
             state.cam.invalidate();
         }
 		if (wParam == 87) {//w
-            std::unique_lock<std::mutex> lock(state.camMut);
+            std::unique_lock<std::shared_mutex> lock(state.camMut);
             state.cam.move(0, 0, 0.1);
         }
         if (wParam == 65) {//a
-            std::unique_lock<std::mutex> lock(state.camMut);
+            std::unique_lock<std::shared_mutex> lock(state.camMut);
             state.cam.move(-0.1, 0, 0);
         }
         if (wParam == 83) {//s
-            std::unique_lock<std::mutex> lock(state.camMut);
+            std::unique_lock<std::shared_mutex> lock(state.camMut);
             state.cam.move(0, 0, -0.1);
         }
         if (wParam == 68) {//d
-            std::unique_lock<std::mutex> lock(state.camMut);
+            std::unique_lock<std::shared_mutex> lock(state.camMut);
             state.cam.move(0.1, 0, 0);
         }
         if (wParam == 32) {//space
-            std::unique_lock<std::mutex> lock(state.camMut);
+            std::unique_lock<std::shared_mutex> lock(state.camMut);
             state.cam.move(0, -0.1, 0);
         }
         if (wParam == 16) {//shift
-            std::unique_lock<std::mutex> lock(state.camMut);
+            std::unique_lock<std::shared_mutex> lock(state.camMut);
             state.cam.move(0, 0.1, 0);
         }
         break;
@@ -713,7 +714,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         break;
     case WM_MOUSEWHEEL:
         {
-		    std::unique_lock<std::mutex> lock(state.camMut);
+		    std::unique_lock<std::shared_mutex> lock(state.camMut);
 			state.cam.eulerRotate(0, 0, GET_WHEEL_DELTA_WPARAM(wParam) / 1200.0);
 			state.cam.invalidate();
         }
