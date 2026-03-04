@@ -239,6 +239,23 @@ void loop() {
     }
 }
 
+void getFaceData(std::istringstream& iss, int& v, int& vt, int& vn) {
+    char slash;
+    iss >> v;
+    if (iss.peek() == '/') {
+        iss >> slash;
+        if (iss.peek() == '/') {
+            iss >> slash >> vn;
+        }
+        else {
+            iss >> vt;
+            if (iss.peek() == '/') {
+                iss >> slash >> vn;
+            }
+        }
+    }
+}
+
 std::vector<Point3D> vertices;
 std::vector<std::unique_ptr<Plane>> planes;
 //
@@ -255,16 +272,19 @@ void setupScene() {
     }
     while (std::getline(file, line)) {
         if (line.empty()) continue;
-		if (line.at(0) == 'v') {
-            std::istringstream iss(line.substr(2));
+        std::istringstream iss(line);
+        std::string command;
+		iss >> command;
+        if (command == "v") {
             float x, y, z;
             iss >> x >> y >> z;
             vertices.emplace_back(Point3D(x, y, z));
         }
-        else if(line.at(0) == 'f') {
-            std::istringstream iss(line.substr(2));
-            int v1, v2, v3;
-            iss >> v1 >> v2 >> v3;
+        else if(command == "f") {
+            int v1, v2, v3, vt1, vt2, vt3, vn1, vn2, vn3;
+            getFaceData(iss, v1, vt1, vn1);
+            getFaceData(iss, v2, vt2, vn2);
+            getFaceData(iss, v3, vt3, vn3);
             uint32_t col = rand() % (256 * 256 * 256);
 			uint8_t b = col % 256;
             uint8_t g = (col / 256) % 256;
