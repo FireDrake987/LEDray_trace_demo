@@ -1,21 +1,16 @@
 #pragma once
 #include "BGRPixel.h"
 #include "Point3D.h"
+#include <vector>
+
+class Plane;//Forward declaration
 
 class Material {
 	BGRPixel col;
-	double luminance;//TODO: add
-	double reflectance;//TODO: add
-	double specularity;//TODO: add (0(diffuse)-1(specular))
-	double absorbance;//TODO: add (0(no light absorbed)-1(all light absorbed))
-	double transmittance;//TODO: add
-	double refractiveIndex;//TODO: add
 
 public: 
-	Material(BGRPixel col, double luminance, double reflectance, double specularity, double absorbance, double trasmittance, double refractiveIndex);
 	Material(BGRPixel col);
 	Material();
 
-	virtual BGRPixel getColAtPoint(Point3D relPoint, Point3D absPoint) const { return col; };
-	virtual BGRPixel getColAtPoint(Point3D relPoint) const { return col; }
+	virtual BGRPixel getColAtPoint(Point3D intPoint, std::vector<Plane*> &scene) const { return col; }
 };

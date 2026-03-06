@@ -168,27 +168,15 @@ void renderWork(HDC *hdc, RECT bounds, HDC buffer) {
     bmi.bmiHeader.biBitCount = 24;
     bmi.bmiHeader.biCompression = BI_RGB;
     void* pixels;
-    HBITMAP bufferBitmap = CreateDIBSection(buffer, &bmi, DIB_RGB_COLORS, &pixels, nullptr, 0);
-    if(!bufferBitmap) return;
-    SelectObject(buffer, bufferBitmap);
-    std::vector<std::vector<BGRPixel>> data;
+    std::vector<BGRPixel> data;
     {
         std::shared_lock<std::shared_mutex> lock(state.camMut);
         data = state.cam.render(bounds.left, bounds.top, bounds.right, bounds.bottom);
+		pixels = data.data();
     }
-    uint8_t* row = static_cast<uint8_t*>(pixels);
-    int width = bounds.right - bounds.left;
-    int height = bounds.bottom - bounds.top;
-    int stride = ((width * 3 + 3) & ~3);
-    for (int y = 0; y < height; y ++) {
-        uint8_t* px = row + y * stride;
-        for (int x = 0; x < width; x ++) {
-            BGRPixel* ref = &data.at(y).at(x);
-            px[x*3 + 0] = ref->b; // blue
-            px[x*3 + 1] = ref->g; // green
-            px[x*3 + 2] = ref->r; // red
-        }
-    }
+    HBITMAP bufferBitmap = CreateDIBSection(buffer, &bmi, DIB_RGB_COLORS, &pixels, nullptr, 0);
+    if(!bufferBitmap) return;
+    SelectObject(buffer, bufferBitmap);
 
     {
         std::unique_lock<std::mutex> lock(state.mut);
@@ -492,6 +480,8 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
    SetTimer(hWnd, 1, 200, NULL);
 
    state.frameDelay = 200;
+
+   Camera::type = Camera::FLAT;
 
    setupScene();
 
