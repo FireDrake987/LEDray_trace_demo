@@ -56,11 +56,10 @@ struct AppState {
     HDC hdesktop = nullptr;
     HBITMAP output = nullptr;
     HDC outputDC = nullptr;
-    int numThreads = 1;
+    int numThreads = 4;
     bool stopping = false;
     std::thread gameLoop = std::thread(loop);
     Camera cam = Camera(-2, 1.5, -2, RAYTRACE_WIDTH, RAYTRACE_HEIGHT, Quaternion());
-    std::shared_mutex camMut;
     bool debug = false;
 	int tilesX = 4;
 	int tilesY = 4;
@@ -171,11 +170,9 @@ void renderWork(HDC *hdc, RECT bounds, HDC buffer) {
     bmi.bmiHeader.biCompression = BI_RGB;
     void* pixels;
     std::vector<BGRPixel> data;
-    {
-        std::shared_lock<std::shared_mutex> lock(state.camMut);
-        data = state.cam.render(bounds.left, bounds.top, bounds.right, bounds.bottom);
-		pixels = data.data();
-    }
+
+    data = state.cam.render(bounds.left, bounds.top, bounds.right, bounds.bottom);
+    pixels = data.data();
 
     {
         std::unique_lock<std::mutex> lock(state.mut);
@@ -201,11 +198,6 @@ void loop() {
                 state.cam.eulerRotate(state.mousePos.x / 100.0, -state.mousePos.y / 100.0);
                 state.mousePos.x = 0;
                 state.mousePos.y = 0;
-                {
-                    std::unique_lock<std::shared_mutex> lock(state.camMut);
-                    state.cam.invalidate();
-                    renderJobs.clear();
-                }
             }
             if(renderJobs.size() == 0) {//Only actually render when the previous frame is done
                 for(int i = 0, x = 0; i < state.tilesX; x += (int)(RAYTRACE_WIDTH / state.tilesX), i++) {
@@ -650,55 +642,39 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             DisableMouseCapture();
         }
         if(wParam == 117) {//f6
-            {
-                std::unique_lock<std::shared_mutex> lock(state.camMut);
-                state.cam.setRot(Quaternion());
-                state.cam.setFOV((3.1415) / 2, 5 * (3.1415) / 12);
-                state.cam.invalidate();
-            }
+            state.cam.setRot(Quaternion());
+            state.cam.setFOV((3.1415) / 2, 5 * (3.1415) / 12);
 		}
 		if(wParam == 116) {//f5
-            {
-				std::unique_lock<std::shared_mutex> lock(state.camMut);
-                if (Camera::type == Camera::FLAT) {
-                    Camera::type = Camera::CURVED;
-                }
-                else {
-                    Camera::type = Camera::FLAT;
-                }
-                state.cam.invalidate();
+            if(Camera::type == Camera::FLAT) {
+                Camera::type = Camera::CURVED;
+            }
+            else {
+                Camera::type = Camera::FLAT;
             }
         }
         if(wParam == 114) {//f3
             state.debug = !state.debug;
         }
         if(wParam == 113) {//f2
-            std::unique_lock<std::shared_mutex> lock(state.camMut);
             state.cam.setFOV(10, 10);
-            state.cam.invalidate();
         }
 		if (wParam == 87) {//w
-            std::unique_lock<std::shared_mutex> lock(state.camMut);
             state.cam.move(0, 0, 0.1);
         }
         if (wParam == 65) {//a
-            std::unique_lock<std::shared_mutex> lock(state.camMut);
             state.cam.move(-0.1, 0, 0);
         }
         if (wParam == 83) {//s
-            std::unique_lock<std::shared_mutex> lock(state.camMut);
             state.cam.move(0, 0, -0.1);
         }
         if (wParam == 68) {//d
-            std::unique_lock<std::shared_mutex> lock(state.camMut);
             state.cam.move(0.1, 0, 0);
         }
         if (wParam == 32) {//space
-            std::unique_lock<std::shared_mutex> lock(state.camMut);
             state.cam.move(0, -0.1, 0);
         }
         if (wParam == 16) {//shift
-            std::unique_lock<std::shared_mutex> lock(state.camMut);
             state.cam.move(0, 0.1, 0);
         }
         break;
@@ -723,11 +699,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         }
         break;
     case WM_MOUSEWHEEL:
-        {
-		    std::unique_lock<std::shared_mutex> lock(state.camMut);
-			state.cam.eulerRotate(0, 0, GET_WHEEL_DELTA_WPARAM(wParam) / 1200.0);
-			state.cam.invalidate();
-        }
+	    state.cam.eulerRotate(0, 0, GET_WHEEL_DELTA_WPARAM(wParam) / 1200.0);
         break;
     case WM_LBUTTONDOWN: 
         EnableMouseCapture(hWnd);

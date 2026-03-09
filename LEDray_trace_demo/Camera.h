@@ -4,6 +4,8 @@
 #include "Plane.h"
 #include "Material.h"
 #include <vector>
+#include <mutex>
+#include <shared_mutex>
 
 class Camera {
 	inline static double RENDER = DBL_MAX;
@@ -14,6 +16,7 @@ class Camera {
 	Quaternion camRot;
 	std::vector<std::vector<Vector>> map;
 	bool ready;
+	std::shared_mutex invalidateMut;
 
 public:
 	std::vector<Plane*> scene;
@@ -27,17 +30,21 @@ public:
 	Camera();
 
 	inline void rawMove(double dx, double dy, double dz) {
+		std::unique_lock<std::shared_mutex> lock(invalidateMut);
 		x += dx;
 		y += dy;
 		z += dz;
+		invalidate();
 	}
 	void move(Vector dir);
 	void move(double right, double down, double forwards);
 	inline void setRot(Quaternion newRot) {
+		std::unique_lock<std::shared_mutex> lock(invalidateMut);
 		camRot = newRot;
 		invalidate();
 	}
 	inline void rotate(Quaternion rot) {
+		std::unique_lock<std::shared_mutex> lock(invalidateMut);
 		camRot = camRot * rot;
 		invalidate();
 	}
@@ -53,7 +60,9 @@ public:
 	Vector angleToVector(double yaw, double pitch);
 
 	void setFOV(double x, double y) {
+		std::unique_lock<std::shared_mutex> lock(invalidateMut);
 		this->FOVx = x;
 		this->FOVy = y;
+		invalidate();
 	}
 };
