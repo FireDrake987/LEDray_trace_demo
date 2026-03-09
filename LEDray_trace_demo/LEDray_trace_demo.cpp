@@ -62,6 +62,8 @@ struct AppState {
     Camera cam = Camera(-2, 1.5, -2, RAYTRACE_WIDTH, RAYTRACE_HEIGHT, Quaternion());
     std::shared_mutex camMut;
     bool debug = false;
+	int tilesX = 4;
+	int tilesY = 4;
 };
 
 AppState state;
@@ -94,7 +96,7 @@ struct RenderingThread {
 };
 
 std::vector<RenderingThread> renderThreads = std::vector<RenderingThread>();
-int runningThreads = 0;
+std::atomic<int> runningThreads = 0;
 
 void work(int id) {
     RenderingJob w{};
@@ -174,15 +176,11 @@ void renderWork(HDC *hdc, RECT bounds, HDC buffer) {
         data = state.cam.render(bounds.left, bounds.top, bounds.right, bounds.bottom);
 		pixels = data.data();
     }
-    HBITMAP bufferBitmap = CreateDIBSection(buffer, &bmi, DIB_RGB_COLORS, &pixels, nullptr, 0);
-    if(!bufferBitmap) return;
-    SelectObject(buffer, bufferBitmap);
 
     {
         std::unique_lock<std::mutex> lock(state.mut);
-        BitBlt(*hdc, bounds.left, bounds.top, bounds.right - bounds.left, bounds.bottom - bounds.top, buffer, 0, 0, SRCCOPY);
+		SetDIBitsToDevice(*hdc, bounds.left, bounds.top, bounds.right - bounds.left, bounds.bottom - bounds.top, 0, 0, 0, bounds.bottom - bounds.top, data.data(), &bmi, DIB_RGB_COLORS);
     }
-    DeleteObject(bufferBitmap);
 }
 
 //
@@ -210,10 +208,10 @@ void loop() {
                 }
             }
             if(renderJobs.size() == 0) {//Only actually render when the previous frame is done
-                for(int i = 0, x = 0; i < 4; x += (int)(RAYTRACE_WIDTH / 4), i++) {
-                    for(int j = 0, y = 0; j < 4; y += (int)(RAYTRACE_HEIGHT / 4), j++) {
+                for(int i = 0, x = 0; i < state.tilesX; x += (int)(RAYTRACE_WIDTH / state.tilesX), i++) {
+                    for(int j = 0, y = 0; j < state.tilesY; y += (int)(RAYTRACE_HEIGHT / state.tilesY), j++) {
                         std::function<void(HDC*, RECT, HDC)> render = renderWork;
-                        RenderingJob job(render, &state.outputDC, RECT{x, y, x + RAYTRACE_WIDTH / 4, y + RAYTRACE_HEIGHT / 4});
+                        RenderingJob job(render, &state.outputDC, RECT{x, y, x + RAYTRACE_WIDTH / state.tilesX, y + RAYTRACE_HEIGHT / state.tilesY});
                         renderJobs.push_back(job);
                         cv.notify_all();
                     }
@@ -482,6 +480,8 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
    state.frameDelay = 200;
 
    Camera::type = Camera::FLAT;
+
+   renderJobs.reserve(state.tilesX * state.tilesY);
 
    setupScene();
 
