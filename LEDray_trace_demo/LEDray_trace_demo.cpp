@@ -2,6 +2,7 @@
 //
 
 #include "framework.h"
+#include <commdlg.h>
 #include "LEDray_trace_demo.h"
 #include <chrono>
 #include <thread>
@@ -52,6 +53,8 @@ struct AppState {
     long frameDelay = 1000 * (1 / 5.0);// In ms
     HMENU hMainMenu = nullptr;
     HMENU hFramerateMenu = nullptr;
+	HMENU hRenderModeMenu = nullptr;
+	HMENU hFOVMenu = nullptr;
     std::mutex mut;
     HDC hdesktop = nullptr;
     HBITMAP output = nullptr;
@@ -61,8 +64,8 @@ struct AppState {
     std::thread gameLoop = std::thread(loop);
     Camera cam = Camera(-2, 1.5, -2, RAYTRACE_WIDTH, RAYTRACE_HEIGHT, Quaternion());
     bool debug = false;
-	int tilesX = 4;
-	int tilesY = 4;
+	int tilesX = 2;
+	int tilesY = 2;
 };
 
 AppState state;
@@ -236,6 +239,7 @@ void getFaceData(std::istringstream& iss, int& v, int& vt, int& vn) {
 
 std::vector<Point3D> vertices;
 std::vector<std::unique_ptr<Plane>> planes;
+void createSceneFromFile(std::ifstream file);//Forward declaration
 //
 //  FUNCTION: setupScene()
 //
@@ -243,8 +247,12 @@ std::vector<std::unique_ptr<Plane>> planes;
 //
 void setupScene() {
 	std::ifstream file("scene.obj");
-	std::string line;
-	if (!file.is_open()) {
+	createSceneFromFile(std::move(file));
+}
+
+void createSceneFromFile(std::ifstream file) {
+    std::string line;
+    if (!file.is_open()) {
         MessageBox(NULL, L"Failed to open scene.obj", L"Error", MB_OK | MB_ICONERROR);
         return;
     }
@@ -252,26 +260,26 @@ void setupScene() {
         if (line.empty()) continue;
         std::istringstream iss(line);
         std::string command;
-		iss >> command;
+        iss >> command;
         if (command == "v") {
             float x, y, z;
             iss >> x >> y >> z;
             vertices.emplace_back(Point3D(x, y, z));
         }
-        else if(command == "f") {
+        else if (command == "f") {
             int v1, v2, v3, vt1, vt2, vt3, vn1, vn2, vn3;
             getFaceData(iss, v1, vt1, vn1);
             getFaceData(iss, v2, vt2, vn2);
             getFaceData(iss, v3, vt3, vn3);
             uint32_t col = rand() % (256 * 256 * 256);
-			uint8_t b = col % 256;
+            uint8_t b = col % 256;
             uint8_t g = (col / 256) % 256;
             uint8_t r = ((col / 256) / 256) % 256;
-            Material mat = Material(BGRPixel{b, g, r});
-            planes.emplace_back(std::make_unique<Triangle>(mat, vertices.at(v1-1), vertices.at(v2-1), vertices.at(v3-1)));
+            Material mat = Material(BGRPixel{ b, g, r });
+            planes.emplace_back(std::make_unique<Triangle>(mat, vertices.at(v1 - 1), vertices.at(v2 - 1), vertices.at(v3 - 1)));
         }
     }
-	for (std::unique_ptr<Plane>& plane : planes) {
+    for (std::unique_ptr<Plane>& plane : planes) {
         state.cam.scene.push_back(plane.get());
     }
 }
@@ -404,6 +412,22 @@ void CreateMenuBar(HWND hWnd) {
     CheckMenuRadioItem(state.hFramerateMenu, IDM_FRAMERATE_RADIO_BEGIN, IDM_FRAMERATE_RADIO_END, IDM_FRAMERATE_LOW, MF_BYCOMMAND);
     AppendMenuW(state.hMainMenu, MF_POPUP, (UINT_PTR) state.hFramerateMenu, L"&Refresh Rate");
 
+	state.hRenderModeMenu = CreateMenu();
+    AppendMenuW(state.hRenderModeMenu, MF_DEFAULT, IDM_RENDERMODE_FLAT, L"&Flat");
+    AppendMenuW(state.hRenderModeMenu, MF_DEFAULT, IDM_RENDERMODE_CURVED, L"&Curved");
+    CheckMenuRadioItem(state.hRenderModeMenu, IDM_RENDERMODE_RADIO_BEGIN, IDM_RENDERMODE_RADIO_END, IDM_RENDERMODE_FLAT, MF_BYCOMMAND);
+	AppendMenuW(state.hMainMenu, MF_POPUP, (UINT_PTR)state.hRenderModeMenu, L"&Render Mode");
+
+	state.hFOVMenu = CreateMenu();
+	AppendMenuW(state.hFOVMenu, MF_DEFAULT, IDM_FOV_LOW, L"&Narrow");
+	AppendMenuW(state.hFOVMenu, MF_DEFAULT, IDM_FOV_MEDIUM, L"&Medium");
+	AppendMenuW(state.hFOVMenu, MF_DEFAULT, IDM_FOV_HIGH, L"&Wide");
+	AppendMenuW(state.hFOVMenu, MF_DEFAULT, IDM_FOV_CUSTOM, L"&Custom ...");
+	CheckMenuRadioItem(state.hFOVMenu, IDM_FOV_RADIO_BEGIN, IDM_FOV_RADIO_END, IDM_FOV_MEDIUM, MF_BYCOMMAND);
+	AppendMenuW(state.hMainMenu, MF_POPUP, (UINT_PTR)state.hFOVMenu, L"&Field of View");
+
+    AppendMenuW(state.hMainMenu, MF_DEFAULT, IDM_IMPORT_SCENE, L"&Import scene ...");
+
     AppendMenuW(state.hMainMenu, MF_DEFAULT, IDM_EXIT, L"&Exit");
 
     //End Menu Items here
@@ -422,6 +446,26 @@ void UpdateFramerateRadio(UINT id) {
         state.hFramerateMenu,
         IDM_FRAMERATE_RADIO_BEGIN,
         IDM_FRAMERATE_RADIO_END,
+        id,
+        MF_BYCOMMAND
+    );
+}
+
+void UpdateRenderModeRadio(UINT id) {
+    CheckMenuRadioItem(
+        state.hRenderModeMenu,
+        IDM_RENDERMODE_RADIO_BEGIN,
+        IDM_RENDERMODE_RADIO_END,
+        id,
+        MF_BYCOMMAND
+    );
+}
+
+void UpdateFOVRadio(UINT id) {
+    CheckMenuRadioItem(
+        state.hFOVMenu,
+        IDM_FOV_RADIO_BEGIN,
+        IDM_FOV_RADIO_END,
         id,
         MF_BYCOMMAND
     );
@@ -522,6 +566,72 @@ INT_PTR CALLBACK CustomFramerateProc(HWND hDlg, UINT message, WPARAM wParam, LPA
 }
 
 //
+//  FUNCTION: CustomFOVProc(HWND, UINT, WPARAM, LPARAM)
+//
+//  PURPOSE: Provides custom functionality for a fov input dialog
+//
+INT_PTR CALLBACK CustomFOVProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
+{
+    switch (message)
+    {
+    case WM_INITDIALOG:
+        return TRUE;
+
+    case WM_COMMAND:
+        switch (LOWORD(wParam))
+        {
+        case IDOK:
+        {
+            wchar_t buffer[16];
+            GetDlgItemText(hDlg, IDC_FOV_EDIT, buffer, 16);
+            int fov = _wtoi(buffer);
+            EndDialog(hDlg, fov);
+        }
+        return TRUE;
+
+        case IDCANCEL:
+            EndDialog(hDlg, 0);
+            return TRUE;
+        }
+        break;
+    }
+    return FALSE;
+}
+
+void OpenFileSelectionDialog(HWND hwnd)
+{
+    OPENFILENAME ofn;        // Common dialog box structure
+    TCHAR szFile[MAX_PATH] = { 0 }; // Buffer for file name
+    // wide character string for filters (double null terminated)
+    const TCHAR szFilter[] = _T("Text Files (*.obj)\0*.obj\0All Files (*.*)\0*.*\0");
+
+    // Initialize OPENFILENAME
+    ZeroMemory(&ofn, sizeof(ofn));
+    ofn.lStructSize = sizeof(ofn);
+    ofn.hwndOwner = hwnd;
+    ofn.lpstrFile = szFile;
+    // Set lpstrFile[0] to null, so that GetOpenFileName does not use the contents of szFile to initialize itself
+    ofn.lpstrFile[0] = '\0';
+    ofn.nMaxFile = sizeof(szFile);
+    ofn.lpstrFilter = szFilter;
+    ofn.nFilterIndex = 1;//Default to the first filter ("*.obj")
+    ofn.lpstrFileTitle = NULL;
+    ofn.nMaxFileTitle = 0;
+    ofn.lpstrInitialDir = NULL;
+    ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST;//Ensure the selected path and file exist
+
+    if(GetOpenFileName(&ofn) == TRUE) {
+		std::ifstream file(ofn.lpstrFile);
+        createSceneFromFile(std::move(file));
+		state.cam.invalidate();
+    }
+    else {
+        MessageBox(NULL, L"Failed to open scene", L"Error", MB_OK | MB_ICONERROR);
+    }
+}
+
+
+//
 //  FUNCTION: WndProc(HWND, UINT, WPARAM, LPARAM)
 //
 //  PURPOSE: Processes messages for the main window.
@@ -576,6 +686,40 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                 resetFramerateCounter();
             }
                 break;
+			case IDM_RENDERMODE_FLAT:
+				UpdateRenderModeRadio(IDM_RENDERMODE_FLAT);
+				Camera::type = Camera::FLAT;
+                state.cam.invalidate();
+				break;
+			case IDM_RENDERMODE_CURVED:
+				UpdateRenderModeRadio(IDM_RENDERMODE_CURVED);
+				Camera::type = Camera::CURVED;
+                state.cam.invalidate();
+				break;
+			case IDM_FOV_LOW:
+				UpdateFOVRadio(IDM_FOV_LOW);
+				state.cam.setFOV(31/180.0, 31/180.0);
+				break;
+			case IDM_FOV_MEDIUM:
+				UpdateFOVRadio(IDM_FOV_MEDIUM);
+				state.cam.setFOV((3.1415) / 2, (3.1415) / 2);
+				break;
+			case IDM_FOV_HIGH:
+				UpdateFOVRadio(IDM_FOV_HIGH);
+				state.cam.setFOV((3.1415) * 5 / 6, (3.1415) * 5 / 6);
+				break;
+            case IDM_FOV_CUSTOM: {
+				int fov = DialogBox(hInst, MAKEINTRESOURCE(IDD_CUSTOM_FOV), hWnd, CustomFOVProc);
+				if (fov > 0) {
+                    state.cam.setFOV(3.1415 * fov / 180.0, 3.1415 * fov / 180.0);
+                }
+                UpdateFOVRadio(IDM_FOV_CUSTOM);
+            }
+				break;
+            case IDM_IMPORT_SCENE: {
+                OpenFileSelectionDialog(hWnd);
+                break;
+			}
             case IDM_EXIT:
                 state.stopping = true;
                 clearThreads();

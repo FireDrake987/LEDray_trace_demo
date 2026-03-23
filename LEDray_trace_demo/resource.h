@@ -10,6 +10,7 @@
 #define IDI_SMALL                       108
 #define IDC_LEDRAYTRACEDEMO             109
 #define IDR_MAINFRAME                   128
+#define IDD_FOV_CUSTOM                  129
 #define IDM_FRAMERATE                   1000
 #define IDM_FRAMERATE_LOW               1001
 #define IDM_FRAMERATE_MEDIUM            1002
@@ -19,8 +20,22 @@
 #define IDC_FRAMERATE_NUMERIC_VALUE_CHANGE 1006
 #define IDD_CUSTOM_FRAMERATE            1007
 #define IDC_FRAMERATE_EDIT              1008
+#define IDM_RENDERMODE_FLAT             1009
+#define IDM_RENDERMODE_CURVED           1010
+#define IDM_IMPORT_SCENE                1011
+#define IDM_FOV_LOW                     1012
+#define IDM_FOV_MEDIUM                  1013
+#define IDM_FOV_HIGH                    1014
+#define IDM_FOV_CUSTOM                  1015
+#define IDC_FOV_EDIT                    1016
+#define IDD_CUSTOM_FOV                  1017
+#define IDC_FOV_NUMERIC_VALUE_CHANGE    1018
 #define IDM_FRAMERATE_RADIO_BEGIN       IDM_FRAMERATE_LOW
 #define IDM_FRAMERATE_RADIO_END         IDM_FRAMERATE_CUSTOM
+#define IDM_RENDERMODE_RADIO_BEGIN      IDM_RENDERMODE_FLAT
+#define IDM_RENDERMODE_RADIO_END        IDM_RENDERMODE_CURVED
+#define IDM_FOV_RADIO_BEGIN             IDM_FOV_LOW
+#define IDM_FOV_RADIO_END               IDM_FOV_CUSTOM
 #define IDM_EXIT                        9999
 #define IDC_STATIC                      -1
 
@@ -29,7 +44,7 @@
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NO_MFC                     1
-#define _APS_NEXT_RESOURCE_VALUE        129
+#define _APS_NEXT_RESOURCE_VALUE        130
 #define _APS_NEXT_COMMAND_VALUE         32771
 #define _APS_NEXT_CONTROL_VALUE         1000
 #define _APS_NEXT_SYMED_VALUE           110
