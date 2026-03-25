@@ -59,13 +59,13 @@ struct AppState {
     HDC hdesktop = nullptr;
     HBITMAP output = nullptr;
     HDC outputDC = nullptr;
-    int numThreads = 4;
+    int numThreads = 8;
     bool stopping = false;
     std::thread gameLoop = std::thread(loop);
     Camera cam = Camera(-2, 1.5, -2, RAYTRACE_WIDTH, RAYTRACE_HEIGHT, Quaternion());
     bool debug = false;
-	int tilesX = 2;
-	int tilesY = 2;
+	int tilesX = 4;
+	int tilesY = 4;
 };
 
 AppState state;
@@ -428,6 +428,8 @@ void CreateMenuBar(HWND hWnd) {
 
     AppendMenuW(state.hMainMenu, MF_DEFAULT, IDM_IMPORT_SCENE, L"&Import scene ...");
 
+    AppendMenuW(state.hMainMenu, MF_DEFAULT, IDM_CLEAR_SCENE, L"&Clear scene");
+
     AppendMenuW(state.hMainMenu, MF_DEFAULT, IDM_EXIT, L"&Exit");
 
     //End Menu Items here
@@ -603,7 +605,7 @@ void OpenFileSelectionDialog(HWND hwnd)
     OPENFILENAME ofn;        // Common dialog box structure
     TCHAR szFile[MAX_PATH] = { 0 }; // Buffer for file name
     // wide character string for filters (double null terminated)
-    const TCHAR szFilter[] = _T("Text Files (*.obj)\0*.obj\0All Files (*.*)\0*.*\0");
+    const TCHAR szFilter[] = _T("Object Files (*.obj)\0*.obj\0All Files (*.*)\0*.*\0");
 
     // Initialize OPENFILENAME
     ZeroMemory(&ofn, sizeof(ofn));
@@ -720,6 +722,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                 OpenFileSelectionDialog(hWnd);
                 break;
 			}
+            case IDM_CLEAR_SCENE: 
+                state.cam.invalidate();
+                state.cam.scene.clear();
+                break;
             case IDM_EXIT:
                 state.stopping = true;
                 clearThreads();
