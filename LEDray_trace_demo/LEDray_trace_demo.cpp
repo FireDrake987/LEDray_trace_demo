@@ -23,6 +23,7 @@
 #include "Triangle.h"
 #include "Camera.h"
 #include <shared_mutex>
+#include "MaterialReflective.h"
 
 #define MAX_LOADSTRING 100
 
@@ -59,7 +60,7 @@ struct AppState {
     HDC hdesktop = nullptr;
     HBITMAP output = nullptr;
     HDC outputDC = nullptr;
-    int numThreads = 8;
+    int numThreads = 4;
     bool stopping = false;
     std::thread gameLoop = std::thread(loop);
     Camera cam = Camera(-2, 1.5, -2, RAYTRACE_WIDTH, RAYTRACE_HEIGHT, Quaternion());
@@ -275,7 +276,7 @@ void createSceneFromFile(std::ifstream file) {
             uint8_t b = col % 256;
             uint8_t g = (col / 256) % 256;
             uint8_t r = ((col / 256) / 256) % 256;
-            Material mat = Material(BGRPixel{ b, g, r });
+            MaterialReflective mat = MaterialReflective(BGRPixel{ b, g, r });
             planes.emplace_back(std::make_unique<Triangle>(mat, vertices.at(v1 - 1), vertices.at(v2 - 1), vertices.at(v3 - 1)));
         }
     }
@@ -493,8 +494,12 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 {
    hInst = hInstance; // Store instance handle in our global variable
 
-   HWND hWnd = CreateWindowW(szWindowClass, szTitle, WS_OVERLAPPEDWINDOW,
-      CW_USEDEFAULT, 0, CW_USEDEFAULT, 0, nullptr, nullptr, hInstance, nullptr);
+   RECT windowRect = {0, 0, RAYTRACE_WIDTH, RAYTRACE_HEIGHT};
+   DWORD dwStyle = WS_OVERLAPPEDWINDOW;
+   AdjustWindowRect(&windowRect, dwStyle, FALSE);
+
+   HWND hWnd = CreateWindowW(szWindowClass, szTitle, dwStyle,
+      CW_USEDEFAULT, 0, windowRect.right - windowRect.left, windowRect.bottom - windowRect.top, nullptr, nullptr, hInstance, nullptr);
 
    if (!hWnd)
    {
