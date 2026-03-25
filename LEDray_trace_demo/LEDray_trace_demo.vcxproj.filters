@@ -63,6 +63,9 @@
     <ClInclude Include="BGRPixel.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="MaterialReflective.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="LEDray_trace_demo.cpp">

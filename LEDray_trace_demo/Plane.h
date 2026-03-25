@@ -22,4 +22,5 @@ public:
 	inline double getD() const { return D; }
 	inline Material getMaterial() const { return mat; }
 	inline Point3D getPointOnPlane() const { return pointOnPlane; }
+	Vector getNormal() const;
 };
