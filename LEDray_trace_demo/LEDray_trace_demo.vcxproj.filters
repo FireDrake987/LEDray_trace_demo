@@ -103,5 +103,6 @@
   </ItemGroup>
   <ItemGroup>
     <Object Include="scene.obj" />
+    <Object Include="scene2.obj" />
   </ItemGroup>
 </Project>

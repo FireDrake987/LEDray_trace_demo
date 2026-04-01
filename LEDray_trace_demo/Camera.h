@@ -16,10 +16,10 @@ class Camera {
 	Quaternion camRot;
 	std::vector<std::vector<Vector>> map;
 	bool ready;
-	std::shared_mutex invalidateMut;
 
 public:
 	std::vector<Plane*> scene;
+	std::shared_mutex invalidateMut;
 
 	enum CameraType {
 		FLAT, CURVED

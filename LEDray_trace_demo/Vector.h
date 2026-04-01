@@ -12,7 +12,7 @@ public:
 
 	//Methods
 	inline Vector cross(const Vector& other) const {
-		return Vector(this->getY() * other.getZ() - this->getZ() * other.getY(), this->getX() * other.getZ() - this->getZ() * other.getX(), this->getX() * other.getY() - this->getY() * other.getX());
+		return Vector(this->getY() * other.getZ() - this->getZ() * other.getY(), this->getZ() * other.getX() - this->getX() * other.getZ(), this->getX() * other.getY() - this->getY() * other.getX());
 	}
 
 	inline static Vector cross(const Vector& vec1, const Vector& vec2) {

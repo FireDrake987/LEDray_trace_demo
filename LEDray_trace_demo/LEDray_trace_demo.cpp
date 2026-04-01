@@ -45,6 +45,7 @@ const auto START_TIME = std::chrono::duration_cast<std::chrono::milliseconds>(st
 POINT centerPoint;
 
 struct AppState {
+    const int scale = 3;
     UINT framecount = 0;
     bool mouseCaptured = false;
     POINT mousePos = {0, 0};
@@ -199,7 +200,7 @@ void loop() {
         {
             std::unique_lock<std::mutex> lock(jobMut);
             if(state.mousePos.x != 0 || state.mousePos.y != 0) {
-                state.cam.eulerRotate(state.mousePos.x / 100.0, -state.mousePos.y / 100.0);
+                state.cam.eulerRotate(state.mousePos.x / 200.0, -state.mousePos.y / 200.0);
                 state.mousePos.x = 0;
                 state.mousePos.y = 0;
             }
@@ -252,6 +253,8 @@ void setupScene() {
 }
 
 void createSceneFromFile(std::ifstream file) {
+    std::unique_lock<std::shared_mutex> lock(state.cam.invalidateMut);
+	int baseIndexV = vertices.size();
     std::string line;
     if (!file.is_open()) {
         MessageBox(NULL, L"Failed to open scene.obj", L"Error", MB_OK | MB_ICONERROR);
@@ -276,13 +279,14 @@ void createSceneFromFile(std::ifstream file) {
             uint8_t b = col % 256;
             uint8_t g = (col / 256) % 256;
             uint8_t r = ((col / 256) / 256) % 256;
-            MaterialReflective mat = MaterialReflective(BGRPixel{ b, g, r });
-            planes.emplace_back(std::make_unique<Triangle>(mat, vertices.at(v1 - 1), vertices.at(v2 - 1), vertices.at(v3 - 1)));
+            Material mat = Material(BGRPixel{ b, g, r });
+            planes.emplace_back(std::make_unique<Triangle>(mat, vertices.at(baseIndexV + v1 - 1), vertices.at(baseIndexV + v2 - 1), vertices.at(baseIndexV + v3 - 1)));
         }
     }
     for (std::unique_ptr<Plane>& plane : planes) {
         state.cam.scene.push_back(plane.get());
     }
+    state.cam.invalidate();
 }
 
 //
@@ -494,7 +498,7 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 {
    hInst = hInstance; // Store instance handle in our global variable
 
-   RECT windowRect = {0, 0, RAYTRACE_WIDTH, RAYTRACE_HEIGHT};
+   RECT windowRect = {0, 0, RAYTRACE_WIDTH * state.scale, RAYTRACE_HEIGHT * state.scale};
    DWORD dwStyle = WS_OVERLAPPEDWINDOW;
    AdjustWindowRect(&windowRect, dwStyle, FALSE);
 
@@ -727,9 +731,13 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                 OpenFileSelectionDialog(hWnd);
                 break;
 			}
-            case IDM_CLEAR_SCENE: 
-                state.cam.invalidate();
+            case IDM_CLEAR_SCENE: {
+                std::unique_lock<std::shared_mutex> lock(state.cam.invalidateMut);
                 state.cam.scene.clear();
+                vertices.clear();
+                planes.clear();
+                state.cam.invalidate();
+            }
                 break;
             case IDM_EXIT:
                 state.stopping = true;
