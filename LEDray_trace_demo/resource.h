@@ -31,6 +31,12 @@
 #define IDD_CUSTOM_FOV                  1017
 #define IDC_FOV_NUMERIC_VALUE_CHANGE    1018
 #define IDM_CLEAR_SCENE                 1019
+#define IDD_CUSTOM_SCENE                1020
+#define IDC_SCENE_COLOR_RANDOM          1020
+#define IDC_SCENE_COLOR_CUSTOM          1021
+#define IDC_SCENE_COLOR_RED             1022
+#define IDC_SCENE_COLOR_GREEN           1023
+#define IDC_SCENE_COLOR_BLUE            1024
 #define IDM_FRAMERATE_RADIO_BEGIN       IDM_FRAMERATE_LOW
 #define IDM_FRAMERATE_RADIO_END         IDM_FRAMERATE_CUSTOM
 #define IDM_RENDERMODE_RADIO_BEGIN      IDM_RENDERMODE_FLAT
@@ -45,9 +51,9 @@
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NO_MFC                     1
-#define _APS_NEXT_RESOURCE_VALUE        130
+#define _APS_NEXT_RESOURCE_VALUE        131
 #define _APS_NEXT_COMMAND_VALUE         32771
-#define _APS_NEXT_CONTROL_VALUE         1000
+#define _APS_NEXT_CONTROL_VALUE         1006
 #define _APS_NEXT_SYMED_VALUE           110
 #endif
 #endif

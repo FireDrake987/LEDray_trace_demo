@@ -68,6 +68,10 @@ struct AppState {
     bool debug = false;
 	int tilesX = 4;
 	int tilesY = 4;
+    bool useColor = false;
+    int red = 255;
+    int green = 255;
+    int blue = 255;
 };
 
 AppState state;
@@ -275,10 +279,18 @@ void createSceneFromFile(std::ifstream file) {
             getFaceData(iss, v1, vt1, vn1);
             getFaceData(iss, v2, vt2, vn2);
             getFaceData(iss, v3, vt3, vn3);
-            uint32_t col = rand() % (256 * 256 * 256);
-            uint8_t b = col % 256;
-            uint8_t g = (col / 256) % 256;
-            uint8_t r = ((col / 256) / 256) % 256;
+            uint8_t b, g, r;
+            if(!state.useColor) {
+                uint32_t col = rand() % (256 * 256 * 256);
+                uint8_t b = col % 256;
+                uint8_t g = (col / 256) % 256;
+                uint8_t r = ((col / 256) / 256) % 256;
+            }
+            else {
+                b = state.blue % 256;
+                g = state.green % 256;
+                r = state.red % 256;
+            }
             Material mat = Material(BGRPixel{ b, g, r });
             planes.emplace_back(std::make_unique<Triangle>(mat, vertices.at(baseIndexV + v1 - 1), vertices.at(baseIndexV + v2 - 1), vertices.at(baseIndexV + v3 - 1)));
         }
@@ -540,8 +552,7 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 //
 //  PURPOSE: Provides custom functionality for a framerate input dialog
 //
-INT_PTR CALLBACK CustomFramerateProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
-{
+INT_PTR CALLBACK CustomFramerateProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam) {
     switch (message)
     {
     case WM_INITDIALOG:
@@ -581,8 +592,7 @@ INT_PTR CALLBACK CustomFramerateProc(HWND hDlg, UINT message, WPARAM wParam, LPA
 //
 //  PURPOSE: Provides custom functionality for a fov input dialog
 //
-INT_PTR CALLBACK CustomFOVProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
-{
+INT_PTR CALLBACK CustomFOVProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam) {
     switch (message)
     {
     case WM_INITDIALOG:
@@ -639,6 +649,51 @@ void OpenFileSelectionDialog(HWND hwnd)
     else {
         MessageBox(NULL, L"Failed to open scene", L"Error", MB_OK | MB_ICONERROR);
     }
+}
+
+INT_PTR CALLBACK CustomSceneProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam) {
+    switch (message)
+    {
+    case WM_INITDIALOG:
+        return TRUE;
+
+    case WM_COMMAND:
+        switch (LOWORD(wParam)) {
+        case BN_CLICKED: 
+            if(HIWORD(wParam) == IDC_SCENE_COLOR_CUSTOM) {
+                EnableWindow(GetDlgItem(hDlg, IDC_SCENE_COLOR_RED), TRUE);
+                EnableWindow(GetDlgItem(hDlg, IDC_SCENE_COLOR_GREEN), TRUE);
+                EnableWindow(GetDlgItem(hDlg, IDC_SCENE_COLOR_BLUE), TRUE);
+            }
+            if(HIWORD(wParam) == IDC_SCENE_COLOR_RANDOM) {
+                EnableWindow(GetDlgItem(hDlg, IDC_SCENE_COLOR_RED), FALSE);
+                EnableWindow(GetDlgItem(hDlg, IDC_SCENE_COLOR_GREEN), FALSE);
+                EnableWindow(GetDlgItem(hDlg, IDC_SCENE_COLOR_BLUE), FALSE);
+            }
+        case IDOK: {
+            if(IsDlgButtonChecked(hDlg, IDC_SCENE_COLOR_CUSTOM)) {
+                wchar_t buffer[16];
+                GetDlgItemText(hDlg, IDC_SCENE_COLOR_RED, buffer, 16);
+                state.red = _wtoi(buffer);
+                GetDlgItemText(hDlg, IDC_SCENE_COLOR_GREEN, buffer, 16);
+                state.green = _wtoi(buffer);
+                GetDlgItemText(hDlg, IDC_SCENE_COLOR_BLUE, buffer, 16);
+                state.blue = _wtoi(buffer);
+                state.useColor = true;
+            }
+            if(IsDlgButtonChecked(hDlg, IDC_SCENE_COLOR_RANDOM)) {
+                state.useColor = false;
+            }
+        }
+        return TRUE;
+
+        case IDCANCEL:
+            EndDialog(hDlg, 0);
+            return TRUE;
+        }
+        break;
+    }
+    return FALSE;
 }
 
 
@@ -728,6 +783,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             }
 				break;
             case IDM_IMPORT_SCENE: {
+                DialogBox(hInst, MAKEINTRESOURCE(IDD_CUSTOM_SCENE), hWnd, CustomSceneProc);
                 OpenFileSelectionDialog(hWnd);
                 break;
 			}
