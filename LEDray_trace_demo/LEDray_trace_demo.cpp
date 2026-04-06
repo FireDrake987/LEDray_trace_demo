@@ -69,7 +69,7 @@ struct AppState {
 	int tilesX = 4;
 	int tilesY = 4;
     bool useColor = false;
-    int red = 255;
+    int red = 0;
     int green = 255;
     int blue = 255;
 };
@@ -282,9 +282,9 @@ void createSceneFromFile(std::ifstream file) {
             uint8_t b, g, r;
             if(!state.useColor) {
                 uint32_t col = rand() % (256 * 256 * 256);
-                uint8_t b = col % 256;
-                uint8_t g = (col / 256) % 256;
-                uint8_t r = ((col / 256) / 256) % 256;
+                b = col % 256;
+                g = (col / 256) % 256;
+                r = ((col / 256) / 256) % 256;
             }
             else {
                 b = state.blue % 256;
@@ -655,21 +655,25 @@ INT_PTR CALLBACK CustomSceneProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM 
     switch (message)
     {
     case WM_INITDIALOG:
+		CheckRadioButton(hDlg, IDC_SCENE_COLOR_RANDOM, IDC_SCENE_COLOR_CUSTOM, state.useColor ? IDC_SCENE_COLOR_CUSTOM : IDC_SCENE_COLOR_RANDOM);
         return TRUE;
 
     case WM_COMMAND:
         switch (LOWORD(wParam)) {
-        case BN_CLICKED: 
-            if(HIWORD(wParam) == IDC_SCENE_COLOR_CUSTOM) {
+        case IDC_SCENE_COLOR_CUSTOM: 
+            if(HIWORD(wParam) == BN_CLICKED) {
                 EnableWindow(GetDlgItem(hDlg, IDC_SCENE_COLOR_RED), TRUE);
                 EnableWindow(GetDlgItem(hDlg, IDC_SCENE_COLOR_GREEN), TRUE);
                 EnableWindow(GetDlgItem(hDlg, IDC_SCENE_COLOR_BLUE), TRUE);
             }
-            if(HIWORD(wParam) == IDC_SCENE_COLOR_RANDOM) {
+            break;
+        case IDC_SCENE_COLOR_RANDOM: 
+            if(HIWORD(wParam) == BN_CLICKED) {
                 EnableWindow(GetDlgItem(hDlg, IDC_SCENE_COLOR_RED), FALSE);
                 EnableWindow(GetDlgItem(hDlg, IDC_SCENE_COLOR_GREEN), FALSE);
                 EnableWindow(GetDlgItem(hDlg, IDC_SCENE_COLOR_BLUE), FALSE);
             }
+            break;
         case IDOK: {
             if(IsDlgButtonChecked(hDlg, IDC_SCENE_COLOR_CUSTOM)) {
                 wchar_t buffer[16];
@@ -684,10 +688,13 @@ INT_PTR CALLBACK CustomSceneProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM 
             if(IsDlgButtonChecked(hDlg, IDC_SCENE_COLOR_RANDOM)) {
                 state.useColor = false;
             }
+            CheckRadioButton(hDlg, IDC_SCENE_COLOR_RANDOM, IDC_SCENE_COLOR_CUSTOM, state.useColor ? IDC_SCENE_COLOR_CUSTOM : IDC_SCENE_COLOR_RANDOM);
+            EndDialog(hDlg, 1);
         }
         return TRUE;
 
         case IDCANCEL:
+            CheckRadioButton(hDlg, IDC_SCENE_COLOR_RANDOM, IDC_SCENE_COLOR_CUSTOM, state.useColor ? IDC_SCENE_COLOR_CUSTOM : IDC_SCENE_COLOR_RANDOM);
             EndDialog(hDlg, 0);
             return TRUE;
         }
@@ -783,8 +790,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             }
 				break;
             case IDM_IMPORT_SCENE: {
-                DialogBox(hInst, MAKEINTRESOURCE(IDD_CUSTOM_SCENE), hWnd, CustomSceneProc);
-                OpenFileSelectionDialog(hWnd);
+                if(DialogBox(hInst, MAKEINTRESOURCE(IDD_CUSTOM_SCENE), hWnd, CustomSceneProc)) {
+                    OpenFileSelectionDialog(hWnd);
+                }
                 break;
 			}
             case IDM_CLEAR_SCENE: {
