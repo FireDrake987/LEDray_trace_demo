@@ -106,12 +106,17 @@ struct RenderingThread {
 std::vector<RenderingThread> renderThreads = std::vector<RenderingThread>();
 std::atomic<int> runningThreads = 0;
 
+//
+//  FUNCTION: work(int)
+//
+//  PURPOSE: The worker function for rendering threads, waits for jobs to be added to the renderJobs vector and executes them
+//
 void work(int id) {
     RenderingJob w{};
     while (!renderThreads.at(id).terminate) {
         {
             std::unique_lock<std::mutex> lock(jobMut);
-            if (!renderJobs.empty()) {
+            if(!renderJobs.empty()) {
                 w = renderJobs.back();
                 renderJobs.pop_back();
                 runningThreads++;
@@ -220,23 +225,28 @@ void loop() {
             }
         }
         auto timeTaken = std::chrono::steady_clock::now() - currentTime;
-        if (timeTaken < frameLength) {
+        if(timeTaken < frameLength) {
             std::this_thread::sleep_for(frameLength - timeTaken);
         }
     }
 }
 
+//
+//  FUNCTION: getFaceData(std::istringstream, int, int, int)
+//
+//  PURPOSE: Gets the blender .obj face data from the istringstream and places the result in the passed in ints by reference, accounts for the different formats that blender can export faces in (v, v/vt, v//vn, v/vt/vn)
+//
 void getFaceData(std::istringstream& iss, int& v, int& vt, int& vn) {
     char slash;
     iss >> v;
-    if (iss.peek() == '/') {
+    if(iss.peek() == '/') {
         iss >> slash;
-        if (iss.peek() == '/') {
+        if(iss.peek() == '/') {
             iss >> slash >> vn;
         }
         else {
             iss >> vt;
-            if (iss.peek() == '/') {
+            if(iss.peek() == '/') {
                 iss >> slash >> vn;
             }
         }
@@ -246,6 +256,7 @@ void getFaceData(std::istringstream& iss, int& v, int& vt, int& vn) {
 std::vector<Point3D> vertices;
 std::vector<std::unique_ptr<Plane>> planes;
 void createSceneFromFile(std::ifstream file);//Forward declaration
+
 //
 //  FUNCTION: setupScene()
 //
@@ -256,25 +267,30 @@ void setupScene() {
 	createSceneFromFile(std::move(file));
 }
 
+//
+//  FUNCTION: createSceneFromFile(std::ifstream)
+//
+//  PURPOSE: Reads a blender .obj file from the passed in ifstream and creates planes and vertices according to the data, adds the planes to the camera's scene. Accounts for different formats that blender can export faces in (v, v/vt, v//vn, v/vt/vn)
+//
 void createSceneFromFile(std::ifstream file) {
     std::unique_lock<std::shared_mutex> lock(state.cam.invalidateMut);
 	int baseIndexV = vertices.size();
     std::string line;
-    if (!file.is_open()) {
+    if(!file.is_open()) {
         MessageBox(NULL, L"Failed to open scene.obj", L"Error", MB_OK | MB_ICONERROR);
         return;
     }
     while (std::getline(file, line)) {
-        if (line.empty()) continue;
+        if(line.empty()) continue;
         std::istringstream iss(line);
         std::string command;
         iss >> command;
-        if (command == "v") {
+        if(command == "v") {
             float x, y, z;
             iss >> x >> y >> z;
             vertices.emplace_back(Point3D(x, y, z));
         }
-        else if (command == "f") {
+        else if(command == "f") {
             int v1, v2, v3, vt1, vt2, vt3, vn1, vn2, vn3;
             getFaceData(iss, v1, vt1, vn1);
             getFaceData(iss, v2, vt2, vn2);
@@ -322,7 +338,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
     MyRegisterClass(hInstance);
 
     // Perform application initialization:
-    if (!InitInstance (hInstance, nCmdShow))
+    if(!InitInstance (hInstance, nCmdShow))
     {
         return FALSE;
     }
@@ -334,7 +350,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
     // Main message loop:
     while (GetMessage(&msg, nullptr, 0, 0))
     {
-        if (!TranslateAccelerator(msg.hwnd, hAccelTable, &msg))
+        if(!TranslateAccelerator(msg.hwnd, hAccelTable, &msg))
         {
             TranslateMessage(&msg);
             DispatchMessage(&msg);
@@ -470,6 +486,11 @@ void UpdateFramerateRadio(UINT id) {
     );
 }
 
+//
+//  FUNCTION: UpdateRenderModeRadio(UINT)
+//
+//  PURPOSE: Updates which render mode radio item is checked
+//
 void UpdateRenderModeRadio(UINT id) {
     CheckMenuRadioItem(
         state.hRenderModeMenu,
@@ -480,6 +501,11 @@ void UpdateRenderModeRadio(UINT id) {
     );
 }
 
+//
+//  FUNCTION: UpdateFOVRadio(UINT)
+//
+//  PURPOSE: Updates which fov radio item is checked
+//
 void UpdateFOVRadio(UINT id) {
     CheckMenuRadioItem(
         state.hFOVMenu,
@@ -490,7 +516,10 @@ void UpdateFOVRadio(UINT id) {
     );
 }
 
-
+//
+//  FUNCTION: resetFramerateCounter()
+//
+//  PURPOSE: Resets the display rate counter for accurate fps measurement when changing display rate settings
 void resetFramerateCounter() {
     state.fpsTime = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now().time_since_epoch()).count();
     state.framecount = 0;
@@ -504,7 +533,7 @@ void resetFramerateCounter() {
 //   COMMENTS:
 //
 //        In this function, we save the instance handle in a global variable and
-//        create and display the main program window.
+//        create, display the main program window, and initialize various one-time inits.
 //
 BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 {
@@ -517,7 +546,7 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
    HWND hWnd = CreateWindowW(szWindowClass, szTitle, dwStyle,
       CW_USEDEFAULT, 0, windowRect.right - windowRect.left, windowRect.bottom - windowRect.top, nullptr, nullptr, hInstance, nullptr);
 
-   if (!hWnd)
+   if(!hWnd)
    {
       return FALSE;
    }
@@ -567,7 +596,7 @@ INT_PTR CALLBACK CustomFramerateProc(HWND hDlg, UINT message, WPARAM wParam, LPA
             GetDlgItemText(hDlg, IDC_FRAMERATE_EDIT, buffer, 16);
             int fps = _wtoi(buffer);
 
-            if (fps > 0)
+            if(fps > 0)
             {
                 EndDialog(hDlg, fps);
             }
@@ -619,38 +648,11 @@ INT_PTR CALLBACK CustomFOVProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lP
     return FALSE;
 }
 
-void OpenFileSelectionDialog(HWND hwnd)
-{
-    OPENFILENAME ofn;        // Common dialog box structure
-    TCHAR szFile[MAX_PATH] = { 0 }; // Buffer for file name
-    // wide character string for filters (double null terminated)
-    const TCHAR szFilter[] = _T("Object Files (*.obj)\0*.obj\0All Files (*.*)\0*.*\0");
-
-    // Initialize OPENFILENAME
-    ZeroMemory(&ofn, sizeof(ofn));
-    ofn.lStructSize = sizeof(ofn);
-    ofn.hwndOwner = hwnd;
-    ofn.lpstrFile = szFile;
-    // Set lpstrFile[0] to null, so that GetOpenFileName does not use the contents of szFile to initialize itself
-    ofn.lpstrFile[0] = '\0';
-    ofn.nMaxFile = sizeof(szFile);
-    ofn.lpstrFilter = szFilter;
-    ofn.nFilterIndex = 1;//Default to the first filter ("*.obj")
-    ofn.lpstrFileTitle = NULL;
-    ofn.nMaxFileTitle = 0;
-    ofn.lpstrInitialDir = NULL;
-    ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST;//Ensure the selected path and file exist
-
-    if(GetOpenFileName(&ofn) == TRUE) {
-		std::ifstream file(ofn.lpstrFile);
-        createSceneFromFile(std::move(file));
-		state.cam.invalidate();
-    }
-    else {
-        MessageBox(NULL, L"Failed to open scene", L"Error", MB_OK | MB_ICONERROR);
-    }
-}
-
+//
+//  FUNCTION: CustomSceneProc(HWND, UINT, WPARAM, LPARAM)
+//
+//  PURPOSE: Provides custom functionality for a scene import dialog, allows the user to select whether to use a custom color or random colors for the imported scene, and if custom is selected allows the user to input RGB values for the color
+//
 INT_PTR CALLBACK CustomSceneProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam) {
     switch (message)
     {
@@ -688,21 +690,21 @@ INT_PTR CALLBACK CustomSceneProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM 
             }
             break;
         case IDC_SCENE_COLOR_GREEN:
-            if (HIWORD(wParam) == EN_UPDATE) {
+            if(HIWORD(wParam) == EN_UPDATE) {
                 wchar_t buffer[16];
                 GetDlgItemText(hDlg, IDC_SCENE_COLOR_GREEN, buffer, 16);
                 UINT green = _wtoi(buffer);
-                if (green > 255) {
+                if(green > 255) {
                     SetDlgItemInt(hDlg, IDC_SCENE_COLOR_GREEN, 255, FALSE);
                 }
             }
             break;
         case IDC_SCENE_COLOR_BLUE:
-            if (HIWORD(wParam) == EN_UPDATE) {
+            if(HIWORD(wParam) == EN_UPDATE) {
                 wchar_t buffer[16];
                 GetDlgItemText(hDlg, IDC_SCENE_COLOR_BLUE, buffer, 16);
                 UINT blue = _wtoi(buffer);
-                if (blue > 255) {
+                if(blue > 255) {
                     SetDlgItemInt(hDlg, IDC_SCENE_COLOR_BLUE, 255, FALSE);
                 }
             }
@@ -734,6 +736,42 @@ INT_PTR CALLBACK CustomSceneProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM 
     return FALSE;
 }
 
+//
+//  FUNCTION: OpenFileSelectionDialog(HWND)
+//
+//  PURPOSE: Opens a file selection dialog for importing .obj files, if a file is successfully selected it is loaded into the scene using createSceneFromFile()
+void OpenFileSelectionDialog(HWND hwnd)
+{
+    OPENFILENAME ofn;        // Common dialog box structure
+    TCHAR szFile[MAX_PATH] = { 0 }; // Buffer for file name
+    // wide character string for filters (double null terminated)
+    const TCHAR szFilter[] = _T("Object Files (*.obj)\0*.obj\0All Files (*.*)\0*.*\0");
+
+    // Initialize OPENFILENAME
+    ZeroMemory(&ofn, sizeof(ofn));
+    ofn.lStructSize = sizeof(ofn);
+    ofn.hwndOwner = hwnd;
+    ofn.lpstrFile = szFile;
+    // Set lpstrFile[0] to null, so that GetOpenFileName does not use the contents of szFile to initialize itself
+    ofn.lpstrFile[0] = '\0';
+    ofn.nMaxFile = sizeof(szFile);
+    ofn.lpstrFilter = szFilter;
+    ofn.nFilterIndex = 1;//Default to the first filter ("*.obj")
+    ofn.lpstrFileTitle = NULL;
+    ofn.nMaxFileTitle = 0;
+    ofn.lpstrInitialDir = NULL;
+    ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST;//Ensure the selected path and file exist
+
+    if(GetOpenFileName(&ofn) == TRUE) {
+		std::ifstream file(ofn.lpstrFile);
+        createSceneFromFile(std::move(file));
+		state.cam.invalidate();
+    }
+    else {
+        MessageBox(NULL, L"Failed to open scene", L"Error", MB_OK | MB_ICONERROR);
+    }
+}
+
 
 //
 //  FUNCTION: WndProc(HWND, UINT, WPARAM, LPARAM)
@@ -743,7 +781,7 @@ INT_PTR CALLBACK CustomSceneProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM 
 //  WM_COMMAND  - process the application menu
 //  WM_PAINT    - Paint the main window
 //  WM_DESTROY  - post a quit message and return
-//
+//  WM_TIMER    - Triggered on game loop timer refresh, causes the window to repaint and the next frame to be rendered
 //
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
@@ -781,7 +819,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                 break;
             case IDM_FRAMERATE_CUSTOM: {
                 int fps = DialogBox(hInst, MAKEINTRESOURCE(IDD_CUSTOM_FRAMERATE), hWnd, CustomFramerateProc);
-                if (fps > 0) {
+                if(fps > 0) {
                     UpdateFramerateRadio(IDM_FRAMERATE_CUSTOM);
                     UINT interval = 1000 / fps;
                     SetTimer(hWnd, 1, interval, NULL);
@@ -814,7 +852,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				break;
             case IDM_FOV_CUSTOM: {
 				int fov = DialogBox(hInst, MAKEINTRESOURCE(IDD_CUSTOM_FOV), hWnd, CustomFOVProc);
-				if (fov > 0) {
+				if(fov > 0) {
                     state.cam.setFOV(3.1415 * fov / 180.0, 3.1415 * fov / 180.0);
                 }
                 UpdateFOVRadio(IDM_FOV_CUSTOM);
@@ -855,7 +893,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             {
                 std::unique_lock<std::mutex> lock(state.mut);
 
-                if (state.debug) {
+                if(state.debug) {
                     RECT fpsLocation = { 10, 10, 200, 25 };
                     std::wstringstream wss;
                     wss << std::fixed << std::setprecision(2) << ((1000.0 * state.framecount) / elapsedTime);
@@ -916,22 +954,22 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         if(wParam == 113) {//f2
             state.cam.setFOV(10, 10);
         }
-		if (wParam == 87) {//w
+		if(wParam == 87) {//w
             state.cam.move(0, 0, 0.1);
         }
-        if (wParam == 65) {//a
+        if(wParam == 65) {//a
             state.cam.move(-0.1, 0, 0);
         }
-        if (wParam == 83) {//s
+        if(wParam == 83) {//s
             state.cam.move(0, 0, -0.1);
         }
-        if (wParam == 68) {//d
+        if(wParam == 68) {//d
             state.cam.move(0.1, 0, 0);
         }
-        if (wParam == 32) {//space
+        if(wParam == 32) {//space
             state.cam.move(0, -0.1, 0);
         }
-        if (wParam == 16) {//shift
+        if(wParam == 16) {//shift
             state.cam.move(0, 0.1, 0);
         }
         break;
@@ -939,7 +977,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         state.lastKeyUp = std::to_wstring(wParam);
         break;
     case WM_MOUSEMOVE:
-        if (state.mouseCaptured) {
+        if(state.mouseCaptured) {
             POINT current;
             GetCursorPos(&current);
 
@@ -949,7 +987,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             state.mousePos.x += dx;
             state.mousePos.y += dy;
 
-            if (dx != 0 || dy != 0) {
+            if(dx != 0 || dy != 0) {
                 CenterCursor(hWnd);//Reset to center for next frame
             }
         }
