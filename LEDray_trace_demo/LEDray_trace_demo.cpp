@@ -655,7 +655,10 @@ INT_PTR CALLBACK CustomSceneProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM 
     switch (message)
     {
     case WM_INITDIALOG:
-		CheckRadioButton(hDlg, IDC_SCENE_COLOR_RANDOM, IDC_SCENE_COLOR_CUSTOM, state.useColor ? IDC_SCENE_COLOR_CUSTOM : IDC_SCENE_COLOR_RANDOM);
+		CheckRadioButton(hDlg, IDC_SCENE_COLOR_RANDOM, IDC_SCENE_COLOR_CUSTOM, IDC_SCENE_COLOR_RANDOM);
+        SetDlgItemInt(hDlg, IDC_SCENE_COLOR_RED, 0, FALSE);
+        SetDlgItemInt(hDlg, IDC_SCENE_COLOR_GREEN, 0, FALSE);
+        SetDlgItemInt(hDlg, IDC_SCENE_COLOR_BLUE, 0, FALSE);
         return TRUE;
 
     case WM_COMMAND:
@@ -674,6 +677,36 @@ INT_PTR CALLBACK CustomSceneProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM 
                 EnableWindow(GetDlgItem(hDlg, IDC_SCENE_COLOR_BLUE), FALSE);
             }
             break;
+        case IDC_SCENE_COLOR_RED: 
+            if(HIWORD(wParam) == EN_UPDATE) {
+                wchar_t buffer[16];
+                GetDlgItemText(hDlg, IDC_SCENE_COLOR_RED, buffer, 16);
+                UINT red = _wtoi(buffer);
+                if(red > 255) {
+                    SetDlgItemInt(hDlg, IDC_SCENE_COLOR_RED, 255, FALSE);
+                }
+            }
+            break;
+        case IDC_SCENE_COLOR_GREEN:
+            if (HIWORD(wParam) == EN_UPDATE) {
+                wchar_t buffer[16];
+                GetDlgItemText(hDlg, IDC_SCENE_COLOR_GREEN, buffer, 16);
+                UINT green = _wtoi(buffer);
+                if (green > 255) {
+                    SetDlgItemInt(hDlg, IDC_SCENE_COLOR_GREEN, 255, FALSE);
+                }
+            }
+            break;
+        case IDC_SCENE_COLOR_BLUE:
+            if (HIWORD(wParam) == EN_UPDATE) {
+                wchar_t buffer[16];
+                GetDlgItemText(hDlg, IDC_SCENE_COLOR_BLUE, buffer, 16);
+                UINT blue = _wtoi(buffer);
+                if (blue > 255) {
+                    SetDlgItemInt(hDlg, IDC_SCENE_COLOR_BLUE, 255, FALSE);
+                }
+            }
+            break;
         case IDOK: {
             if(IsDlgButtonChecked(hDlg, IDC_SCENE_COLOR_CUSTOM)) {
                 wchar_t buffer[16];
@@ -688,13 +721,11 @@ INT_PTR CALLBACK CustomSceneProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM 
             if(IsDlgButtonChecked(hDlg, IDC_SCENE_COLOR_RANDOM)) {
                 state.useColor = false;
             }
-            CheckRadioButton(hDlg, IDC_SCENE_COLOR_RANDOM, IDC_SCENE_COLOR_CUSTOM, state.useColor ? IDC_SCENE_COLOR_CUSTOM : IDC_SCENE_COLOR_RANDOM);
             EndDialog(hDlg, 1);
         }
         return TRUE;
 
         case IDCANCEL:
-            CheckRadioButton(hDlg, IDC_SCENE_COLOR_RANDOM, IDC_SCENE_COLOR_CUSTOM, state.useColor ? IDC_SCENE_COLOR_CUSTOM : IDC_SCENE_COLOR_RANDOM);
             EndDialog(hDlg, 0);
             return TRUE;
         }
@@ -864,7 +895,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         break;
     case WM_KEYDOWN: 
         state.lastKeyDown = std::to_wstring(wParam);
-        InvalidateRect(hWnd, NULL, TRUE);
         if(wParam == VK_ESCAPE) {
             DisableMouseCapture();
         }
@@ -907,7 +937,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         break;
     case WM_KEYUP: 
         state.lastKeyUp = std::to_wstring(wParam);
-        InvalidateRect(hWnd, NULL, TRUE);
         break;
     case WM_MOUSEMOVE:
         if (state.mouseCaptured) {
@@ -921,7 +950,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             state.mousePos.y += dy;
 
             if (dx != 0 || dy != 0) {
-                CenterCursor(hWnd); // Reset to center for next frame
+                CenterCursor(hWnd);//Reset to center for next frame
             }
         }
         break;
