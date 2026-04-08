@@ -27,8 +27,8 @@
 
 #define MAX_LOADSTRING 100
 
-#define RAYTRACE_WIDTH 400
-#define RAYTRACE_HEIGHT 200
+#define RAYTRACE_WIDTH 800
+#define RAYTRACE_HEIGHT 400
 
 // Global Variables:
 HINSTANCE hInst;                                // current instance
@@ -45,7 +45,7 @@ const auto START_TIME = std::chrono::duration_cast<std::chrono::milliseconds>(st
 POINT centerPoint;
 
 struct AppState {
-    const int scale = 3;
+    const int scale = 1;
     UINT framecount = 0;
     bool mouseCaptured = false;
     POINT mousePos = {0, 0};
