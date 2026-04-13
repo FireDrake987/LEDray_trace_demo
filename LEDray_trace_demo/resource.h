@@ -31,19 +31,29 @@
 #define IDD_CUSTOM_FOV                  1017
 #define IDC_FOV_NUMERIC_VALUE_CHANGE    1018
 #define IDM_CLEAR_SCENE                 1019
-#define IDD_CUSTOM_SCENE                1020
 #define IDC_SCENE_COLOR_RANDOM          1020
 #define IDC_SCENE_COLOR_CUSTOM          1021
 #define IDC_SCENE_COLOR_RED             1022
 #define IDC_SCENE_COLOR_GREEN           1023
 #define IDC_SCENE_COLOR_BLUE            1024
+#define IDM_THREADS_AUTO                1025
+#define IDM_THREADS_ONE                 1026
+#define IDM_THREADS_TWO                 1027
+#define IDM_THREADS_FOUR                1028
+#define IDM_THREADS_EIGHT               1029
+#define IDM_THREADS_CUSTOM              1030
+#define IDD_CUSTOM_THREADS              1031
+#define IDD_CUSTOM_SCENE                1032
+#define IDC_THREADS_EDIT                1033
+#define IDM_EXIT                        9999
+#define IDM_THREADS_RADIO_BEGIN         IDM_THREADS_AUTO
+#define IDM_THREADS_RADIO_END           IDM_THREADS_CUSTOM
 #define IDM_FRAMERATE_RADIO_BEGIN       IDM_FRAMERATE_LOW
 #define IDM_FRAMERATE_RADIO_END         IDM_FRAMERATE_CUSTOM
 #define IDM_RENDERMODE_RADIO_BEGIN      IDM_RENDERMODE_FLAT
 #define IDM_RENDERMODE_RADIO_END        IDM_RENDERMODE_CURVED
 #define IDM_FOV_RADIO_BEGIN             IDM_FOV_LOW
 #define IDM_FOV_RADIO_END               IDM_FOV_CUSTOM
-#define IDM_EXIT                        9999
 #define IDC_STATIC                      -1
 
 // Next default values for new objects
@@ -51,7 +61,7 @@
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NO_MFC                     1
-#define _APS_NEXT_RESOURCE_VALUE        131
+#define _APS_NEXT_RESOURCE_VALUE        132
 #define _APS_NEXT_COMMAND_VALUE         32771
 #define _APS_NEXT_CONTROL_VALUE         1006
 #define _APS_NEXT_SYMED_VALUE           110

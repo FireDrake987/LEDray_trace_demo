@@ -27,8 +27,8 @@
 
 #define MAX_LOADSTRING 100
 
-#define RAYTRACE_WIDTH 800
-#define RAYTRACE_HEIGHT 400
+#define RAYTRACE_WIDTH 400
+#define RAYTRACE_HEIGHT 200
 
 // Global Variables:
 HINSTANCE hInst;                                // current instance
@@ -45,7 +45,7 @@ const auto START_TIME = std::chrono::duration_cast<std::chrono::milliseconds>(st
 POINT centerPoint;
 
 struct AppState {
-    const int scale = 1;
+    const int scale = 3;
     UINT framecount = 0;
     bool mouseCaptured = false;
     POINT mousePos = {0, 0};
@@ -57,11 +57,12 @@ struct AppState {
     HMENU hFramerateMenu = nullptr;
 	HMENU hRenderModeMenu = nullptr;
 	HMENU hFOVMenu = nullptr;
+    HMENU hThreadsMenu = nullptr;
     std::mutex mut;
     HDC hdesktop = nullptr;
     HBITMAP output = nullptr;
     HDC outputDC = nullptr;
-    int numThreads = 4;
+    int numThreads = 1;
     bool stopping = false;
     std::thread gameLoop = std::thread(loop);
     Camera cam = Camera(-2, 1.5, -2, RAYTRACE_WIDTH, RAYTRACE_HEIGHT, Quaternion());
@@ -463,6 +464,16 @@ void CreateMenuBar(HWND hWnd) {
 
     AppendMenuW(state.hMainMenu, MF_DEFAULT, IDM_CLEAR_SCENE, L"&Clear scene");
 
+    state.hThreadsMenu = CreateMenu();
+    AppendMenuW(state.hThreadsMenu, MF_DEFAULT, IDM_THREADS_AUTO, L"&Auto");
+    AppendMenuW(state.hThreadsMenu, MF_DEFAULT, IDM_THREADS_ONE, L"&1");
+    AppendMenuW(state.hThreadsMenu, MF_DEFAULT, IDM_THREADS_TWO, L"&2");
+    AppendMenuW(state.hThreadsMenu, MF_DEFAULT, IDM_THREADS_FOUR, L"&4");
+    AppendMenuW(state.hThreadsMenu, MF_DEFAULT, IDM_THREADS_EIGHT, L"&8");
+    AppendMenuW(state.hThreadsMenu, MF_DEFAULT, IDM_THREADS_CUSTOM, L"&Custom ...");
+    CheckMenuRadioItem(state.hThreadsMenu, IDM_THREADS_RADIO_BEGIN, IDM_THREADS_RADIO_END, IDM_THREADS_AUTO, MF_BYCOMMAND);
+    AppendMenuW(state.hMainMenu, MF_POPUP, (UINT_PTR)state.hThreadsMenu, L"&# Threads");
+
     AppendMenuW(state.hMainMenu, MF_DEFAULT, IDM_EXIT, L"&Exit");
 
     //End Menu Items here
@@ -517,6 +528,21 @@ void UpdateFOVRadio(UINT id) {
 }
 
 //
+//  FUNCTION: UpdateThreadsRadio(UINT)
+//
+//  PURPOSE: Updates which threads radio item is checked
+//
+void UpdateThreadsRadio(UINT id) {
+    CheckMenuRadioItem(
+        state.hThreadsMenu, 
+        IDM_THREADS_RADIO_BEGIN, 
+        IDM_THREADS_RADIO_END, 
+        id, 
+        MF_BYCOMMAND
+    );
+}
+
+//
 //  FUNCTION: resetFramerateCounter()
 //
 //  PURPOSE: Resets the display rate counter for accurate fps measurement when changing display rate settings
@@ -535,45 +561,51 @@ void resetFramerateCounter() {
 //        In this function, we save the instance handle in a global variable and
 //        create, display the main program window, and initialize various one-time inits.
 //
-BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
-{
-   hInst = hInstance; // Store instance handle in our global variable
+BOOL InitInstance(HINSTANCE hInstance, int nCmdShow) {
+    hInst = hInstance; // Store instance handle in our global variable
 
-   RECT windowRect = {0, 0, RAYTRACE_WIDTH * state.scale, RAYTRACE_HEIGHT * state.scale};
-   DWORD dwStyle = WS_OVERLAPPEDWINDOW;
-   AdjustWindowRect(&windowRect, dwStyle, FALSE);
+    RECT windowRect = {0, 0, RAYTRACE_WIDTH * state.scale, RAYTRACE_HEIGHT * state.scale};
+    DWORD dwStyle = WS_OVERLAPPEDWINDOW;
+    AdjustWindowRect(&windowRect, dwStyle, FALSE);
 
-   HWND hWnd = CreateWindowW(szWindowClass, szTitle, dwStyle,
-      CW_USEDEFAULT, 0, windowRect.right - windowRect.left, windowRect.bottom - windowRect.top, nullptr, nullptr, hInstance, nullptr);
+    HWND hWnd = CreateWindowW(szWindowClass, szTitle, dwStyle,
+       CW_USEDEFAULT, 0, windowRect.right - windowRect.left, windowRect.bottom - windowRect.top, nullptr, nullptr, hInstance, nullptr);
 
-   if(!hWnd)
-   {
-      return FALSE;
-   }
+    if(!hWnd) {
+       return FALSE;
+    }
 
-   createThreads();
+    int threadsAvailable = std::thread::hardware_concurrency();
 
-   state.hdesktop = GetDC(0);
-   state.output = CreateCompatibleBitmap(state.hdesktop, RAYTRACE_WIDTH, RAYTRACE_HEIGHT);
-   state.outputDC = CreateCompatibleDC(state.hdesktop);
+    state.numThreads = threadsAvailable - 2;
+   
+    if (state.numThreads < 1) {
+        state.numThreads = 1;
+    }
 
-   SelectObject(state.outputDC, state.output);
+    createThreads();
 
-   ShowWindow(hWnd, nCmdShow);
+    state.hdesktop = GetDC(0);
+    state.output = CreateCompatibleBitmap(state.hdesktop, RAYTRACE_WIDTH, RAYTRACE_HEIGHT);
+    state.outputDC = CreateCompatibleDC(state.hdesktop);
 
-   CreateMenuBar(hWnd);
+    SelectObject(state.outputDC, state.output);
 
-   SetTimer(hWnd, 1, 200, NULL);
+    ShowWindow(hWnd, nCmdShow);
 
-   state.frameDelay = 200;
+    CreateMenuBar(hWnd);
 
-   Camera::type = Camera::FLAT;
+    SetTimer(hWnd, 1, 200, NULL);
 
-   renderJobs.reserve(state.tilesX * state.tilesY);
+    state.frameDelay = 200;
 
-   setupScene();
+    Camera::type = Camera::FLAT;
 
-   return TRUE;
+    renderJobs.reserve(state.tilesX * state.tilesY);
+
+    setupScene();
+
+    return TRUE;
 }
 
 //
@@ -737,6 +769,42 @@ INT_PTR CALLBACK CustomSceneProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM 
 }
 
 //
+//  FUNCTION: CustomThreadsProc(HWND, UINT, WPARAM, LPARAM)
+//
+//  PURPOSE: Provides custom functionality for a threads controller dialog
+//
+INT_PTR CALLBACK CustomThreadsProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam) {
+    switch (message) {
+    case WM_INITDIALOG:
+        return TRUE;
+
+    case WM_COMMAND:
+        switch (LOWORD(wParam)) {
+        case IDOK:
+        {
+            wchar_t buffer[16];
+            GetDlgItemText(hDlg, IDC_THREADS_EDIT, buffer, 16);
+            int threads = _wtoi(buffer);
+
+            if(threads > 0) {
+                EndDialog(hDlg, threads);
+            }
+            else {
+                MessageBox(hDlg, L"Please enter a valid value.", L"Error", MB_OK | MB_ICONERROR);
+            }
+        }
+        return TRUE;
+
+        case IDCANCEL:
+            EndDialog(hDlg, 0);
+            return TRUE;
+        }
+        break;
+    }
+    return FALSE;
+}
+
+//
 //  FUNCTION: OpenFileSelectionDialog(HWND)
 //
 //  PURPOSE: Opens a file selection dialog for importing .obj files, if a file is successfully selected it is loaded into the scene using createSceneFromFile()
@@ -870,6 +938,41 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                 vertices.clear();
                 planes.clear();
                 state.cam.invalidate();
+            }
+                break;
+            case IDM_THREADS_AUTO: 
+                state.numThreads = std::thread::hardware_concurrency() - 2;
+                if(state.numThreads < 1) state.numThreads = 1;
+                createThreads();
+                UpdateThreadsRadio(IDM_THREADS_AUTO);
+                break;
+            case IDM_THREADS_ONE: 
+                state.numThreads = 1;
+                createThreads();
+                UpdateThreadsRadio(IDM_THREADS_ONE);
+                break;
+            case IDM_THREADS_TWO: 
+                state.numThreads = 2;
+                createThreads();
+                UpdateThreadsRadio(IDM_THREADS_TWO);
+                break;
+            case IDM_THREADS_FOUR: 
+                state.numThreads = 4;
+                createThreads();
+                UpdateThreadsRadio(IDM_THREADS_FOUR);
+                break;
+            case IDM_THREADS_EIGHT: 
+                state.numThreads = 8;
+                createThreads();
+                UpdateThreadsRadio(IDM_THREADS_EIGHT);
+                break;
+            case IDM_THREADS_CUSTOM: {
+                int threads = DialogBox(hInst, MAKEINTRESOURCE(IDD_CUSTOM_THREADS), hWnd, CustomThreadsProc);
+                if (threads > 0) {
+                    state.numThreads = threads;
+                }
+                createThreads();
+                UpdateThreadsRadio(IDM_THREADS_CUSTOM);
             }
                 break;
             case IDM_EXIT:
