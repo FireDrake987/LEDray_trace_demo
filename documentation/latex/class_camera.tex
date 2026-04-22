@@ -1,0 +1,81 @@
+\doxysection{Camera Class Reference}
+\hypertarget{class_camera}{}\label{class_camera}\index{Camera@{Camera}}
+\doxysubsubsection*{Public Types}
+\begin{DoxyCompactItemize}
+\item 
+\Hypertarget{class_camera_ae94737abf74ae95b4c77a0dc931d5b1b}\label{class_camera_ae94737abf74ae95b4c77a0dc931d5b1b} 
+enum {\bfseries Camera\+Type} \{ {\bfseries FLAT}
+, {\bfseries CURVED}
+ \}
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\Hypertarget{class_camera_a51a10a8eedeb61c7b605ed3545cc3b23}\label{class_camera_a51a10a8eedeb61c7b605ed3545cc3b23} 
+{\bfseries Camera} (double x, double y, double z, double width, double height, \doxymbox{\hyperlink{class_quaternion}{Quaternion}} cam\+Rot)
+\item 
+\Hypertarget{class_camera_a6e8ab812d8ae87e0be8a77434d78d59d}\label{class_camera_a6e8ab812d8ae87e0be8a77434d78d59d} 
+void {\bfseries raw\+Move} (double dx, double dy, double dz)
+\item 
+\Hypertarget{class_camera_afd42722585167d992c7256ea0fc7b944}\label{class_camera_afd42722585167d992c7256ea0fc7b944} 
+void {\bfseries move} (\doxymbox{\hyperlink{class_vector}{Vector}} dir)
+\item 
+\Hypertarget{class_camera_aef18de3bd8f368e9b0879d9cf42ffe10}\label{class_camera_aef18de3bd8f368e9b0879d9cf42ffe10} 
+void {\bfseries move} (double right, double down, double forwards)
+\item 
+\Hypertarget{class_camera_a9be912a95a5223b4134c99973f320346}\label{class_camera_a9be912a95a5223b4134c99973f320346} 
+void {\bfseries set\+Rot} (\doxymbox{\hyperlink{class_quaternion}{Quaternion}} new\+Rot)
+\item 
+\Hypertarget{class_camera_a611513b9e69430183af1d4cd0c26be48}\label{class_camera_a611513b9e69430183af1d4cd0c26be48} 
+void {\bfseries rotate} (\doxymbox{\hyperlink{class_quaternion}{Quaternion}} rot)
+\item 
+\Hypertarget{class_camera_a2ae623f9dcf5eeed4993253330bc085b}\label{class_camera_a2ae623f9dcf5eeed4993253330bc085b} 
+void {\bfseries euler\+Rotate} (double yaw, double pitch)
+\item 
+\Hypertarget{class_camera_ab6bc896203848a8d6004b1663e9892b3}\label{class_camera_ab6bc896203848a8d6004b1663e9892b3} 
+void {\bfseries euler\+Rotate} (double yaw, double pitch, double roll)
+\item 
+\Hypertarget{class_camera_afbf122778c718aedc9afbf6546135578}\label{class_camera_afbf122778c718aedc9afbf6546135578} 
+void {\bfseries invalidate} ()
+\item 
+\Hypertarget{class_camera_a299716a49761965b79805a4f2f934a77}\label{class_camera_a299716a49761965b79805a4f2f934a77} 
+void {\bfseries build} ()
+\item 
+\Hypertarget{class_camera_a47e85d1286db65634af895e6bf0359c4}\label{class_camera_a47e85d1286db65634af895e6bf0359c4} 
+void {\bfseries build\+Map} ()
+\item 
+\Hypertarget{class_camera_a7217b5ae31c1b6a6161aa31119ad3acb}\label{class_camera_a7217b5ae31c1b6a6161aa31119ad3acb} 
+std::\+vector$<$ \doxymbox{\hyperlink{struct_b_g_r_pixel}{BGRPixel}} $>$ {\bfseries render} (int x1, int y1, int x2, int y2)
+\item 
+\Hypertarget{class_camera_a082c28f17e5bb1f2cfb60ce17a5a6a24}\label{class_camera_a082c28f17e5bb1f2cfb60ce17a5a6a24} 
+\doxymbox{\hyperlink{struct_b_g_r_pixel}{BGRPixel}} {\bfseries trace\+Ray} (\doxymbox{\hyperlink{class_ray}{Ray}} ray, double str)
+\item 
+\Hypertarget{class_camera_a83dbc32c6f76db18aff7d62e7378773b}\label{class_camera_a83dbc32c6f76db18aff7d62e7378773b} 
+\doxymbox{\hyperlink{class_vector}{Vector}} {\bfseries angle\+To\+Vector} (double yaw, double pitch)
+\item 
+\Hypertarget{class_camera_a4366bef2d861d12f0357f78148f0ae96}\label{class_camera_a4366bef2d861d12f0357f78148f0ae96} 
+void {\bfseries set\+FOV} (double x, double y)
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\Hypertarget{class_camera_ab06b3dd6b1dafc6cef31329b7deb2f59}\label{class_camera_ab06b3dd6b1dafc6cef31329b7deb2f59} 
+std::\+vector$<$ \doxymbox{\hyperlink{class_plane}{Plane}} \texorpdfstring{$\ast$}{*} $>$ {\bfseries scene}
+\item 
+\Hypertarget{class_camera_af15352ed353b2dad5366175ac52a7d13}\label{class_camera_af15352ed353b2dad5366175ac52a7d13} 
+std::\+shared\+\_\+mutex {\bfseries invalidate\+Mut}
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Static Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\Hypertarget{class_camera_ada49b37c1017232672640c44e8ca9873}\label{class_camera_ada49b37c1017232672640c44e8ca9873} 
+static Camera\+Type {\bfseries type} = CURVED
+\item 
+\Hypertarget{class_camera_aee9f7149143f3946aae1f73e41c5ff04}\label{class_camera_aee9f7149143f3946aae1f73e41c5ff04} 
+static double {\bfseries min\+Str} = 0.\+05
+\end{DoxyCompactItemize}
+
+
+The documentation for this class was generated from the following file:\+\begin{DoxyCompactItemize}
+\item 
+G:\+/\+\+LEDray\+\_\+trace\+\_\+demo/\+Camera.\+h\end{DoxyCompactItemize}

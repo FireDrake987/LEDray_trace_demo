@@ -1,0 +1,72 @@
+\doxysection{Plane.\+h}
+\hypertarget{_plane_8h_source}{}\label{_plane_8h_source}\index{G:/LEDray\_trace\_demo/Plane.h@{G:/LEDray\_trace\_demo/Plane.h}}
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{preprocessor}{\#pragma\ once}}
+\DoxyCodeLine{00002\ \textcolor{preprocessor}{\#include\ "{}intersectionInfoStruct.h"{}}}
+\DoxyCodeLine{00003\ \textcolor{preprocessor}{\#include\ "{}Ray.h"{}}}
+\DoxyCodeLine{00004\ \textcolor{preprocessor}{\#include\ "{}Point3D.h"{}}}
+\DoxyCodeLine{00005\ \textcolor{preprocessor}{\#include\ "{}Material.h"{}}}
+\DoxyCodeLine{00006\ }
+\DoxyCodeLine{00007\ \textcolor{keyword}{class\ }Plane\ \{}
+\DoxyCodeLine{00008\ \ \ \ \ \textcolor{keywordtype}{double}\ A,\ B,\ C,\ D;\textcolor{comment}{//Ax+By+Cz+D=0}}
+\DoxyCodeLine{00009\ \ \ \ \ \doxymbox{\hyperlink{class_point3_d}{Point3D}}\ pointOnPlane;}
+\DoxyCodeLine{00010\ \ \ \ \ \doxymbox{\hyperlink{class_material}{Material}}\ mat;}
+\DoxyCodeLine{00011\ }
+\DoxyCodeLine{00012\ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00013\ \ \ \ \ \textcolor{comment}{//}}
+\DoxyCodeLine{00014\ \ \ \ \ \textcolor{comment}{//\ \ FUNCTION:\ Plane(Material\ mat,\ Point3D\ p1,\ Point3D\ p2,\ Point3D\ p3)}}
+\DoxyCodeLine{00015\ \ \ \ \ \textcolor{comment}{//}}
+\DoxyCodeLine{00016\ \ \ \ \ \textcolor{comment}{//\ \ PURPOSE:\ Constructor\ for\ Plane\ class.\ Takes\ in\ a\ material\ and\ three\ points\ that\ define\ the\ plane.\ The\ plane\ is\ calculated\ from\ the\ three\ points,\ and\ the\ material\ is\ stored\ for\ later\ use\ in\ shading\ calculations.}}
+\DoxyCodeLine{00017\ \ \ \ \ \textcolor{comment}{//}}
+\DoxyCodeLine{00018\ \ \ \ \ Plane(\doxymbox{\hyperlink{class_material}{Material}}\ mat,\ \doxymbox{\hyperlink{class_point3_d}{Point3D}}\ p1,\ \doxymbox{\hyperlink{class_point3_d}{Point3D}}\ p2,\ \doxymbox{\hyperlink{class_point3_d}{Point3D}}\ p3);}
+\DoxyCodeLine{00019\ }
+\DoxyCodeLine{00020\ \ \ \ \ \textcolor{comment}{//}}
+\DoxyCodeLine{00021\ \ \ \ \ \textcolor{comment}{//\ \ FUNCTION:\ Plane(Material\ mat,\ double\ a,\ double\ b,\ double\ c,\ double\ d)}}
+\DoxyCodeLine{00022\ \ \ \ \ \textcolor{comment}{//}}
+\DoxyCodeLine{00023\ \ \ \ \ \textcolor{comment}{//\ \ PURPOSE:\ Constructor\ for\ Plane\ class.\ Takes\ in\ a\ material\ and\ the\ coefficients\ of\ the\ plane\ equation\ (A,\ B,\ C,\ D)\ in\ the\ form\ Ax\ +\ By\ +\ Cz\ +\ D\ =\ 0.\ The\ material\ is\ stored\ for\ later\ use\ in\ shading\ calculations,\ and\ a\ point\ on\ the\ plane\ is\ calculated\ based\ on\ the\ coefficients\ for\ use\ in\ intersection\ calculations.}}
+\DoxyCodeLine{00024\ \ \ \ \ \textcolor{comment}{//}}
+\DoxyCodeLine{00025\ \ \ \ \ \textcolor{comment}{//\ \ COMMENTS:\ }}
+\DoxyCodeLine{00026\ \ \ \ \ \textcolor{comment}{//}}
+\DoxyCodeLine{00027\ \ \ \ \ \textcolor{comment}{//\ \ \ \ \ \ \ Some\ implementations\ use\ Ax+By+Cz=D,\ but\ this\ uses\ Ax+By+Cz+D=0}}
+\DoxyCodeLine{00028\ \ \ \ \ \textcolor{comment}{//\ \ \ \ \ \ \ If\ you\ expect\ Ax+By+Cz+D=0,\ just\ set\ D\ to\ -\/D\ when\ calling\ this\ constructor}}
+\DoxyCodeLine{00029\ \ \ \ \ \textcolor{comment}{//}}
+\DoxyCodeLine{00030\ \ \ \ \ Plane(\doxymbox{\hyperlink{class_material}{Material}}\ mat,\ \textcolor{keywordtype}{double}\ a,\ \textcolor{keywordtype}{double}\ b,\ \textcolor{keywordtype}{double}\ c,\ \textcolor{keywordtype}{double}\ d);}
+\DoxyCodeLine{00031\ }
+\DoxyCodeLine{00032\ \ \ \ \ \textcolor{comment}{//}}
+\DoxyCodeLine{00033\ \ \ \ \ \textcolor{comment}{//\ \ FUNCTION:\ Plane()}}
+\DoxyCodeLine{00034\ \ \ \ \ \textcolor{comment}{//\ }}
+\DoxyCodeLine{00035\ \ \ \ \ \textcolor{comment}{//\ \ PURPOSE:\ Default\ constructor\ for\ Plane\ class.\ Initializes\ the\ plane\ to\ the\ default\ plane\ (A=0,\ B=0,\ C=0,\ D=0)\ and\ the\ material\ to\ a\ default\ material.}}
+\DoxyCodeLine{00036\ \ \ \ \ \textcolor{comment}{//}}
+\DoxyCodeLine{00037\ \ \ \ \ Plane();}
+\DoxyCodeLine{00038\ }
+\DoxyCodeLine{00039\ }
+\DoxyCodeLine{00040\ \ \ \ \ \textcolor{comment}{//}}
+\DoxyCodeLine{00041\ \ \ \ \ \textcolor{comment}{//\ \ FUNCTION:\ getIntersection(Ray\ ray)}}
+\DoxyCodeLine{00042\ \ \ \ \ \textcolor{comment}{//}}
+\DoxyCodeLine{00043\ \ \ \ \ \textcolor{comment}{//\ \ PURPOSE:\ Calculates\ the\ intersection\ of\ the\ given\ ray\ with\ the\ plane.\ It\ uses\ the\ plane\ equation\ and\ the\ ray\ equation\ to\ solve\ for\ the\ parameter\ t\ at\ which\ the\ ray\ intersects\ the\ plane.\ If\ there\ is\ no\ intersection\ (ray\ is\ parallel\ to\ the\ plane),\ it\ returns\ an\ intersectionInfoStruct\ with\ t\ set\ to\ -\/1.\ If\ there\ is\ an\ intersection,\ it\ calculates\ the\ intersection\ point\ and\ returns\ it\ along\ with\ the\ parameter\ t.}}
+\DoxyCodeLine{00044\ \ \ \ \ \textcolor{comment}{//}}
+\DoxyCodeLine{00045\ \ \ \ \ \textcolor{comment}{//\ \ COMMENTS:\ }}
+\DoxyCodeLine{00046\ \ \ \ \ \textcolor{comment}{//}}
+\DoxyCodeLine{00047\ \ \ \ \ \textcolor{comment}{//\ \ \ \ \ \ \ \ \ Override\ this\ method\ in\ subclasses\ to\ implement\ different\ intersection\ behavior\ (e.g.,\ for\ triangles,\ only\ return\ an\ intersection\ if\ the\ point\ is\ within\ the\ triangle\ bounds)}}
+\DoxyCodeLine{00048\ \ \ \ \ \textcolor{comment}{//}}
+\DoxyCodeLine{00049\ \ \ \ \ \textcolor{keyword}{virtual}\ \doxymbox{\hyperlink{structintersection_info_struct}{intersectionInfoStruct}}\ getIntersection(\doxymbox{\hyperlink{class_ray}{Ray}}\ ray);}
+\DoxyCodeLine{00050\ }
+\DoxyCodeLine{00051\ }
+\DoxyCodeLine{00052\ \ \ \ \ \textcolor{comment}{//Get\ Methods}}
+\DoxyCodeLine{00053\ \ \ \ \ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{double}\ getA()\textcolor{keyword}{\ const\ }\{\ \textcolor{keywordflow}{return}\ A;\ \}}
+\DoxyCodeLine{00054\ }
+\DoxyCodeLine{00055\ \ \ \ \ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{double}\ getB()\textcolor{keyword}{\ const\ }\{\ \textcolor{keywordflow}{return}\ B;\ \}}
+\DoxyCodeLine{00056\ }
+\DoxyCodeLine{00057\ \ \ \ \ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{double}\ getC()\textcolor{keyword}{\ const\ }\{\ \textcolor{keywordflow}{return}\ C;\ \}}
+\DoxyCodeLine{00058\ }
+\DoxyCodeLine{00059\ \ \ \ \ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{double}\ getD()\textcolor{keyword}{\ const\ }\{\ \textcolor{keywordflow}{return}\ D;\ \}}
+\DoxyCodeLine{00060\ }
+\DoxyCodeLine{00061\ \ \ \ \ \textcolor{keyword}{inline}\ \doxymbox{\hyperlink{class_material}{Material}}\ getMaterial()\textcolor{keyword}{\ const\ }\{\ \textcolor{keywordflow}{return}\ mat;\ \}}
+\DoxyCodeLine{00062\ }
+\DoxyCodeLine{00063\ \ \ \ \ \textcolor{keyword}{inline}\ \doxymbox{\hyperlink{class_point3_d}{Point3D}}\ getPointOnPlane()\textcolor{keyword}{\ const\ }\{\ \textcolor{keywordflow}{return}\ pointOnPlane;\ \}}
+\DoxyCodeLine{00064\ }
+\DoxyCodeLine{00065\ \ \ \ \ \doxymbox{\hyperlink{class_vector}{Vector}}\ getNormal()\ \textcolor{keyword}{const};}
+\DoxyCodeLine{00066\ \};}
+
+\end{DoxyCode}
