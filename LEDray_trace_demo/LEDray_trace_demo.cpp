@@ -197,6 +197,8 @@ void renderWork(HDC *hdc, RECT bounds, HDC buffer) {
     }
 }
 
+bool performanceMetricsSkipped = false;
+int performanceMetricsSkipFrames = 20;
 //
 //  FUNCTION: loop()
 //
@@ -220,6 +222,10 @@ void loop() {
                 long long currentTime = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now().time_since_epoch()).count();
                 if (state.frameTimes.size() < 501) {
                     state.frameTimes.push_back(currentTime - state.lastFrameTime);
+                }
+				if (!performanceMetricsSkipped && state.frameTimes.size() >= performanceMetricsSkipFrames) {
+                    state.frameTimes.clear();
+                    performanceMetricsSkipped = true;
                 }
                 if(state.frameTimes.size() == 500) {
                     //Stats calculation for average frame time and SE
