@@ -52,6 +52,8 @@ struct AppState {
     std::wstring lastKeyDown = L"";
     std::wstring lastKeyUp = L"";
     long long fpsTime = START_TIME;
+	long long lastFrameTime = START_TIME;
+	std::vector<long long> frameTimes;
     long frameDelay = 1000 * (1 / 5.0);// In ms
     HMENU hMainMenu = nullptr;
     HMENU hFramerateMenu = nullptr;
@@ -215,6 +217,36 @@ void loop() {
                 state.mousePos.y = 0;
             }
             if(renderJobs.size() == 0) {//Only actually render when the previous frame is done
+                long long currentTime = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now().time_since_epoch()).count();
+                if (state.frameTimes.size() < 501) {
+                    state.frameTimes.push_back(currentTime - state.lastFrameTime);
+                }
+                if(state.frameTimes.size() == 500) {
+                    //Stats calculation for average frame time and SE
+                    long long sum = 0;
+                    long long max = 0;
+					long long min = LLONG_MAX;
+                    for (long long time : state.frameTimes) {
+                        sum += time;
+                        if(time > max) {
+                            max = time;
+						}
+                        if(time < min) {
+                            min = time;
+						}
+                    }
+					double average = sum / (state.frameTimes.size() * 1.0);
+                    double diffsqsum = 0;
+                    for (long long time : state.frameTimes) {
+						double diff = time - average;
+                        double diffsq = diff * diff;
+                        diffsqsum += diffsq;
+                    }
+					double stdev = sqrtf(diffsqsum / (state.frameTimes.size() * 1.0));
+					double sterr = stdev / sqrtf(state.frameTimes.size());
+					double sterr2 = sterr * 2;
+				}
+                state.lastFrameTime = currentTime;
                 for(int i = 0, x = 0; i < state.tilesX; x += (int)(RAYTRACE_WIDTH / state.tilesX), i++) {
                     for(int j = 0, y = 0; j < state.tilesY; y += (int)(RAYTRACE_HEIGHT / state.tilesY), j++) {
                         std::function<void(HDC*, RECT, HDC)> render = renderWork;
@@ -1039,6 +1071,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         if(wParam == VK_ESCAPE) {
             DisableMouseCapture();
         }
+        if(wParam == 118) {//f7
+			state.frameTimes.clear();
+		}
         if(wParam == 117) {//f6
             state.cam.setRot(Quaternion());
             state.cam.setFOV((3.1415) / 2, 5 * (3.1415) / 12);
