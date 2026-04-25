@@ -1,0 +1,36 @@
+\doxysection{Ray.\+h}
+\hypertarget{_ray_8h_source}{}\label{_ray_8h_source}\index{G:/LEDray\_trace\_demo/Ray.h@{G:/LEDray\_trace\_demo/Ray.h}}
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{preprocessor}{\#pragma\ once}}
+\DoxyCodeLine{00002\ \textcolor{preprocessor}{\#include\ "{}Point3D.h"{}}}
+\DoxyCodeLine{00003\ \textcolor{preprocessor}{\#include\ "{}Vector.h"{}}}
+\DoxyCodeLine{00004\ }
+\DoxyCodeLine{00005\ \textcolor{keyword}{class\ }Ray\ \{}
+\DoxyCodeLine{00006\ \ \ \ \ \doxymbox{\hyperlink{class_point3_d}{Point3D}}\ start;}
+\DoxyCodeLine{00007\ \ \ \ \ \doxymbox{\hyperlink{class_vector}{Vector}}\ dir;}
+\DoxyCodeLine{00008\ }
+\DoxyCodeLine{00009\ \textcolor{keyword}{public}:\ }
+\DoxyCodeLine{00010\ \ \ \ \ \textcolor{comment}{//}}
+\DoxyCodeLine{00011\ \ \ \ \ \textcolor{comment}{//\ \ FUNCTION:\ Ray(Point3D\ origin,\ Vector\ direction)}}
+\DoxyCodeLine{00012\ \ \ \ \ \textcolor{comment}{//}}
+\DoxyCodeLine{00013\ \ \ \ \ \textcolor{comment}{//\ \ PURPOSE:\ Constructor\ for\ Ray\ class.\ Takes\ in\ an\ origin\ point\ and\ a\ direction\ vector.\ Additionally\ normalized\ direction\ vector\ to\ ensure\ consistent\ behavior\ in\ intersection\ calculations.}}
+\DoxyCodeLine{00014\ \ \ \ \ \textcolor{comment}{//}}
+\DoxyCodeLine{00015\ \ \ \ \ Ray(\doxymbox{\hyperlink{class_point3_d}{Point3D}}\ origin,\ \doxymbox{\hyperlink{class_vector}{Vector}}\ direction);}
+\DoxyCodeLine{00016\ }
+\DoxyCodeLine{00017\ \ \ \ \ \textcolor{comment}{//}}
+\DoxyCodeLine{00018\ \ \ \ \ \textcolor{comment}{//\ \ FUNCTION:\ Ray(Vector\ direction)}}
+\DoxyCodeLine{00019\ \ \ \ \ \textcolor{comment}{//}}
+\DoxyCodeLine{00020\ \ \ \ \ \textcolor{comment}{//\ \ PURPOSE:\ Constructor\ for\ Ray\ class\ that\ takes\ in\ only\ a\ direction\ vector.\ The\ origin\ point\ is\ set\ to\ (0,\ 0,\ 0)\ by\ default.\ The\ direction\ vector\ is\ normalized\ to\ ensure\ consistent\ behavior\ in\ intersection\ calculations.}}
+\DoxyCodeLine{00021\ \ \ \ \ \textcolor{comment}{//}}
+\DoxyCodeLine{00022\ \ \ \ \ Ray(\doxymbox{\hyperlink{class_vector}{Vector}}\ asVector);}
+\DoxyCodeLine{00023\ }
+\DoxyCodeLine{00024\ \ \ \ \ \textcolor{comment}{//Get\ Methods}}
+\DoxyCodeLine{00025\ \ \ \ \ \textcolor{keyword}{inline}\ \doxymbox{\hyperlink{class_point3_d}{Point3D}}\ getStart()\textcolor{keyword}{\ const\ }\{\ \textcolor{keywordflow}{return}\ start;\ \}}
+\DoxyCodeLine{00026\ }
+\DoxyCodeLine{00027\ \ \ \ \ \textcolor{keyword}{inline}\ \doxymbox{\hyperlink{class_point3_d}{Point3D}}\ getEnd()\textcolor{keyword}{\ const\ }\{\ \textcolor{keywordflow}{return}\ start\ +\ dir.asPoint();\ \}}
+\DoxyCodeLine{00028\ }
+\DoxyCodeLine{00029\ \ \ \ \ \textcolor{keyword}{inline}\ \doxymbox{\hyperlink{class_vector}{Vector}}\ getVector()\textcolor{keyword}{\ const\ }\{\ \textcolor{keywordflow}{return}\ dir;\ \}}
+\DoxyCodeLine{00030\ \};}
+
+\end{DoxyCode}

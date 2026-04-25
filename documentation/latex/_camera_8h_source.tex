@@ -1,0 +1,199 @@
+\doxysection{Camera.\+h}
+\hypertarget{_camera_8h_source}{}\label{_camera_8h_source}\index{G:/LEDray\_trace\_demo/Camera.h@{G:/LEDray\_trace\_demo/Camera.h}}
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{preprocessor}{\#pragma\ once}}
+\DoxyCodeLine{00002\ \textcolor{preprocessor}{\#include\ "{}Quaternion.h"{}}}
+\DoxyCodeLine{00003\ \textcolor{preprocessor}{\#include\ "{}BGRPixel.h"{}}}
+\DoxyCodeLine{00004\ \textcolor{preprocessor}{\#include\ "{}Plane.h"{}}}
+\DoxyCodeLine{00005\ \textcolor{preprocessor}{\#include\ "{}Material.h"{}}}
+\DoxyCodeLine{00006\ \textcolor{preprocessor}{\#include\ <vector>}}
+\DoxyCodeLine{00007\ \textcolor{preprocessor}{\#include\ <mutex>}}
+\DoxyCodeLine{00008\ \textcolor{preprocessor}{\#include\ <shared\_mutex>}}
+\DoxyCodeLine{00009\ }
+\DoxyCodeLine{00010\ \textcolor{keyword}{class\ }Camera\ \{}
+\DoxyCodeLine{00011\ \ \ \ \ \textcolor{keyword}{inline}\ \textcolor{keyword}{static}\ \textcolor{keywordtype}{double}\ RENDER\ =\ DBL\_MAX;}
+\DoxyCodeLine{00012\ \ \ \ \ \textcolor{keyword}{inline}\ \textcolor{keyword}{static}\ \doxymbox{\hyperlink{struct_b_g_r_pixel}{BGRPixel}}\ DEFAULT\_COLOR\ =\ \doxymbox{\hyperlink{struct_b_g_r_pixel}{BGRPixel}}\{0,\ 0,\ 0\};}
+\DoxyCodeLine{00013\ \ \ \ \ \textcolor{keywordtype}{double}\ x,\ y,\ z;}
+\DoxyCodeLine{00014\ \ \ \ \ \textcolor{keywordtype}{double}\ width,\ height;}
+\DoxyCodeLine{00015\ \ \ \ \ \textcolor{keywordtype}{double}\ FOVx,\ FOVy;}
+\DoxyCodeLine{00016\ \ \ \ \ \doxymbox{\hyperlink{class_quaternion}{Quaternion}}\ camRot;}
+\DoxyCodeLine{00017\ \ \ \ \ std::vector<std::vector<Vector>>\ map;}
+\DoxyCodeLine{00018\ \ \ \ \ \textcolor{keywordtype}{bool}\ ready;}
+\DoxyCodeLine{00019\ }
+\DoxyCodeLine{00020\ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00021\ \ \ \ \ std::vector<Plane*>\ scene;}
+\DoxyCodeLine{00022\ \ \ \ \ std::shared\_mutex\ invalidateMut;}
+\DoxyCodeLine{00023\ }
+\DoxyCodeLine{00024\ \ \ \ \ \textcolor{keyword}{enum}\ CameraType\ \{}
+\DoxyCodeLine{00025\ \ \ \ \ \ \ \ \ FLAT,\ CURVED}
+\DoxyCodeLine{00026\ \ \ \ \ \};}
+\DoxyCodeLine{00027\ \ \ \ \ \textcolor{keyword}{inline}\ \textcolor{keyword}{static}\ CameraType\ type\ =\ CURVED;}
+\DoxyCodeLine{00028\ }
+\DoxyCodeLine{00029\ \ \ \ \ \textcolor{keyword}{inline}\ \textcolor{keyword}{static}\ \textcolor{keywordtype}{double}\ minStr\ =\ 0.05;\textcolor{comment}{//Minimum\ strength\ for\ a\ ray\ to\ be\ rendered;\ this\ is\ used\ to\ prevent\ rendering\ rays\ that\ are\ too\ weak\ to\ contribute\ to\ the\ final\ image,\ which\ can\ improve\ performance\ by\ skipping\ unnecessary\ calculations\ for\ rays\ that\ would\ have\ negligible\ impact\ on\ the\ final\ color\ of\ the\ pixel.\ The\ value\ can\ be\ adjusted\ based\ on\ the\ desired\ balance\ between\ performance\ and\ visual\ quality\ (e.g.,\ a\ higher\ value\ will\ skip\ more\ rays\ and\ improve\ performance\ but\ may\ result\ in\ a\ less\ accurate\ rendering,\ while\ a\ lower\ value\ will\ include\ more\ rays\ and\ improve\ visual\ quality\ but\ may\ reduce\ performance).}}
+\DoxyCodeLine{00030\ }
+\DoxyCodeLine{00031\ \ \ \ \ \textcolor{comment}{//}}
+\DoxyCodeLine{00032\ \ \ \ \ \textcolor{comment}{//\ \ FUNCTION:\ Camera(double,\ double,\ double,\ double,\ double,\ Quaternion)}}
+\DoxyCodeLine{00033\ \ \ \ \ \textcolor{comment}{//}}
+\DoxyCodeLine{00034\ \ \ \ \ \textcolor{comment}{//\ \ PURPOSE:\ Constructor\ for\ Camera\ class.\ Initializes\ the\ camera's\ position\ (x,\ y,\ z),\ viewport\ dimensions\ (width,\ height),\ and\ orientation\ (camRot).\ The\ field\ of\ view\ is\ set\ to\ default\ values\ (FOVx\ =\ 90\ degrees,\ FOVy\ =\ 75\ degrees),\ and\ the\ camera\ is\ marked\ as\ not\ ready\ until\ the\ build\ function\ is\ called\ to\ generate\ the\ ray\ mapping.}}
+\DoxyCodeLine{00035\ \ \ \ \ \textcolor{comment}{//}}
+\DoxyCodeLine{00036\ \ \ \ \ Camera(\textcolor{keywordtype}{double}\ x,\ \textcolor{keywordtype}{double}\ y,\ \textcolor{keywordtype}{double}\ z,\ \textcolor{keywordtype}{double}\ width,\ \textcolor{keywordtype}{double}\ height,\ \doxymbox{\hyperlink{class_quaternion}{Quaternion}}\ camRot);}
+\DoxyCodeLine{00037\ }
+\DoxyCodeLine{00038\ \ \ \ \ \textcolor{comment}{//}}
+\DoxyCodeLine{00039\ \ \ \ \ \textcolor{comment}{//\ \ FUNCTION:\ Camera()}}
+\DoxyCodeLine{00040\ \ \ \ \ \textcolor{comment}{//}}
+\DoxyCodeLine{00041\ \ \ \ \ \textcolor{comment}{//\ \ PURPOSE:\ Default\ constructor\ for\ Camera\ class.\ Initializes\ the\ camera's\ position\ to\ the\ origin\ (0,\ 0,\ 0),\ viewport\ dimensions\ to\ 0,\ orientation\ to\ the\ identity\ rotation\ (no\ rotation),\ and\ field\ of\ view\ to\ default\ values\ (FOVx\ =\ 90\ degrees,\ FOVy\ =\ 75\ degrees).\ The\ camera\ is\ marked\ as\ not\ ready\ until\ the\ build\ function\ is\ called\ to\ generate\ the\ ray\ mapping.}}
+\DoxyCodeLine{00042\ \ \ \ \ \textcolor{comment}{//}}
+\DoxyCodeLine{00043\ \ \ \ \ \textcolor{comment}{//\ \ COMMENTS:}}
+\DoxyCodeLine{00044\ \ \ \ \ \textcolor{comment}{//}}
+\DoxyCodeLine{00045\ \ \ \ \ \textcolor{comment}{//\ \ \ \ \ \ \ This\ camera\ will\ have\ no\ output.\ This\ is\ effectively\ invalid,\ but\ can\ be\ used\ as\ an\ effective\ placeholder\ until\ the\ actual\ camera\ is\ initialized\ with\ the\ other\ constructor,\ which\ can\ be\ useful\ for\ certain\ data\ structures\ that\ require\ a\ default\ constructor\ (e.g.,\ if\ you\ want\ to\ have\ a\ vector\ of\ cameras,\ you\ need\ a\ default\ constructor\ to\ initialize\ the\ vector).}}
+\DoxyCodeLine{00046\ \ \ \ \ \textcolor{comment}{//}}
+\DoxyCodeLine{00047\ \ \ \ \ Camera();}
+\DoxyCodeLine{00048\ }
+\DoxyCodeLine{00049\ }
+\DoxyCodeLine{00050\ \ \ \ \ \textcolor{comment}{//}}
+\DoxyCodeLine{00051\ \ \ \ \ \textcolor{comment}{//\ \ FUNCTION:\ rawMove(double,\ double,\ double)}}
+\DoxyCodeLine{00052\ \ \ \ \ \textcolor{comment}{//}}
+\DoxyCodeLine{00053\ \ \ \ \ \textcolor{comment}{//\ \ PURPOSE:\ Moves\ the\ camera\ by\ the\ given\ raw\ amounts\ in\ the\ x/y/z\ directions.\ This\ is\ a\ simple\ translation\ that\ does\ not\ take\ into\ account\ the\ camera's\ current\ orientation;\ it\ simply\ adds\ the\ given\ amounts\ to\ the\ camera's\ current\ position.\ The\ invalidate\ function\ is\ called\ to\ mark\ the\ camera\ as\ not\ ready\ and\ clear\ the\ ray\ mapping,\ since\ the\ camera's\ position\ has\ changed\ and\ the\ existing\ ray\ mapping\ may\ no\ longer\ be\ valid.}}
+\DoxyCodeLine{00054\ \ \ \ \ \textcolor{comment}{//}}
+\DoxyCodeLine{00055\ \ \ \ \ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{void}\ rawMove(\textcolor{keywordtype}{double}\ dx,\ \textcolor{keywordtype}{double}\ dy,\ \textcolor{keywordtype}{double}\ dz)\ \{}
+\DoxyCodeLine{00056\ \ \ \ \ \ \ \ \ std::unique\_lock<std::shared\_mutex>\ lock(invalidateMut);}
+\DoxyCodeLine{00057\ \ \ \ \ \ \ \ \ x\ +=\ dx;}
+\DoxyCodeLine{00058\ \ \ \ \ \ \ \ \ y\ +=\ dy;}
+\DoxyCodeLine{00059\ \ \ \ \ \ \ \ \ z\ +=\ dz;}
+\DoxyCodeLine{00060\ \ \ \ \ \ \ \ \ invalidate();}
+\DoxyCodeLine{00061\ \ \ \ \ \}}
+\DoxyCodeLine{00062\ }
+\DoxyCodeLine{00063\ \ \ \ \ \textcolor{comment}{//}}
+\DoxyCodeLine{00064\ \ \ \ \ \textcolor{comment}{//\ \ FUNCTION:\ move(Vector)}}
+\DoxyCodeLine{00065\ \ \ \ \ \textcolor{comment}{//}}
+\DoxyCodeLine{00066\ \ \ \ \ \textcolor{comment}{//\ \ PURPOSE:\ Moves\ the\ camera\ by\ the\ given\ vector,\ which\ represents\ the\ direction\ and\ magnitude\ of\ the\ movement.\ The\ vector\ is\ transformed\ by\ the\ camera's\ current\ rotation\ to\ ensure\ that\ the\ movement\ is\ relative\ to\ the\ camera's\ orientation\ (e.g.,\ moving\ forward\ will\ move\ in\ the\ direction\ the\ camera\ is\ facing).\ The\ invalidate\ function\ is\ called\ to\ mark\ the\ camera\ as\ not\ ready\ and\ clear\ the\ ray\ mapping,\ since\ the\ camera's\ position\ has\ changed\ and\ the\ existing\ ray\ mapping\ may\ no\ longer\ be\ valid.}}
+\DoxyCodeLine{00067\ \ \ \ \ \textcolor{comment}{//}}
+\DoxyCodeLine{00068\ \ \ \ \ \textcolor{keywordtype}{void}\ move(\doxymbox{\hyperlink{class_vector}{Vector}}\ dir);}
+\DoxyCodeLine{00069\ }
+\DoxyCodeLine{00070\ \ \ \ \ \textcolor{comment}{//}}
+\DoxyCodeLine{00071\ \ \ \ \ \textcolor{comment}{//\ \ FUNCTION:\ move(double,\ double,\ double)}}
+\DoxyCodeLine{00072\ \ \ \ \ \textcolor{comment}{//}}
+\DoxyCodeLine{00073\ \ \ \ \ \textcolor{comment}{//\ \ PURPOSE:\ Moves\ the\ camera\ by\ the\ given\ amounts\ in\ the\ right,\ down,\ and\ forward\ directions\ relative\ to\ the\ camera's\ current\ orientation.\ The\ right\ direction\ is\ determined\ by\ applying\ the\ camera's\ rotation\ to\ the\ vector\ (1,\ 0,\ 0),\ the\ down\ direction\ is\ determined\ by\ applying\ the\ camera's\ rotation\ to\ the\ vector\ (0,\ 1,\ 0),\ and\ the\ forward\ direction\ is\ determined\ by\ applying\ the\ camera's\ rotation\ to\ the\ vector\ (0,\ 0,\ 1).\ The\ given\ amounts\ are\ multiplied\ by\ these\ direction\ vectors\ and\ added\ to\ the\ camera's\ current\ position\ to\ move\ it\ accordingly.\ The\ invalidate\ function\ is\ called\ to\ mark\ the\ camera\ as\ not\ ready\ and\ clear\ the\ ray\ mapping,\ since\ the\ camera's\ position\ has\ changed\ and\ the\ existing\ ray\ mapping\ may\ no\ longer\ be\ valid.}}
+\DoxyCodeLine{00074\ \ \ \ \ \textcolor{comment}{//}}
+\DoxyCodeLine{00075\ \ \ \ \ \textcolor{keywordtype}{void}\ move(\textcolor{keywordtype}{double}\ right,\ \textcolor{keywordtype}{double}\ down,\ \textcolor{keywordtype}{double}\ forwards);}
+\DoxyCodeLine{00076\ }
+\DoxyCodeLine{00077\ \ \ \ \ \textcolor{comment}{//}}
+\DoxyCodeLine{00078\ \ \ \ \ \textcolor{comment}{//\ \ FUNCTION:\ setRot(Quaternion)}}
+\DoxyCodeLine{00079\ \ \ \ \ \textcolor{comment}{//}}
+\DoxyCodeLine{00080\ \ \ \ \ \textcolor{comment}{//\ \ PURPOSE:\ Sets\ the\ camera's\ rotation\ to\ the\ given\ quaternion,\ which\ represents\ the\ new\ orientation\ of\ the\ camera.\ The\ invalidate\ function\ is\ called\ to\ mark\ the\ camera\ as\ not\ ready\ and\ clear\ the\ ray\ mapping,\ since\ the\ camera's\ orientation\ has\ changed\ and\ the\ existing\ ray\ mapping\ may\ no\ longer\ be\ valid.}}
+\DoxyCodeLine{00081\ \ \ \ \ \textcolor{comment}{//}}
+\DoxyCodeLine{00082\ \ \ \ \ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{void}\ setRot(\doxymbox{\hyperlink{class_quaternion}{Quaternion}}\ newRot)\ \{}
+\DoxyCodeLine{00083\ \ \ \ \ \ \ \ \ std::unique\_lock<std::shared\_mutex>\ lock(invalidateMut);}
+\DoxyCodeLine{00084\ \ \ \ \ \ \ \ \ camRot\ =\ newRot;}
+\DoxyCodeLine{00085\ \ \ \ \ \ \ \ \ invalidate();}
+\DoxyCodeLine{00086\ \ \ \ \ \}}
+\DoxyCodeLine{00087\ }
+\DoxyCodeLine{00088\ \ \ \ \ \textcolor{comment}{//}}
+\DoxyCodeLine{00089\ \ \ \ \ \textcolor{comment}{//\ \ FUNCTION:\ rotate(Quaternion)}}
+\DoxyCodeLine{00090\ \ \ \ \ \textcolor{comment}{//}}
+\DoxyCodeLine{00091\ \ \ \ \ \textcolor{comment}{//\ \ PURPOSE:\ Rotates\ the\ camera\ by\ the\ given\ quaternion,\ which\ represents\ the\ rotation\ to\ be\ applied\ to\ the\ camera's\ current\ orientation.\ The\ new\ orientation\ is\ calculated\ by\ multiplying\ the\ current\ rotation\ (camRot)\ by\ the\ given\ rotation\ (rot),\ which\ applies\ the\ new\ rotation\ on\ top\ of\ the\ existing\ orientation.\ The\ invalidate\ function\ is\ called\ to\ mark\ the\ camera\ as\ not\ ready\ and\ clear\ the\ ray\ mapping,\ since\ the\ camera's\ orientation\ has\ changed\ and\ the\ existing\ ray\ mapping\ may\ no\ longer\ be\ valid.}}
+\DoxyCodeLine{00092\ \ \ \ \ \textcolor{comment}{//}}
+\DoxyCodeLine{00093\ \ \ \ \ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{void}\ rotate(\doxymbox{\hyperlink{class_quaternion}{Quaternion}}\ rot)\ \{}
+\DoxyCodeLine{00094\ \ \ \ \ \ \ \ \ std::unique\_lock<std::shared\_mutex>\ lock(invalidateMut);}
+\DoxyCodeLine{00095\ \ \ \ \ \ \ \ \ camRot\ =\ camRot\ *\ rot;}
+\DoxyCodeLine{00096\ \ \ \ \ \ \ \ \ invalidate();}
+\DoxyCodeLine{00097\ \ \ \ \ \}}
+\DoxyCodeLine{00098\ }
+\DoxyCodeLine{00099\ \ \ \ \ \textcolor{comment}{//}}
+\DoxyCodeLine{00100\ \ \ \ \ \textcolor{comment}{//\ \ FUNCTION:\ eulerRotate(double,\ double)}}
+\DoxyCodeLine{00101\ \ \ \ \ \textcolor{comment}{//}}
+\DoxyCodeLine{00102\ \ \ \ \ \textcolor{comment}{//\ \ PURPOSE:\ Rotates\ the\ camera\ by\ the\ given\ yaw\ and\ pitch\ angles,\ which\ represent\ rotations\ around\ the\ vertical\ (y)\ axis\ and\ horizontal\ (x)\ axis,\ respectively.\ The\ roll\ angle\ is\ not\ modified\ in\ this\ function.\ The\ yaw\ rotation\ is\ applied\ first,\ followed\ by\ the\ pitch\ rotation.\ The\ invalidate\ function\ is\ called\ to\ mark\ the\ camera\ as\ not\ ready\ and\ clear\ the\ ray\ mapping,\ since\ the\ camera's\ orientation\ has\ changed\ and\ the\ existing\ ray\ mapping\ may\ no\ longer\ be\ valid.}}
+\DoxyCodeLine{00103\ \ \ \ \ \textcolor{comment}{//}}
+\DoxyCodeLine{00104\ \ \ \ \ \textcolor{comment}{//\ \ COMMENTS:}}
+\DoxyCodeLine{00105\ \ \ \ \ \textcolor{comment}{//}}
+\DoxyCodeLine{00106\ \ \ \ \ \textcolor{comment}{//\ \ \ \ \ \ \ This\ function\ is\ designed\ for\ implementing\ FPS-\/style\ camera\ controls,\ where\ the\ yaw\ rotation\ is\ applied\ around\ the\ global\ up\ axis\ (y-\/axis)\ to\ prevent\ roll\ drift,\ and\ the\ pitch\ rotation\ is\ applied\ around\ the\ camera's\ local\ right\ axis\ to\ allow\ for\ looking\ up\ and\ down\ without\ affecting\ the\ yaw\ rotation.}}
+\DoxyCodeLine{00107\ \ \ \ \ \textcolor{comment}{//}}
+\DoxyCodeLine{00108\ \ \ \ \ \textcolor{keywordtype}{void}\ eulerRotate(\textcolor{keywordtype}{double}\ yaw,\ \textcolor{keywordtype}{double}\ pitch);}
+\DoxyCodeLine{00109\ }
+\DoxyCodeLine{00110\ \ \ \ \ \textcolor{comment}{//}}
+\DoxyCodeLine{00111\ \ \ \ \ \textcolor{comment}{//\ \ FUNCTION:\ eulerRotate(double,\ double,\ double)}}
+\DoxyCodeLine{00112\ \ \ \ \ \textcolor{comment}{//}}
+\DoxyCodeLine{00113\ \ \ \ \ \textcolor{comment}{//\ \ PURPOSE:\ Rotates\ the\ camera\ by\ the\ given\ yaw,\ pitch,\ and\ roll\ angles,\ which\ represent\ rotations\ around\ the\ vertical\ (y)\ axis,\ horizontal\ (x)\ axis,\ and\ forward\ (z)\ axis,\ respectively.\ The\ yaw\ rotation\ is\ applied\ first,\ followed\ by\ the\ pitch\ rotation,\ and\ then\ the\ roll\ rotation.\ The\ invalidate\ function\ is\ called\ to\ mark\ the\ camera\ as\ not\ ready\ and\ clear\ the\ ray\ mapping,\ since\ the\ camera's\ orientation\ has\ changed\ and\ the\ existing\ ray\ mapping\ may\ no\ longer\ be\ valid.}}
+\DoxyCodeLine{00114\ \ \ \ \ \textcolor{comment}{//}}
+\DoxyCodeLine{00115\ \ \ \ \ \textcolor{comment}{//\ \ COMMENTS:}}
+\DoxyCodeLine{00116\ \ \ \ \ \textcolor{comment}{//}}
+\DoxyCodeLine{00117\ \ \ \ \ \textcolor{comment}{//\ \ \ \ \ \ \ This\ function\ allows\ for\ full\ 3D\ rotation\ of\ the\ camera,\ including\ roll,\ which\ can\ be\ useful\ for\ certain\ applications\ (e.g.,\ flight\ simulators).\ However,\ it\ may\ not\ be\ suitable\ for\ FPS-\/style\ camera\ controls\ due\ to\ potential\ roll\ drift\ when\ applying\ yaw\ rotations\ around\ the\ camera's\ local\ up\ axis.}}
+\DoxyCodeLine{00118\ \ \ \ \ \textcolor{comment}{//}}
+\DoxyCodeLine{00119\ \ \ \ \ \textcolor{keywordtype}{void}\ eulerRotate(\textcolor{keywordtype}{double}\ yaw,\ \textcolor{keywordtype}{double}\ pitch,\ \textcolor{keywordtype}{double}\ roll);}
+\DoxyCodeLine{00120\ }
+\DoxyCodeLine{00121\ \ \ \ \ \textcolor{comment}{//}}
+\DoxyCodeLine{00122\ \ \ \ \ \textcolor{comment}{//\ \ FUNCTION:\ invalidate()}}
+\DoxyCodeLine{00123\ \ \ \ \ \textcolor{comment}{//}}
+\DoxyCodeLine{00124\ \ \ \ \ \textcolor{comment}{//\ \ PURPOSE:\ Marks\ the\ camera\ as\ not\ ready\ and\ clears\ the\ ray\ mapping.\ This\ function\ is\ called\ whenever\ the\ camera's\ position\ or\ orientation\ changes,\ since\ those\ changes\ may\ invalidate\ the\ existing\ ray\ mapping.\ The\ ready\ flag\ is\ set\ to\ false\ to\ indicate\ that\ the\ camera\ needs\ to\ be\ rebuilt\ before\ it\ can\ be\ used\ for\ rendering,\ and\ the\ map\ is\ cleared\ to\ free\ up\ memory\ and\ ensure\ that\ a\ new\ mapping\ will\ be\ generated\ when\ build()\ is\ called.}}
+\DoxyCodeLine{00125\ \ \ \ \ \textcolor{comment}{//}}
+\DoxyCodeLine{00126\ \ \ \ \ \textcolor{comment}{//\ \ COMMENTS:}}
+\DoxyCodeLine{00127\ \ \ \ \ \textcolor{comment}{//}}
+\DoxyCodeLine{00128\ \ \ \ \ \textcolor{comment}{//\ \ \ \ \ \ \ This\ function\ is\ thread-\/safe}}
+\DoxyCodeLine{00129\ \ \ \ \ \textcolor{comment}{//}}
+\DoxyCodeLine{00130\ \ \ \ \ \textcolor{keywordtype}{void}\ invalidate();}
+\DoxyCodeLine{00131\ }
+\DoxyCodeLine{00132\ \ \ \ \ \textcolor{comment}{//}}
+\DoxyCodeLine{00133\ \ \ \ \ \textcolor{comment}{//\ \ FUNCTION:\ build()}}
+\DoxyCodeLine{00134\ \ \ \ \ \textcolor{comment}{//}}
+\DoxyCodeLine{00135\ \ \ \ \ \textcolor{comment}{//\ \ PURPOSE:\ Rebuilds\ the\ camera's\ ray\ mapping\ based\ on\ the\ current\ position,\ orientation,\ and\ field\ of\ view.\ This\ function\ generates\ the\ map\ of\ direction\ vectors\ for\ each\ pixel\ in\ the\ viewport,\ which\ will\ be\ used\ for\ tracing\ rays\ during\ rendering.\ The\ ready\ flag\ is\ set\ to\ true\ after\ the\ mapping\ is\ built\ to\ indicate\ that\ the\ camera\ is\ ready\ for\ rendering.}}
+\DoxyCodeLine{00136\ \ \ \ \ \textcolor{comment}{//}}
+\DoxyCodeLine{00137\ \ \ \ \ \textcolor{comment}{//\ \ COMMENTS:}}
+\DoxyCodeLine{00138\ \ \ \ \ \textcolor{comment}{//}}
+\DoxyCodeLine{00139\ \ \ \ \ \textcolor{comment}{//\ \ \ \ \ \ \ This\ function\ is\ thread-\/safe\ and\ will\ automatically\ check\ if\ the\ camera\ is\ already\ ready\ before\ rebuilding,\ so\ it\ can\ be\ safely\ called\ from\ the\ render\ function\ without\ needing\ to\ worry\ about\ redundant\ builds.}}
+\DoxyCodeLine{00140\ \ \ \ \ \textcolor{comment}{//\ \ \ \ \ \ \ It\ is\ unnecessary\ to\ ever\ call\ this\ function\ directly,\ as\ it\ will\ be\ automatically\ called\ by\ the\ render\ function\ when\ needed.\ However,\ it\ can\ be\ called\ directly\ if\ you\ want\ to\ pre-\/build\ the\ camera\ before\ rendering\ to\ avoid\ the\ overhead\ of\ building\ during\ the\ first\ render\ call.}}
+\DoxyCodeLine{00141\ \ \ \ \ \textcolor{comment}{//\ \ \ \ \ \ \ This\ function\ will\ do\ nothing\ if\ invalidate()\ has\ not\ been\ called\ since\ the\ last\ build,\ so\ it\ is\ safe\ to\ call\ multiple\ times\ without\ needing\ to\ worry\ about\ redundant\ builds.}}
+\DoxyCodeLine{00142\ \ \ \ \ \textcolor{comment}{//}}
+\DoxyCodeLine{00143\ \ \ \ \ \textcolor{keywordtype}{void}\ build();\textcolor{comment}{//Rebuild\ Camera\ based\ on\ current\ data,\ sets\ ready=true}}
+\DoxyCodeLine{00144\ }
+\DoxyCodeLine{00145\ \ \ \ \ \textcolor{comment}{//}}
+\DoxyCodeLine{00146\ \ \ \ \ \textcolor{comment}{//\ \ FUNCTION:\ buildMap()}}
+\DoxyCodeLine{00147\ \ \ \ \ \textcolor{comment}{//}}
+\DoxyCodeLine{00148\ \ \ \ \ \textcolor{comment}{//\ \ PURPOSE:\ Generates\ the\ map\ of\ direction\ vectors\ for\ each\ pixel\ in\ the\ viewport\ based\ on\ the\ camera's\ current\ orientation\ and\ field\ of\ view.\ This\ function\ calculates\ the\ direction\ vector\ for\ each\ pixel\ by\ applying\ the\ camera's\ rotation\ to\ the\ appropriate\ base\ direction\ vector\ for\ that\ pixel,\ which\ is\ determined\ by\ the\ field\ of\ view\ and\ the\ pixel's\ position\ in\ the\ viewport.\ The\ resulting\ direction\ vectors\ are\ stored\ in\ the\ map,\ which\ will\ be\ used\ for\ tracing\ rays\ during\ rendering.}}
+\DoxyCodeLine{00149\ \ \ \ \ \textcolor{comment}{//}}
+\DoxyCodeLine{00150\ \ \ \ \ \textcolor{comment}{//\ \ COMMENTS:}}
+\DoxyCodeLine{00151\ \ \ \ \ \textcolor{comment}{//}}
+\DoxyCodeLine{00152\ \ \ \ \ \textcolor{comment}{//\ \ \ \ \ \ \ This\ function\ is\ NOT\ thread-\/safe\ and\ should\ only\ be\ called\ from\ within\ the\ build()\ function,\ which\ handles\ the\ necessary\ locking\ to\ ensure\ thread\ safety.\ It\ is\ not\ intended\ to\ be\ called\ directly\ from\ outside\ the\ Camera\ class,\ as\ it\ does\ not\ handle\ the\ ready\ flag\ or\ any\ necessary\ locking.}}
+\DoxyCodeLine{00153\ \ \ \ \ \textcolor{comment}{//\ \ \ \ \ \ \ If\ you\ call\ this\ function\ directly,\ you\ must\ ensure\ that\ you\ have\ acquired\ the\ appropriate\ lock\ on\ invalidateMut}}
+\DoxyCodeLine{00154\ \ \ \ \ \textcolor{comment}{//}}
+\DoxyCodeLine{00155\ \ \ \ \ \textcolor{keywordtype}{void}\ buildMap();}
+\DoxyCodeLine{00156\ }
+\DoxyCodeLine{00157\ \ \ \ \ \textcolor{comment}{//}}
+\DoxyCodeLine{00158\ \ \ \ \ \textcolor{comment}{//\ \ FUNCTION:\ render(int,\ int,\ int,\ int)}}
+\DoxyCodeLine{00159\ \ \ \ \ \textcolor{comment}{//}}
+\DoxyCodeLine{00160\ \ \ \ \ \textcolor{comment}{//\ \ PURPOSE:\ Renders\ the\ scene\ from\ the\ camera's\ perspective\ for\ the\ specified\ rectangular\ region\ of\ the\ viewport\ defined\ by\ the\ top-\/left\ corner\ (x1,\ y1)\ and\ the\ bottom-\/right\ corner\ (x2,\ y2).\ This\ function\ traces\ rays\ for\ each\ pixel\ in\ the\ specified\ region\ using\ the\ precomputed\ direction\ vectors\ from\ the\ map\ and\ returns\ a\ vector\ of\ BGRPixel\ colors\ corresponding\ to\ the\ rendered\ output.\ If\ the\ camera\ is\ not\ ready\ (i.e.,\ if\ invalidate()\ has\ been\ called\ since\ the\ last\ build),\ this\ function\ will\ automatically\ call\ build()\ to\ regenerate\ the\ ray\ mapping\ before\ rendering.}}
+\DoxyCodeLine{00161\ \ \ \ \ \textcolor{comment}{//}}
+\DoxyCodeLine{00162\ \ \ \ \ \textcolor{comment}{//\ \ COMMENTS:}}
+\DoxyCodeLine{00163\ \ \ \ \ \textcolor{comment}{//}}
+\DoxyCodeLine{00164\ \ \ \ \ \textcolor{comment}{//\ \ \ \ \ \ \ Automatically\ calls\ build()\ when\ ready!=true,\ so\ you\ can\ safely\ call\ this\ function\ without\ needing\ to\ worry\ about\ whether\ the\ camera\ is\ ready\ or\ not.\ However,\ if\ you\ want\ to\ pre-\/build\ the\ camera\ before\ rendering\ to\ avoid\ the\ overhead\ of\ building\ during\ the\ first\ render\ call,\ you\ can\ call\ build()\ directly\ before\ calling\ render().}}
+\DoxyCodeLine{00165\ \ \ \ \ \textcolor{comment}{//}}
+\DoxyCodeLine{00166\ \ \ \ \ std::vector<BGRPixel>\ render(\textcolor{keywordtype}{int}\ x1,\ \textcolor{keywordtype}{int}\ y1,\ \textcolor{keywordtype}{int}\ x2,\ \textcolor{keywordtype}{int}\ y2);}
+\DoxyCodeLine{00167\ }
+\DoxyCodeLine{00168\ \ \ \ \ \textcolor{comment}{//}}
+\DoxyCodeLine{00169\ \ \ \ \ \textcolor{comment}{//\ \ FUNCTION:\ traceRay(Ray,\ double)}}
+\DoxyCodeLine{00170\ \ \ \ \ \textcolor{comment}{//}}
+\DoxyCodeLine{00171\ \ \ \ \ \textcolor{comment}{//\ \ PURPOSE:\ Traces\ the\ given\ ray\ through\ the\ scene\ and\ returns\ the\ color\ of\ the\ pixel\ that\ the\ ray\ intersects.\ The\ str\ parameter\ represents\ the\ strength\ of\ the\ ray,\ which\ can\ be\ used\ to\ control\ how\ much\ the\ color\ is\ affected\ by\ reflections\ and\ other\ factors\ (e.g.,\ if\ str\ is\ less\ than\ a\ certain\ threshold,\ it\ might\ return\ a\ default\ color\ instead\ of\ tracing\ further\ to\ avoid\ infinite\ recursion).\ This\ function\ iterates\ through\ all\ objects\ in\ the\ scene\ to\ find\ the\ closest\ intersection\ with\ the\ ray,\ and\ then\ calculates\ the\ color\ at\ that\ intersection\ point\ based\ on\ the\ material\ properties\ of\ the\ object\ and\ any\ lighting\ or\ reflections.}}
+\DoxyCodeLine{00172\ \ \ \ \ \textcolor{comment}{//}}
+\DoxyCodeLine{00173\ \ \ \ \ \doxymbox{\hyperlink{struct_b_g_r_pixel}{BGRPixel}}\ traceRay(\doxymbox{\hyperlink{class_ray}{Ray}}\ ray,\ \textcolor{keywordtype}{double}\ str);}
+\DoxyCodeLine{00174\ }
+\DoxyCodeLine{00175\ \ \ \ \ \textcolor{comment}{//}}
+\DoxyCodeLine{00176\ \ \ \ \ \textcolor{comment}{//\ \ FUNCTION:\ angleToVector(double,\ double)}}
+\DoxyCodeLine{00177\ \ \ \ \ \textcolor{comment}{//}}
+\DoxyCodeLine{00178\ \ \ \ \ \textcolor{comment}{//\ \ PURPOSE:\ Converts\ the\ given\ yaw\ and\ pitch\ angles\ (in\ radians)\ to\ a\ direction\ vector\ in\ 3D\ space.\ The\ yaw\ angle\ represents\ rotation\ around\ the\ vertical\ (y)\ axis,\ and\ the\ pitch\ angle\ represents\ rotation\ around\ the\ horizontal\ (x)\ axis.\ The\ resulting\ vector\ is\ calculated\ by\ applying\ the\ appropriate\ trigonometric\ functions\ to\ convert\ the\ angles\ into\ a\ direction\ vector\ that\ can\ be\ used\ for\ ray\ tracing.}}
+\DoxyCodeLine{00179\ \ \ \ \ \textcolor{comment}{//}}
+\DoxyCodeLine{00180\ \ \ \ \ \doxymbox{\hyperlink{class_vector}{Vector}}\ angleToVector(\textcolor{keywordtype}{double}\ yaw,\ \textcolor{keywordtype}{double}\ pitch);}
+\DoxyCodeLine{00181\ }
+\DoxyCodeLine{00182\ \ \ \ \ \textcolor{comment}{//}}
+\DoxyCodeLine{00183\ \ \ \ \ \textcolor{comment}{//\ \ FUNCTION:\ setFOV(double,\ double)}}
+\DoxyCodeLine{00184\ \ \ \ \ \textcolor{comment}{//}}
+\DoxyCodeLine{00185\ \ \ \ \ \textcolor{comment}{//\ \ PURPOSE:\ Sets\ the\ camera's\ field\ of\ view\ in\ the\ x\ and\ y\ directions\ (FOVx\ and\ FOVy)\ to\ the\ given\ values\ (in\ radians).\ The\ invalidate\ function\ is\ called\ to\ mark\ the\ camera\ as\ not\ ready\ and\ clear\ the\ ray\ mapping,\ since\ the\ field\ of\ view\ has\ changed\ and\ the\ existing\ ray\ mapping\ may\ no\ longer\ be\ valid.}}
+\DoxyCodeLine{00186\ \ \ \ \ \textcolor{comment}{//}}
+\DoxyCodeLine{00187\ \ \ \ \ \textcolor{keywordtype}{void}\ setFOV(\textcolor{keywordtype}{double}\ x,\ \textcolor{keywordtype}{double}\ y)\ \{}
+\DoxyCodeLine{00188\ \ \ \ \ \ \ \ \ std::unique\_lock<std::shared\_mutex>\ lock(invalidateMut);}
+\DoxyCodeLine{00189\ \ \ \ \ \ \ \ \ this-\/>FOVx\ =\ x;}
+\DoxyCodeLine{00190\ \ \ \ \ \ \ \ \ this-\/>FOVy\ =\ y;}
+\DoxyCodeLine{00191\ \ \ \ \ \ \ \ \ invalidate();}
+\DoxyCodeLine{00192\ \ \ \ \ \}}
+\DoxyCodeLine{00193\ \};}
+
+\end{DoxyCode}

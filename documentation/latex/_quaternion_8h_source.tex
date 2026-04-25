@@ -1,0 +1,143 @@
+\doxysection{Quaternion.\+h}
+\hypertarget{_quaternion_8h_source}{}\label{_quaternion_8h_source}\index{G:/LEDray\_trace\_demo/Quaternion.h@{G:/LEDray\_trace\_demo/Quaternion.h}}
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{preprocessor}{\#pragma\ once}}
+\DoxyCodeLine{00002\ \textcolor{preprocessor}{\#include\ "{}Vector.h"{}}}
+\DoxyCodeLine{00003\ \textcolor{keyword}{class\ }Quaternion\ \{}
+\DoxyCodeLine{00004\ \textcolor{keyword}{private}:\ }
+\DoxyCodeLine{00005\ \ \ \ \ \textcolor{keywordtype}{double}\ w,\ x,\ y,\ z;}
+\DoxyCodeLine{00006\ \textcolor{keyword}{public}:\ }
+\DoxyCodeLine{00007\ \ \ \ \ \textcolor{comment}{//}}
+\DoxyCodeLine{00008\ \ \ \ \ \textcolor{comment}{//\ \ FUNCTION:\ Quaternion::Quaternion(double,\ double,\ double,\ double)}}
+\DoxyCodeLine{00009\ \ \ \ \ \textcolor{comment}{//}}
+\DoxyCodeLine{00010\ \ \ \ \ \textcolor{comment}{//\ \ PURPOSE:\ Initializes\ a\ quaternion\ with\ the\ given\ raw\ w/x/y/z\ values}}
+\DoxyCodeLine{00011\ \ \ \ \ \textcolor{comment}{//}}
+\DoxyCodeLine{00012\ \ \ \ \ Quaternion(\textcolor{keywordtype}{double}\ w,\ \textcolor{keywordtype}{double}\ x,\ \textcolor{keywordtype}{double}\ y,\ \textcolor{keywordtype}{double}\ z);}
+\DoxyCodeLine{00013\ }
+\DoxyCodeLine{00014\ \ \ \ \ \textcolor{comment}{//}}
+\DoxyCodeLine{00015\ \ \ \ \ \textcolor{comment}{//\ \ FUNCTION:\ Quaternion::Quaternion(double,\ Vector)}}
+\DoxyCodeLine{00016\ \ \ \ \ \textcolor{comment}{//\ \ }}
+\DoxyCodeLine{00017\ \ \ \ \ \textcolor{comment}{//\ \ PURPOSE:\ Initializes\ a\ quaternion\ with\ the\ given\ w\ value\ and\ vector\ part;\ w=cos(theta/2),\ vector=axis*sin(theta/2)}}
+\DoxyCodeLine{00018\ \ \ \ \ \textcolor{comment}{//}}
+\DoxyCodeLine{00019\ \ \ \ \ Quaternion(\textcolor{keywordtype}{double}\ w,\ \doxymbox{\hyperlink{class_vector}{Vector}}\ vec);}
+\DoxyCodeLine{00020\ }
+\DoxyCodeLine{00021\ \ \ \ \ \textcolor{comment}{//}}
+\DoxyCodeLine{00022\ \ \ \ \ \textcolor{comment}{//\ \ FUNCTION:\ Quaternion::Quaternion(Vector)}}
+\DoxyCodeLine{00023\ \ \ \ \ \textcolor{comment}{//}}
+\DoxyCodeLine{00024\ \ \ \ \ \textcolor{comment}{//\ \ PURPOSE:\ Initializes\ a\ quaternion\ with\ the\ given\ vector\ part;\ w=0,\ vector=vec}}
+\DoxyCodeLine{00025\ \ \ \ \ \textcolor{comment}{//}}
+\DoxyCodeLine{00026\ \ \ \ \ Quaternion(\doxymbox{\hyperlink{class_vector}{Vector}}\ vec);}
+\DoxyCodeLine{00027\ }
+\DoxyCodeLine{00028\ \ \ \ \ \textcolor{comment}{//}}
+\DoxyCodeLine{00029\ \ \ \ \ \textcolor{comment}{//\ \ FUNCTION:\ Quaternion::Quaternion()}}
+\DoxyCodeLine{00030\ \ \ \ \ \textcolor{comment}{//}}
+\DoxyCodeLine{00031\ \ \ \ \ \textcolor{comment}{//\ \ PURPOSE:\ Initializes\ a\ quaternion\ with\ w=1\ and\ x/y/z=0,\ representing\ the\ identity\ rotation}}
+\DoxyCodeLine{00032\ \ \ \ \ \textcolor{comment}{//}}
+\DoxyCodeLine{00033\ \ \ \ \ Quaternion();}
+\DoxyCodeLine{00034\ }
+\DoxyCodeLine{00035\ }
+\DoxyCodeLine{00036\ \ \ \ \ \textcolor{comment}{//}}
+\DoxyCodeLine{00037\ \ \ \ \ \textcolor{comment}{//\ \ FUNCTION:\ Quaternion::conjugate()}}
+\DoxyCodeLine{00038\ \ \ \ \ \textcolor{comment}{//}}
+\DoxyCodeLine{00039\ \ \ \ \ \textcolor{comment}{//\ \ PURPOSE:\ Returns\ the\ conjugate\ of\ the\ quaternion,\ which\ is\ the\ same\ as\ the\ original\ but\ with\ the\ vector\ part\ negated;\ useful\ for\ applying\ rotations}}
+\DoxyCodeLine{00040\ \ \ \ \ \textcolor{comment}{//}}
+\DoxyCodeLine{00041\ \ \ \ \ \textcolor{keyword}{inline}\ Quaternion\ conjugate()\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00042\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ Quaternion(getW(),\ -\/getX(),\ -\/getY(),\ -\/getZ());}
+\DoxyCodeLine{00043\ \ \ \ \ \}}
+\DoxyCodeLine{00044\ }
+\DoxyCodeLine{00045\ \ \ \ \ \textcolor{comment}{//}}
+\DoxyCodeLine{00046\ \ \ \ \ \textcolor{comment}{//\ \ FUNCTION:\ Quaternion::apply(Point3D,\ Quaternion)}}
+\DoxyCodeLine{00047\ \ \ \ \ \textcolor{comment}{//}}
+\DoxyCodeLine{00048\ \ \ \ \ \textcolor{comment}{//\ \ PURPOSE:\ Applies\ the\ rotation\ represented\ by\ the\ quaternion\ to\ the\ given\ point,\ returning\ the\ rotated\ point;\ this\ is\ done\ by\ treating\ the\ point\ as\ a\ quaternion\ with\ w=0\ and\ applying\ the\ formula\ q\ *\ p\ *\ q*}}
+\DoxyCodeLine{00049\ \ \ \ \ \textcolor{comment}{//}}
+\DoxyCodeLine{00050\ \ \ \ \ \textcolor{keyword}{inline}\ \textcolor{keyword}{static}\ \doxymbox{\hyperlink{class_point3_d}{Point3D}}\ apply(\textcolor{keyword}{const}\ \doxymbox{\hyperlink{class_point3_d}{Point3D}}\&\ point,\ \textcolor{keyword}{const}\ Quaternion\&\ qua)\ \{}
+\DoxyCodeLine{00051\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ apply(Quaternion(point),\ qua);}
+\DoxyCodeLine{00052\ \ \ \ \ \}}
+\DoxyCodeLine{00053\ }
+\DoxyCodeLine{00054\ \ \ \ \ \textcolor{comment}{//}}
+\DoxyCodeLine{00055\ \ \ \ \ \textcolor{comment}{//\ \ FUNCTION:\ Quaternion::apply(Quaternion,\ Quaternion)}}
+\DoxyCodeLine{00056\ \ \ \ \ \textcolor{comment}{//}}
+\DoxyCodeLine{00057\ \ \ \ \ \textcolor{comment}{//\ \ PURPOSE:\ Applies\ the\ rotation\ represented\ by\ the\ second\ quaternion\ to\ the\ point\ represented\ by\ the\ first\ quaternion,\ returning\ the\ rotated\ point;\ this\ is\ done\ by\ applying\ the\ formula\ q\ *\ p\ *\ q*}}
+\DoxyCodeLine{00058\ \ \ \ \ \textcolor{comment}{//}}
+\DoxyCodeLine{00059\ \ \ \ \ \textcolor{keyword}{inline}\ \textcolor{keyword}{static}\ \doxymbox{\hyperlink{class_point3_d}{Point3D}}\ apply(\textcolor{keyword}{const}\ Quaternion\&\ point,\ \textcolor{keyword}{const}\ Quaternion\&\ qua)\ \{}
+\DoxyCodeLine{00060\ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ Quaternion\ normQua\ =\ qua.normalize();}
+\DoxyCodeLine{00061\ \ \ \ \ \ \ \ \ Quaternion\ endQua\ =\ normQua\ *\ point\ *\ normQua.conjugate();}
+\DoxyCodeLine{00062\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \doxymbox{\hyperlink{class_point3_d}{Point3D}}(endQua.getX(),\ endQua.getY(),\ endQua.getZ());}
+\DoxyCodeLine{00063\ \ \ \ \ \}}
+\DoxyCodeLine{00064\ }
+\DoxyCodeLine{00065\ \ \ \ \ \textcolor{comment}{//}}
+\DoxyCodeLine{00066\ \ \ \ \ \textcolor{comment}{//\ \ FUNCTION:\ Quaternion::apply(Point3D)}}
+\DoxyCodeLine{00067\ \ \ \ \ \textcolor{comment}{//}}
+\DoxyCodeLine{00068\ \ \ \ \ \textcolor{comment}{//\ \ PURPOSE:\ Applies\ the\ rotation\ represented\ by\ this\ quaternion\ to\ the\ given\ point,\ returning\ the\ rotated\ point;\ this\ is\ done\ by\ treating\ the\ point\ as\ a\ quaternion\ with\ w=0\ and\ applying\ the\ formula\ q\ *\ p\ *\ q*}}
+\DoxyCodeLine{00069\ \ \ \ \ \textcolor{keyword}{inline}\ \doxymbox{\hyperlink{class_point3_d}{Point3D}}\ apply(\textcolor{keyword}{const}\ \doxymbox{\hyperlink{class_point3_d}{Point3D}}\&\ point)\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00070\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ apply(point,\ *\textcolor{keyword}{this});}
+\DoxyCodeLine{00071\ \ \ \ \ \}}
+\DoxyCodeLine{00072\ }
+\DoxyCodeLine{00073\ \ \ \ \ \textcolor{comment}{//}}
+\DoxyCodeLine{00074\ \ \ \ \ \textcolor{comment}{//\ \ FUNCTION:\ Quaternion::magnitude()}}
+\DoxyCodeLine{00075\ \ \ \ \ \textcolor{comment}{//}}
+\DoxyCodeLine{00076\ \ \ \ \ \textcolor{comment}{//\ \ PURPOSE:\ Returns\ the\ magnitude\ of\ the\ quaternion,\ which\ is\ the\ square\ root\ of\ the\ sum\ of\ the\ squares\ of\ its\ components;\ for\ rotation\ quaternions,\ this\ should\ be\ 1}}
+\DoxyCodeLine{00077\ \ \ \ \ \textcolor{comment}{//}}
+\DoxyCodeLine{00078\ \ \ \ \ \textcolor{comment}{//\ \ COMMENTS:}}
+\DoxyCodeLine{00079\ \ \ \ \ \textcolor{comment}{//\ }}
+\DoxyCodeLine{00080\ \ \ \ \ \textcolor{comment}{//\ \ \ \ \ \ \ If\ the\ magnitude\ is\ not\ 1,\ the\ quaternion\ may\ not\ represent\ a\ pure\ rotation\ and\ may\ need\ to\ be\ normalized\ before\ use}}
+\DoxyCodeLine{00081\ \ \ \ \ \textcolor{comment}{//}}
+\DoxyCodeLine{00082\ \ \ \ \ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{double}\ magnitude()\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00083\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ sqrt(getW()\ *\ getW()\ +\ getX()\ *\ getX()\ +\ getY()\ *\ getY()\ +\ getZ()\ *\ getZ());}
+\DoxyCodeLine{00084\ \ \ \ \ \}}
+\DoxyCodeLine{00085\ }
+\DoxyCodeLine{00086\ \ \ \ \ \textcolor{comment}{//}}
+\DoxyCodeLine{00087\ \ \ \ \ \textcolor{comment}{//\ \ FUNCTION:\ Quaternion::normalize()}}
+\DoxyCodeLine{00088\ \ \ \ \ \textcolor{comment}{//}}
+\DoxyCodeLine{00089\ \ \ \ \ \textcolor{comment}{//\ \ PURPOSE:\ Returns\ a\ normalized\ version\ of\ the\ quaternion,\ which\ is\ the\ same\ quaternion\ scaled\ to\ have\ a\ magnitude\ of\ 1;\ this\ is\ done\ by\ dividing\ each\ component\ by\ the\ magnitude}}
+\DoxyCodeLine{00090\ \ \ \ \ \textcolor{comment}{//}}
+\DoxyCodeLine{00091\ \ \ \ \ \textcolor{keyword}{inline}\ Quaternion\ normalize()\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00092\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{double}\ sum\ =\ magnitude();}
+\DoxyCodeLine{00093\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ Quaternion(getW()/sum,\ getX()/sum,\ getY()/sum,\ getZ()/sum);}
+\DoxyCodeLine{00094\ \ \ \ \ \}}
+\DoxyCodeLine{00095\ }
+\DoxyCodeLine{00096\ }
+\DoxyCodeLine{00097\ \ \ \ \ \textcolor{comment}{//Operators}}
+\DoxyCodeLine{00098\ \ \ \ \ \textcolor{keyword}{inline}\ Quaternion\ operator*(\textcolor{keyword}{const}\ Quaternion\&\ other)\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00099\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ Quaternion(}
+\DoxyCodeLine{00100\ \ \ \ \ \ \ \ \ \ \ \ \ this-\/>getW()\ *\ other.getW()\ -\/\ this-\/>getX()\ *\ other.getX()\ -\/\ this-\/>getY()\ *\ other.getY()\ -\/\ this-\/>getZ()\ *\ other.getZ(),\ }
+\DoxyCodeLine{00101\ \ \ \ \ \ \ \ \ \ \ \ \ this-\/>getW()\ *\ other.getX()\ +\ this-\/>getX()\ *\ other.getW()\ +\ this-\/>getY()\ *\ other.getZ()\ -\/\ this-\/>getZ()\ *\ other.getY(),\ }
+\DoxyCodeLine{00102\ \ \ \ \ \ \ \ \ \ \ \ \ this-\/>getW()\ *\ other.getY()\ -\/\ this-\/>getX()\ *\ other.getZ()\ +\ this-\/>getY()\ *\ other.getW()\ +\ this-\/>getZ()\ *\ other.getX(),\ }
+\DoxyCodeLine{00103\ \ \ \ \ \ \ \ \ \ \ \ \ this-\/>getW()\ *\ other.getZ()\ +\ this-\/>getX()\ *\ other.getY()\ -\/\ this-\/>getY()\ *\ other.getX()\ +\ this-\/>getZ()\ *\ other.getW()}
+\DoxyCodeLine{00104\ \ \ \ \ \ \ \ \ );}
+\DoxyCodeLine{00105\ \ \ \ \ \}}
+\DoxyCodeLine{00106\ }
+\DoxyCodeLine{00107\ \ \ \ \ \textcolor{keyword}{inline}\ \textcolor{keyword}{friend}\ std::ostream\&\ operator<<(std::ostream\&\ os,\ \textcolor{keyword}{const}\ Quaternion\&\ quaternion)\ \{}
+\DoxyCodeLine{00108\ \ \ \ \ \ \ \ \ os\ <<\ quaternion.getW()\ <<\ (quaternion.getX()\ <\ 0\ ?\ \textcolor{stringliteral}{"{}"{}}\ :\ \textcolor{stringliteral}{"{}+"{}})\ <<\ quaternion.getX()\ <<\ \textcolor{stringliteral}{"{}i"{}}\ <<\ (quaternion.getY()\ <\ 0\ ?\ \textcolor{stringliteral}{"{}"{}}\ :\ \textcolor{stringliteral}{"{}+"{}})\ <<\ quaternion.getY()\ <<\ \textcolor{stringliteral}{"{}j"{}}\ <<\ (quaternion.getZ()\ <\ 0\ ?\ \textcolor{stringliteral}{"{}"{}}\ :\ \textcolor{stringliteral}{"{}+"{}})\ <<\ quaternion.getZ()\ <<\ \textcolor{stringliteral}{"{}k"{}};}
+\DoxyCodeLine{00109\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ os;}
+\DoxyCodeLine{00110\ \ \ \ \ \}}
+\DoxyCodeLine{00111\ }
+\DoxyCodeLine{00112\ \ \ \ \ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{bool}\ operator==(\textcolor{keyword}{const}\ Quaternion\&\ other)\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00113\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ (getW()\ ==\ other.getW()\ \&\&\ getX()\ ==\ other.getX()\ \&\&\ getY()\ ==\ other.getY()\ \&\&\ getZ()\ ==\ other.getZ());}
+\DoxyCodeLine{00114\ \ \ \ \ \}}
+\DoxyCodeLine{00115\ }
+\DoxyCodeLine{00116\ \ \ \ \ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{bool}\ operator!=(\textcolor{keyword}{const}\ Quaternion\&\ other)\ \{}
+\DoxyCodeLine{00117\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ !(*\textcolor{keyword}{this}\ ==\ other);}
+\DoxyCodeLine{00118\ \ \ \ \ \}}
+\DoxyCodeLine{00119\ }
+\DoxyCodeLine{00120\ }
+\DoxyCodeLine{00121\ \ \ \ \ \textcolor{comment}{//Get\ Methods}}
+\DoxyCodeLine{00122\ \ \ \ \ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{double}\ getW()\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00123\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ this-\/>w;}
+\DoxyCodeLine{00124\ \ \ \ \ \}}
+\DoxyCodeLine{00125\ }
+\DoxyCodeLine{00126\ \ \ \ \ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{double}\ getX()\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00127\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ this-\/>x;}
+\DoxyCodeLine{00128\ \ \ \ \ \}}
+\DoxyCodeLine{00129\ }
+\DoxyCodeLine{00130\ \ \ \ \ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{double}\ getY()\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00131\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ this-\/>y;}
+\DoxyCodeLine{00132\ \ \ \ \ \}}
+\DoxyCodeLine{00133\ }
+\DoxyCodeLine{00134\ \ \ \ \ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{double}\ getZ()\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00135\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ this-\/>z;}
+\DoxyCodeLine{00136\ \ \ \ \ \}}
+\DoxyCodeLine{00137\ \};}
+
+\end{DoxyCode}

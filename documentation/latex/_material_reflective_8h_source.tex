@@ -1,0 +1,18 @@
+\doxysection{Material\+Reflective.\+h}
+\hypertarget{_material_reflective_8h_source}{}\label{_material_reflective_8h_source}\index{G:/LEDray\_trace\_demo/MaterialReflective.h@{G:/LEDray\_trace\_demo/MaterialReflective.h}}
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{preprocessor}{\#pragma\ once}}
+\DoxyCodeLine{00002\ \textcolor{preprocessor}{\#include\ "{}Material.h"{}}}
+\DoxyCodeLine{00003\ }
+\DoxyCodeLine{00004\ \textcolor{comment}{//TODO:\ Implement\ this\ class.\ It\ should\ represent\ a\ reflective\ material,\ which\ reflects\ some\ light\ that\ hits\ it.\ The\ getColAtPoint\ function\ should\ calculate\ the\ reflection\ ray\ based\ on\ the\ incoming\ ray\ and\ the\ normal\ of\ the\ plane,\ and\ then\ trace\ that\ ray\ to\ find\ the\ color\ of\ the\ reflected\ ray.\ The\ reflectance\ variable\ can\ be\ used\ to\ control\ how\ much\ of\ the\ reflected\ color\ is\ blended\ with\ the\ base\ color\ of\ the\ material\ (e.g.,\ if\ reflectance\ is\ 0.5,\ then\ the\ final\ color\ would\ be\ an\ equal\ blend\ of\ the\ reflected\ color\ and\ the\ base\ color).}}
+\DoxyCodeLine{00005\ \textcolor{keyword}{class\ }MaterialReflective\ :\ \textcolor{keyword}{public}\ Material\ \{}
+\DoxyCodeLine{00006\ \ \ \ \ \textcolor{keywordtype}{double}\ reflectance;}
+\DoxyCodeLine{00007\ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00008\ \ \ \ \ MaterialReflective(\textcolor{keywordtype}{double}\ reflectance,\ \doxymbox{\hyperlink{struct_b_g_r_pixel}{BGRPixel}}\ col);}
+\DoxyCodeLine{00009\ \ \ \ \ MaterialReflective(\doxymbox{\hyperlink{struct_b_g_r_pixel}{BGRPixel}}\ col);}
+\DoxyCodeLine{00010\ \ \ \ \ MaterialReflective();}
+\DoxyCodeLine{00011\ \ \ \ \ \textcolor{keyword}{virtual}\ \doxymbox{\hyperlink{struct_b_g_r_pixel}{BGRPixel}}\ getColAtPoint(\doxymbox{\hyperlink{class_point3_d}{Point3D}}\ intPoint,\ \doxymbox{\hyperlink{class_camera}{Camera}}*\ cam,\ \doxymbox{\hyperlink{class_ray}{Ray}}\ \&ray,\ \doxymbox{\hyperlink{class_plane}{Plane}}\ *plane,\ \textcolor{keywordtype}{int}\ str)\ \textcolor{keyword}{const\ override};}
+\DoxyCodeLine{00012\ \};}
+
+\end{DoxyCode}

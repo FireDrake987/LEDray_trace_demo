@@ -1,0 +1,46 @@
+\doxysection{Triangle.\+h}
+\hypertarget{_triangle_8h_source}{}\label{_triangle_8h_source}\index{G:/LEDray\_trace\_demo/Triangle.h@{G:/LEDray\_trace\_demo/Triangle.h}}
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{preprocessor}{\#pragma\ once}}
+\DoxyCodeLine{00002\ \textcolor{preprocessor}{\#include\ "{}Plane.h"{}}}
+\DoxyCodeLine{00003\ \textcolor{preprocessor}{\#include\ "{}Point3D.h"{}}}
+\DoxyCodeLine{00004\ \textcolor{preprocessor}{\#include\ "{}Material.h"{}}}
+\DoxyCodeLine{00005\ }
+\DoxyCodeLine{00006\ \textcolor{keyword}{class\ }Triangle\ :\ \textcolor{keyword}{public}\ Plane\ \{}
+\DoxyCodeLine{00007\ \ \ \ \ \doxymbox{\hyperlink{class_point3_d}{Point3D}}\ p1;}
+\DoxyCodeLine{00008\ \ \ \ \ \doxymbox{\hyperlink{class_point3_d}{Point3D}}\ p2;}
+\DoxyCodeLine{00009\ \ \ \ \ \doxymbox{\hyperlink{class_point3_d}{Point3D}}\ p3;}
+\DoxyCodeLine{00010\ }
+\DoxyCodeLine{00011\ \textcolor{keyword}{public}:\ }
+\DoxyCodeLine{00012\ \ \ \ \ \textcolor{comment}{//}}
+\DoxyCodeLine{00013\ \ \ \ \ \textcolor{comment}{//\ \ FUNCTION:\ Triangle(Material\ mat,\ Point3D\ p1,\ Point3D\ p2,\ Point3D\ p3)}}
+\DoxyCodeLine{00014\ \ \ \ \ \textcolor{comment}{//}}
+\DoxyCodeLine{00015\ \ \ \ \ \textcolor{comment}{//\ \ PURPOSE:\ Constructor\ for\ Triangle\ class.\ Takes\ in\ a\ material\ and\ three\ points\ that\ define\ the\ triangle.\ The\ plane\ of\ the\ triangle\ is\ calculated\ from\ the\ three\ points,\ and\ the\ material\ is\ passed\ to\ the\ Plane\ constructor.}}
+\DoxyCodeLine{00016\ \ \ \ \ \textcolor{comment}{//}}
+\DoxyCodeLine{00017\ \ \ \ \ Triangle(\doxymbox{\hyperlink{class_material}{Material}}\ mat,\ \doxymbox{\hyperlink{class_point3_d}{Point3D}}\ p1,\ \doxymbox{\hyperlink{class_point3_d}{Point3D}}\ p2,\ \doxymbox{\hyperlink{class_point3_d}{Point3D}}\ p3);}
+\DoxyCodeLine{00018\ }
+\DoxyCodeLine{00019\ \ \ \ \ \textcolor{comment}{//}}
+\DoxyCodeLine{00020\ \ \ \ \ \textcolor{comment}{//\ \ FUNCTION:\ Triangle()}}
+\DoxyCodeLine{00021\ \ \ \ \ \textcolor{comment}{//}}
+\DoxyCodeLine{00022\ \ \ \ \ \textcolor{comment}{//\ \ PURPOSE:\ Default\ constructor\ for\ Triangle\ class.\ Initializes\ the\ three\ points\ to\ (0,\ 0,\ 0)\ and\ the\ plane\ to\ the\ default\ plane\ (A=0,\ B=0,\ C=0,\ D=0).}}
+\DoxyCodeLine{00023\ \ \ \ \ \textcolor{comment}{//}}
+\DoxyCodeLine{00024\ \ \ \ \ Triangle();}
+\DoxyCodeLine{00025\ }
+\DoxyCodeLine{00026\ }
+\DoxyCodeLine{00027\ \ \ \ \ \textcolor{comment}{//}}
+\DoxyCodeLine{00028\ \ \ \ \ \textcolor{comment}{//\ \ FUNCTION:\ getIntersection(Ray\ ray)}}
+\DoxyCodeLine{00029\ \ \ \ \ \textcolor{comment}{//}}
+\DoxyCodeLine{00030\ \ \ \ \ \textcolor{comment}{//\ \ PURPOSE:\ Overrides\ the\ getIntersection\ function\ from\ the\ Plane\ class.\ First,\ it\ calls\ the\ Plane's\ getIntersection\ to\ find\ the\ intersection\ point\ with\ the\ plane\ of\ the\ triangle.\ If\ there\ is\ no\ intersection\ (t\ <\ 0),\ it\ returns\ that\ result.\ If\ there\ is\ an\ intersection,\ it\ checks\ if\ the\ intersection\ point\ is\ inside\ the\ triangle\ using\ barycentric\ coordinates.\ If\ it\ is\ not\ inside,\ it\ sets\ t\ to\ -\/1\ to\ indicate\ no\ valid\ intersection.}}
+\DoxyCodeLine{00031\ \ \ \ \ \textcolor{comment}{//}}
+\DoxyCodeLine{00032\ \ \ \ \ \textcolor{keyword}{virtual}\ \doxymbox{\hyperlink{structintersection_info_struct}{intersectionInfoStruct}}\ getIntersection(\doxymbox{\hyperlink{class_ray}{Ray}}\ ray);}
+\DoxyCodeLine{00033\ }
+\DoxyCodeLine{00034\ \ \ \ \ \textcolor{comment}{//}}
+\DoxyCodeLine{00035\ \ \ \ \ \textcolor{comment}{//\ \ \ FUNCTION:\ triangleArea(Point3D\ p1,\ Point3D\ p2,\ Point3D\ p3)}}
+\DoxyCodeLine{00036\ \ \ \ \ \textcolor{comment}{//}}
+\DoxyCodeLine{00037\ \ \ \ \ \textcolor{comment}{//\ \ \ PURPOSE:\ Static\ function\ that\ calculates\ the\ area\ of\ a\ triangle\ defined\ by\ three\ points\ in\ 3D\ space.\ It\ uses\ the\ cross\ product\ of\ two\ vectors\ formed\ by\ the\ points\ to\ find\ the\ area.}}
+\DoxyCodeLine{00038\ \ \ \ \ \textcolor{comment}{//}}
+\DoxyCodeLine{00039\ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keywordtype}{double}\ triangleArea(\doxymbox{\hyperlink{class_point3_d}{Point3D}}\ p1,\ \doxymbox{\hyperlink{class_point3_d}{Point3D}}\ p2,\ \doxymbox{\hyperlink{class_point3_d}{Point3D}}\ p3);}
+\DoxyCodeLine{00040\ \};}
+
+\end{DoxyCode}

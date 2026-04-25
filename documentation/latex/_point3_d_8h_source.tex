@@ -1,0 +1,104 @@
+\doxysection{Point3\+D.\+h}
+\hypertarget{_point3_d_8h_source}{}\label{_point3_d_8h_source}\index{G:/LEDray\_trace\_demo/Point3D.h@{G:/LEDray\_trace\_demo/Point3D.h}}
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{preprocessor}{\#pragma\ once}}
+\DoxyCodeLine{00002\ \textcolor{preprocessor}{\#include\ <ostream>}}
+\DoxyCodeLine{00003\ \textcolor{keyword}{class\ }Point3D\ \{}
+\DoxyCodeLine{00004\ \textcolor{keyword}{private}:}
+\DoxyCodeLine{00005\ \ \ \ \ \textcolor{keywordtype}{double}\ x,\ y,\ z;}
+\DoxyCodeLine{00006\ }
+\DoxyCodeLine{00007\ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00008\ \ \ \ \ \textcolor{comment}{//}}
+\DoxyCodeLine{00009\ \ \ \ \ \textcolor{comment}{//\ \ FUNCTION:\ Point3D::Point3D(double,\ double,\ double)}}
+\DoxyCodeLine{00010\ \ \ \ \ \textcolor{comment}{//}}
+\DoxyCodeLine{00011\ \ \ \ \ \textcolor{comment}{//\ \ PURPOSE:\ Initializes\ a\ point\ with\ the\ given\ raw\ x/y/z\ coordinates}}
+\DoxyCodeLine{00012\ \ \ \ \ \textcolor{comment}{//}}
+\DoxyCodeLine{00013\ \ \ \ \ Point3D(\textcolor{keywordtype}{double}\ x,\ \textcolor{keywordtype}{double}\ y,\ \textcolor{keywordtype}{double}\ z);}
+\DoxyCodeLine{00014\ }
+\DoxyCodeLine{00015\ \ \ \ \ \textcolor{comment}{//}}
+\DoxyCodeLine{00016\ \ \ \ \ \textcolor{comment}{//\ \ FUNCTION:\ Point3D::Point3D()}}
+\DoxyCodeLine{00017\ \ \ \ \ \textcolor{comment}{//}}
+\DoxyCodeLine{00018\ \ \ \ \ \textcolor{comment}{//\ \ PURPOSE:\ Initializes\ a\ point\ with\ x/y/z\ components\ all\ set\ to\ 0,\ representing\ the\ origin}}
+\DoxyCodeLine{00019\ \ \ \ \ \textcolor{comment}{//}}
+\DoxyCodeLine{00020\ \ \ \ \ Point3D();}
+\DoxyCodeLine{00021\ }
+\DoxyCodeLine{00022\ }
+\DoxyCodeLine{00023\ \ \ \ \ \textcolor{comment}{//Operators}}
+\DoxyCodeLine{00024\ \ \ \ \ \textcolor{keyword}{inline}\ Point3D\ operator+(\textcolor{keyword}{const}\ Point3D\&\ other)\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00025\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ Point3D(this-\/>getX()\ +\ other.getX(),\ this-\/>getY()\ +\ other.getY(),\ this-\/>getZ()\ +\ other.getZ());}
+\DoxyCodeLine{00026\ \ \ \ \ \}}
+\DoxyCodeLine{00027\ }
+\DoxyCodeLine{00028\ \ \ \ \ \textcolor{keyword}{inline}\ Point3D\ operator+=(\textcolor{keyword}{const}\ Point3D\&\ other)\ \{}
+\DoxyCodeLine{00029\ \ \ \ \ \ \ \ \ this-\/>x\ =\ this-\/>getX()\ +\ other.getX();}
+\DoxyCodeLine{00030\ \ \ \ \ \ \ \ \ this-\/>y\ =\ this-\/>getY()\ +\ other.getY();}
+\DoxyCodeLine{00031\ \ \ \ \ \ \ \ \ this-\/>z\ =\ this-\/>getZ()\ +\ other.getZ();}
+\DoxyCodeLine{00032\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ Point3D(this-\/>x,\ this-\/>y,\ this-\/>z);}
+\DoxyCodeLine{00033\ \ \ \ \ \}}
+\DoxyCodeLine{00034\ }
+\DoxyCodeLine{00035\ \ \ \ \ \textcolor{keyword}{inline}\ Point3D\ operator-\/(\textcolor{keyword}{const}\ Point3D\&\ other)\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00036\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ Point3D(this-\/>getX()\ -\/\ other.getX(),\ this-\/>getY()\ -\/\ other.getY(),\ this-\/>getZ()\ -\/\ other.getZ());}
+\DoxyCodeLine{00037\ \ \ \ \ \}}
+\DoxyCodeLine{00038\ }
+\DoxyCodeLine{00039\ \ \ \ \ \textcolor{keyword}{inline}\ Point3D\ operator-\/=(\textcolor{keyword}{const}\ Point3D\&\ other)\ \{}
+\DoxyCodeLine{00040\ \ \ \ \ \ \ \ \ this-\/>x\ =\ this-\/>getX()\ -\/\ other.getX();}
+\DoxyCodeLine{00041\ \ \ \ \ \ \ \ \ this-\/>y\ =\ this-\/>getY()\ -\/\ other.getY();}
+\DoxyCodeLine{00042\ \ \ \ \ \ \ \ \ this-\/>z\ =\ this-\/>getZ()\ -\/\ other.getZ();}
+\DoxyCodeLine{00043\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ Point3D(this-\/>x,\ this-\/>y,\ this-\/>z);}
+\DoxyCodeLine{00044\ \ \ \ \ \}}
+\DoxyCodeLine{00045\ }
+\DoxyCodeLine{00046\ \ \ \ \ \textcolor{keyword}{inline}\ Point3D\ operator*(\textcolor{keyword}{const}\ \textcolor{keywordtype}{double}\&\ other)\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00047\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ Point3D(this-\/>getX()\ *\ other,\ this-\/>getY()\ *\ other,\ this-\/>getZ()\ *\ other);}
+\DoxyCodeLine{00048\ \ \ \ \ \}}
+\DoxyCodeLine{00049\ }
+\DoxyCodeLine{00050\ \ \ \ \ \textcolor{keyword}{inline}\ Point3D\ operator*=(\textcolor{keyword}{const}\ \textcolor{keywordtype}{double}\&\ other)\ \{}
+\DoxyCodeLine{00051\ \ \ \ \ \ \ \ \ this-\/>x\ =\ this-\/>getX()\ *\ other;}
+\DoxyCodeLine{00052\ \ \ \ \ \ \ \ \ this-\/>y\ =\ this-\/>getY()\ *\ other;}
+\DoxyCodeLine{00053\ \ \ \ \ \ \ \ \ this-\/>z\ =\ this-\/>getZ()\ *\ other;}
+\DoxyCodeLine{00054\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ Point3D(this-\/>x,\ this-\/>y,\ this-\/>z);}
+\DoxyCodeLine{00055\ \ \ \ \ \}}
+\DoxyCodeLine{00056\ }
+\DoxyCodeLine{00057\ \ \ \ \ \textcolor{keyword}{inline}\ \textcolor{keyword}{friend}\ Point3D\ operator*(\textcolor{keyword}{const}\ \textcolor{keywordtype}{double}\&\ scalar,\ \textcolor{keyword}{const}\ Point3D\&\ point)\ \{}
+\DoxyCodeLine{00058\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ Point3D(point.getX()\ *\ scalar,\ point.getY()\ *\ scalar,\ point.getZ()\ *\ scalar);}
+\DoxyCodeLine{00059\ \ \ \ \ \}}
+\DoxyCodeLine{00060\ }
+\DoxyCodeLine{00061\ \ \ \ \ \textcolor{keyword}{inline}\ \textcolor{keyword}{friend}\ Point3D\ operator*=(\textcolor{keyword}{const}\ \textcolor{keywordtype}{double}\&\ other,\ Point3D\&\ point)\ \{}
+\DoxyCodeLine{00062\ \ \ \ \ \ \ \ \ point.x\ =\ point.getX()\ *\ other;}
+\DoxyCodeLine{00063\ \ \ \ \ \ \ \ \ point.y\ =\ point.getY()\ *\ other;}
+\DoxyCodeLine{00064\ \ \ \ \ \ \ \ \ point.z\ =\ point.getZ()\ *\ other;}
+\DoxyCodeLine{00065\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ Point3D(point.x,\ point.y,\ point.z);}
+\DoxyCodeLine{00066\ \ \ \ \ \}}
+\DoxyCodeLine{00067\ }
+\DoxyCodeLine{00068\ \ \ \ \ \textcolor{keyword}{inline}\ Point3D\ operator/(\textcolor{keyword}{const}\ \textcolor{keywordtype}{double}\&\ other)\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00069\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ Point3D(this-\/>getX()\ /\ other,\ this-\/>getY()\ /\ other,\ this-\/>getZ()\ /\ other);}
+\DoxyCodeLine{00070\ \ \ \ \ \}}
+\DoxyCodeLine{00071\ }
+\DoxyCodeLine{00072\ \ \ \ \ \textcolor{keyword}{inline}\ \textcolor{keyword}{friend}\ std::ostream\&\ operator<<(std::ostream\&\ os,\ \textcolor{keyword}{const}\ Point3D\&\ point)\ \{}
+\DoxyCodeLine{00073\ \ \ \ \ \ \ \ \ os\ <<\ \textcolor{stringliteral}{"{}("{}}\ <<\ point.x\ <<\ \textcolor{stringliteral}{"{},\ "{}}\ <<\ point.y\ <<\ \textcolor{stringliteral}{"{},\ "{}}\ <<\ point.z\ <<\ \textcolor{stringliteral}{"{})"{}};}
+\DoxyCodeLine{00074\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ os;}
+\DoxyCodeLine{00075\ \ \ \ \ \}}
+\DoxyCodeLine{00076\ }
+\DoxyCodeLine{00077\ \ \ \ \ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{bool}\ operator==(\textcolor{keyword}{const}\ Point3D\&\ other)\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00078\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ this-\/>getX()\ ==\ other.getX()\ \&\&\ this-\/>getY()\ ==\ other.getY()\ \&\&\ this-\/>getZ()\ ==\ other.getZ();}
+\DoxyCodeLine{00079\ \ \ \ \ \}}
+\DoxyCodeLine{00080\ }
+\DoxyCodeLine{00081\ \ \ \ \ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{bool}\ operator!=(\textcolor{keyword}{const}\ Point3D\&\ other)\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00082\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ !(\textcolor{keyword}{this}\ ==\ \&other);}
+\DoxyCodeLine{00083\ \ \ \ \ \}}
+\DoxyCodeLine{00084\ }
+\DoxyCodeLine{00085\ }
+\DoxyCodeLine{00086\ \ \ \ \ \textcolor{comment}{//Get\ Methods}}
+\DoxyCodeLine{00087\ \ \ \ \ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{double}\ getX()\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00088\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ this-\/>x;}
+\DoxyCodeLine{00089\ \ \ \ \ \}}
+\DoxyCodeLine{00090\ }
+\DoxyCodeLine{00091\ \ \ \ \ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{double}\ getY()\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00092\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ this-\/>y;}
+\DoxyCodeLine{00093\ \ \ \ \ \}}
+\DoxyCodeLine{00094\ }
+\DoxyCodeLine{00095\ \ \ \ \ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{double}\ getZ()\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00096\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ this-\/>z;}
+\DoxyCodeLine{00097\ \ \ \ \ \}}
+\DoxyCodeLine{00098\ \};}
+
+\end{DoxyCode}

@@ -1,0 +1,186 @@
+\doxysection{Vector.\+h}
+\hypertarget{_vector_8h_source}{}\label{_vector_8h_source}\index{G:/LEDray\_trace\_demo/Vector.h@{G:/LEDray\_trace\_demo/Vector.h}}
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{preprocessor}{\#pragma\ once}}
+\DoxyCodeLine{00002\ \textcolor{preprocessor}{\#include\ "{}Point3D.h"{}}}
+\DoxyCodeLine{00003\ \textcolor{keyword}{class\ }Vector\ \{}
+\DoxyCodeLine{00004\ \textcolor{keyword}{private}:\ }
+\DoxyCodeLine{00005\ \ \ \ \ \textcolor{keywordtype}{double}\ x,\ y,\ z;}
+\DoxyCodeLine{00006\ }
+\DoxyCodeLine{00007\ \textcolor{keyword}{public}:\ }
+\DoxyCodeLine{00008\ \ \ \ \ \textcolor{comment}{//}}
+\DoxyCodeLine{00009\ \ \ \ \ \textcolor{comment}{//\ \ FUNCTION:\ Vector::Vector(double,\ double,\ double)}}
+\DoxyCodeLine{00010\ \ \ \ \ \textcolor{comment}{//}}
+\DoxyCodeLine{00011\ \ \ \ \ \textcolor{comment}{//\ \ PURPOSE:\ Initializes\ a\ vector\ with\ the\ given\ raw\ x/y/z\ components}}
+\DoxyCodeLine{00012\ \ \ \ \ \textcolor{comment}{//}}
+\DoxyCodeLine{00013\ \ \ \ \ Vector(\textcolor{keywordtype}{double}\ Vx,\ \textcolor{keywordtype}{double}\ Vy,\ \textcolor{keywordtype}{double}\ Vz);}
+\DoxyCodeLine{00014\ }
+\DoxyCodeLine{00015\ \ \ \ \ \textcolor{comment}{//}}
+\DoxyCodeLine{00016\ \ \ \ \ \textcolor{comment}{//\ \ FUNCTION:\ Vector::Vector(Point3D,\ Point3D)}}
+\DoxyCodeLine{00017\ \ \ \ \ \textcolor{comment}{//}}
+\DoxyCodeLine{00018\ \ \ \ \ \textcolor{comment}{//\ \ PURPOSE:\ Initializes\ a\ vector\ as\ the\ difference\ between\ the\ two\ given\ points,\ representing\ the\ direction\ and\ magnitude\ from\ the\ first\ point\ to\ the\ second\ point}}
+\DoxyCodeLine{00019\ \ \ \ \ \textcolor{comment}{//}}
+\DoxyCodeLine{00020\ \ \ \ \ \textcolor{comment}{//\ \ COMMENTS:}}
+\DoxyCodeLine{00021\ \ \ \ \ \textcolor{comment}{//}}
+\DoxyCodeLine{00022\ \ \ \ \ \textcolor{comment}{//\ \ \ \ \ \ \ \ \ This\ will\ be\ equivalent\ to\ end\ minus\ start}}
+\DoxyCodeLine{00023\ \ \ \ \ \textcolor{comment}{//}}
+\DoxyCodeLine{00024\ \ \ \ \ Vector(\doxymbox{\hyperlink{class_point3_d}{Point3D}}\ start,\ \doxymbox{\hyperlink{class_point3_d}{Point3D}}\ end);}
+\DoxyCodeLine{00025\ }
+\DoxyCodeLine{00026\ \ \ \ \ \textcolor{comment}{//}}
+\DoxyCodeLine{00027\ \ \ \ \ \textcolor{comment}{//\ \ FUNCTION:\ Vector::Vector(Point3D)}}
+\DoxyCodeLine{00028\ \ \ \ \ \textcolor{comment}{//}}
+\DoxyCodeLine{00029\ \ \ \ \ \textcolor{comment}{//\ \ PURPOSE:\ Initializes\ a\ vector\ with\ the\ same\ components\ as\ the\ given\ point,\ treating\ the\ point\ as\ a\ vector\ from\ the\ origin\ to\ that\ point}}
+\DoxyCodeLine{00030\ \ \ \ \ \textcolor{comment}{//}}
+\DoxyCodeLine{00031\ \ \ \ \ Vector(\doxymbox{\hyperlink{class_point3_d}{Point3D}}\ fromPoint);}
+\DoxyCodeLine{00032\ }
+\DoxyCodeLine{00033\ \ \ \ \ \textcolor{comment}{//}}
+\DoxyCodeLine{00034\ \ \ \ \ \textcolor{comment}{//\ \ FUNCTION:\ Vector::Vector()}}
+\DoxyCodeLine{00035\ \ \ \ \ \textcolor{comment}{//}}
+\DoxyCodeLine{00036\ \ \ \ \ \textcolor{comment}{//\ \ PURPOSE:\ Initializes\ a\ vector\ with\ x/y/z\ components\ all\ set\ to\ 0,\ representing\ the\ zero\ vector}}
+\DoxyCodeLine{00037\ \ \ \ \ \textcolor{comment}{//}}
+\DoxyCodeLine{00038\ \ \ \ \ Vector();}
+\DoxyCodeLine{00039\ }
+\DoxyCodeLine{00040\ }
+\DoxyCodeLine{00041\ \ \ \ \ \textcolor{comment}{//}}
+\DoxyCodeLine{00042\ \ \ \ \ \textcolor{comment}{//\ \ FUNCTION:\ Vector::cross(Vector)}}
+\DoxyCodeLine{00043\ \ \ \ \ \textcolor{comment}{//}}
+\DoxyCodeLine{00044\ \ \ \ \ \textcolor{comment}{//\ \ PURPOSE:\ Returns\ the\ cross\ product\ of\ this\ vector\ with\ the\ given\ other\ vector,\ which\ is\ a\ vector\ that\ is\ perpendicular\ to\ both\ original\ vectors\ and\ has\ a\ magnitude\ equal\ to\ the\ area\ of\ the\ parallelogram\ formed\ by\ the\ two\ vectors}}
+\DoxyCodeLine{00045\ \ \ \ \ \textcolor{comment}{//}}
+\DoxyCodeLine{00046\ \ \ \ \ \textcolor{keyword}{inline}\ Vector\ cross(\textcolor{keyword}{const}\ Vector\&\ other)\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00047\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ Vector(this-\/>getY()\ *\ other.getZ()\ -\/\ this-\/>getZ()\ *\ other.getY(),\ this-\/>getZ()\ *\ other.getX()\ -\/\ this-\/>getX()\ *\ other.getZ(),\ this-\/>getX()\ *\ other.getY()\ -\/\ this-\/>getY()\ *\ other.getX());}
+\DoxyCodeLine{00048\ \ \ \ \ \}}
+\DoxyCodeLine{00049\ }
+\DoxyCodeLine{00050\ \ \ \ \ \textcolor{comment}{//}}
+\DoxyCodeLine{00051\ \ \ \ \ \textcolor{comment}{//\ \ FUNCTION:\ Vector::cross(Vector,\ Vector)}}
+\DoxyCodeLine{00052\ \ \ \ \ \textcolor{comment}{//}}
+\DoxyCodeLine{00053\ \ \ \ \ \textcolor{comment}{//\ \ PURPOSE:\ Returns\ the\ cross\ product\ of\ the\ two\ given\ vectors,\ which\ is\ a\ vector\ that\ is\ perpendicular\ to\ both\ original\ vectors\ and\ has\ a\ magnitude\ equal\ to\ the\ area\ of\ the\ parallelogram\ formed\ by\ the\ two\ vectors}}
+\DoxyCodeLine{00054\ \ \ \ \ \textcolor{comment}{//}}
+\DoxyCodeLine{00055\ \ \ \ \ \textcolor{keyword}{inline}\ \textcolor{keyword}{static}\ Vector\ cross(\textcolor{keyword}{const}\ Vector\&\ vec1,\ \textcolor{keyword}{const}\ Vector\&\ vec2)\ \{}
+\DoxyCodeLine{00056\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ vec1.cross(vec2);}
+\DoxyCodeLine{00057\ \ \ \ \ \}}
+\DoxyCodeLine{00058\ }
+\DoxyCodeLine{00059\ \ \ \ \ \textcolor{comment}{//}}
+\DoxyCodeLine{00060\ \ \ \ \ \textcolor{comment}{//\ \ FUNCTION:\ Vector::dot(Vector)}}
+\DoxyCodeLine{00061\ \ \ \ \ \textcolor{comment}{//}}
+\DoxyCodeLine{00062\ \ \ \ \ \textcolor{comment}{//\ \ PURPOSE:\ Returns\ the\ dot\ product\ of\ this\ vector\ with\ the\ given\ other\ vector,\ which\ is\ a\ scalar\ equal\ to\ the\ sum\ of\ the\ products\ of\ the\ corresponding\ components\ of\ the\ two\ vectors;\ it\ can\ be\ used\ to\ determine\ the\ angle\ between\ the\ vectors\ or\ to\ project\ one\ vector\ onto\ another}}
+\DoxyCodeLine{00063\ \ \ \ \ \textcolor{comment}{//}}
+\DoxyCodeLine{00064\ \ \ \ \ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{double}\ dot(\textcolor{keyword}{const}\ Vector\&\ other)\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00065\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ this-\/>getX()\ *\ other.getX()\ +\ this-\/>getY()\ *\ other.getY()\ +\ this-\/>getZ()\ *\ other.getZ();}
+\DoxyCodeLine{00066\ \ \ \ \ \}}
+\DoxyCodeLine{00067\ }
+\DoxyCodeLine{00068\ \ \ \ \ \textcolor{comment}{//}}
+\DoxyCodeLine{00069\ \ \ \ \ \textcolor{comment}{//\ \ FUNCTION:\ Vector::dot(Vector,\ Vector)}}
+\DoxyCodeLine{00070\ \ \ \ \ \textcolor{comment}{//}}
+\DoxyCodeLine{00071\ \ \ \ \ \textcolor{comment}{//\ \ PURPOSE:\ Returns\ the\ dot\ product\ of\ the\ two\ given\ vectors,\ which\ is\ a\ scalar\ equal\ to\ the\ sum\ of\ the\ products\ of\ the\ corresponding\ components\ of\ the\ two\ vectors;\ it\ can\ be\ used\ to\ determine\ the\ angle\ between\ the\ vectors\ or\ to\ project\ one\ vector\ onto\ another}}
+\DoxyCodeLine{00072\ \ \ \ \ \textcolor{comment}{//}}
+\DoxyCodeLine{00073\ \ \ \ \ \textcolor{keyword}{inline}\ \textcolor{keyword}{static}\ \textcolor{keywordtype}{double}\ dot(\textcolor{keyword}{const}\ Vector\&\ vec1,\ \textcolor{keyword}{const}\ Vector\&\ vec2)\ \{}
+\DoxyCodeLine{00074\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ vec1.dot(vec2);}
+\DoxyCodeLine{00075\ \ \ \ \ \}}
+\DoxyCodeLine{00076\ }
+\DoxyCodeLine{00077\ \ \ \ \ \textcolor{comment}{//}}
+\DoxyCodeLine{00078\ \ \ \ \ \textcolor{comment}{//\ \ FUNCTION:\ Vector::magnitude()}}
+\DoxyCodeLine{00079\ \ \ \ \ \textcolor{comment}{//}}
+\DoxyCodeLine{00080\ \ \ \ \ \textcolor{comment}{//\ \ PURPOSE:\ Returns\ the\ magnitude\ of\ the\ vector,\ which\ is\ the\ square\ root\ of\ the\ sum\ of\ the\ squares\ of\ its\ components;\ this\ represents\ the\ length\ of\ the\ vector}}
+\DoxyCodeLine{00081\ \ \ \ \ \textcolor{comment}{//}}
+\DoxyCodeLine{00082\ \ \ \ \ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{double}\ magnitude()\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00083\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ sqrt(getX()\ *\ getX()\ +\ getY()\ *\ getY()\ +\ getZ()\ *\ getZ());}
+\DoxyCodeLine{00084\ \ \ \ \ \}}
+\DoxyCodeLine{00085\ }
+\DoxyCodeLine{00086\ \ \ \ \ \textcolor{comment}{//}}
+\DoxyCodeLine{00087\ \ \ \ \ \textcolor{comment}{//\ \ FUNCTION:\ Vector::normalize()}}
+\DoxyCodeLine{00088\ \ \ \ \ \textcolor{comment}{//}}
+\DoxyCodeLine{00089\ \ \ \ \ \textcolor{comment}{//\ \ PURPOSE:\ Returns\ a\ new\ vector\ that\ has\ the\ same\ direction\ as\ this\ vector\ but\ a\ magnitude\ of\ 1,\ which\ is\ done\ by\ dividing\ each\ component\ of\ the\ vector\ by\ its\ magnitude;\ this\ is\ useful\ for\ representing\ directions\ without\ regard\ to\ length}}
+\DoxyCodeLine{00090\ \ \ \ \ \textcolor{comment}{//}}
+\DoxyCodeLine{00091\ \ \ \ \ \textcolor{keyword}{inline}\ Vector\ normalize()\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00092\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{double}\ sum\ =\ magnitude();}
+\DoxyCodeLine{00093\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ Vector(getX()/sum,\ getY()/sum,\ getZ()/sum);}
+\DoxyCodeLine{00094\ \ \ \ \ \}}
+\DoxyCodeLine{00095\ }
+\DoxyCodeLine{00096\ }
+\DoxyCodeLine{00097\ \ \ \ \ \textcolor{comment}{//Operators}}
+\DoxyCodeLine{00098\ \ \ \ \ \textcolor{keyword}{inline}\ Vector\ operator+(\textcolor{keyword}{const}\ Vector\&\ other)\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00099\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ Vector(asPoint()\ +\ other.asPoint());}
+\DoxyCodeLine{00100\ \ \ \ \ \}}
+\DoxyCodeLine{00101\ }
+\DoxyCodeLine{00102\ \ \ \ \ \textcolor{keyword}{inline}\ Vector\ operator+=(\textcolor{keyword}{const}\ Vector\&\ other)\ \{}
+\DoxyCodeLine{00103\ \ \ \ \ \ \ \ \ this-\/>x\ =\ this-\/>getX()\ +\ other.x;}
+\DoxyCodeLine{00104\ \ \ \ \ \ \ \ \ this-\/>y\ =\ this-\/>getY()\ +\ other.y;}
+\DoxyCodeLine{00105\ \ \ \ \ \ \ \ \ this-\/>z\ =\ this-\/>getZ()\ +\ other.z;}
+\DoxyCodeLine{00106\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ Vector(this-\/>x,\ this-\/>y,\ this-\/>z);}
+\DoxyCodeLine{00107\ \ \ \ \ \}}
+\DoxyCodeLine{00108\ }
+\DoxyCodeLine{00109\ \ \ \ \ \textcolor{keyword}{inline}\ Vector\ operator-\/(\textcolor{keyword}{const}\ Vector\&\ other)\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00110\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ Vector(asPoint()\ -\/\ other.asPoint());}
+\DoxyCodeLine{00111\ \ \ \ \ \}}
+\DoxyCodeLine{00112\ }
+\DoxyCodeLine{00113\ \ \ \ \ \textcolor{keyword}{inline}\ Vector\ operator-\/=(\textcolor{keyword}{const}\ Vector\&\ other)\ \{}
+\DoxyCodeLine{00114\ \ \ \ \ \ \ \ \ this-\/>x\ =\ this-\/>getX()\ -\/\ other.x;}
+\DoxyCodeLine{00115\ \ \ \ \ \ \ \ \ this-\/>y\ =\ this-\/>getY()\ -\/\ other.y;}
+\DoxyCodeLine{00116\ \ \ \ \ \ \ \ \ this-\/>z\ =\ this-\/>getZ()\ -\/\ other.z;}
+\DoxyCodeLine{00117\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ Vector(this-\/>x,\ this-\/>y,\ this-\/>z);}
+\DoxyCodeLine{00118\ \ \ \ \ \}}
+\DoxyCodeLine{00119\ }
+\DoxyCodeLine{00120\ \ \ \ \ \textcolor{keyword}{inline}\ Vector\ operator*(\textcolor{keyword}{const}\ \textcolor{keywordtype}{double}\&\ scalar)\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00121\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ Vector(asPoint()\ *\ scalar);}
+\DoxyCodeLine{00122\ \ \ \ \ \}}
+\DoxyCodeLine{00123\ }
+\DoxyCodeLine{00124\ \ \ \ \ \textcolor{keyword}{inline}\ Vector\ operator*=(\textcolor{keyword}{const}\ \textcolor{keywordtype}{double}\&\ other)\ \{}
+\DoxyCodeLine{00125\ \ \ \ \ \ \ \ \ this-\/>x\ =\ this-\/>getX()\ *\ other;}
+\DoxyCodeLine{00126\ \ \ \ \ \ \ \ \ this-\/>y\ =\ this-\/>getY()\ *\ other;}
+\DoxyCodeLine{00127\ \ \ \ \ \ \ \ \ this-\/>z\ =\ this-\/>getZ()\ *\ other;}
+\DoxyCodeLine{00128\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ Vector(this-\/>x,\ this-\/>y,\ this-\/>z);}
+\DoxyCodeLine{00129\ \ \ \ \ \}}
+\DoxyCodeLine{00130\ }
+\DoxyCodeLine{00131\ \ \ \ \ \textcolor{keyword}{inline}\ \textcolor{keyword}{friend}\ Vector\ operator*(\textcolor{keyword}{const}\ \textcolor{keywordtype}{double}\&\ scalar,\ \textcolor{keyword}{const}\ Vector\&\ vector)\ \{}
+\DoxyCodeLine{00132\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ Vector(vector.asPoint()\ *\ scalar);}
+\DoxyCodeLine{00133\ \ \ \ \ \}}
+\DoxyCodeLine{00134\ }
+\DoxyCodeLine{00135\ \ \ \ \ \textcolor{keyword}{inline}\ Vector\ operator/(\textcolor{keyword}{const}\ \textcolor{keywordtype}{double}\&\ scalar)\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00136\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ Vector(asPoint()\ /\ scalar);}
+\DoxyCodeLine{00137\ \ \ \ \ \}}
+\DoxyCodeLine{00138\ }
+\DoxyCodeLine{00139\ \ \ \ \ \textcolor{keyword}{inline}\ Vector\ operator/=(\textcolor{keyword}{const}\ \textcolor{keywordtype}{double}\&\ scalar)\ \{}
+\DoxyCodeLine{00140\ \ \ \ \ \ \ \ \ this-\/>x\ =\ this-\/>getX()\ /\ scalar;}
+\DoxyCodeLine{00141\ \ \ \ \ \ \ \ \ this-\/>y\ =\ this-\/>getY()\ /\ scalar;}
+\DoxyCodeLine{00142\ \ \ \ \ \ \ \ \ this-\/>z\ =\ this-\/>getZ()\ /\ scalar;}
+\DoxyCodeLine{00143\ \ \ \ \ \}}
+\DoxyCodeLine{00144\ }
+\DoxyCodeLine{00145\ \ \ \ \ \textcolor{keyword}{inline}\ \textcolor{keyword}{friend}\ std::ostream\&\ operator<<(std::ostream\&\ os,\ \textcolor{keyword}{const}\ Vector\&\ vec)\ \{}
+\DoxyCodeLine{00146\ \ \ \ \ \ \ \ \ os\ <<\ vec.getX()\ <<\ \textcolor{stringliteral}{"{}i"{}}\ <<\ (vec.getY()\ <\ 0\ ?\ \textcolor{stringliteral}{"{}"{}}\ :\ \textcolor{stringliteral}{"{}+"{}})\ <<\ vec.getY()\ <<\ \textcolor{stringliteral}{"{}j"{}}\ <<\ (vec.getZ()\ <\ 0\ ?\ \textcolor{stringliteral}{"{}"{}}\ :\ \textcolor{stringliteral}{"{}+"{}})\ <<\ vec.getZ()\ <<\ \textcolor{stringliteral}{"{}k"{}};}
+\DoxyCodeLine{00147\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ os;}
+\DoxyCodeLine{00148\ \ \ \ \ \}}
+\DoxyCodeLine{00149\ }
+\DoxyCodeLine{00150\ \ \ \ \ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{bool}\ operator==(\textcolor{keyword}{const}\ Vector\&\ other)\ \{}
+\DoxyCodeLine{00151\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ (getX()\ ==\ other.getX()\ \&\&\ getY()\ ==\ other.getY()\ \&\&\ getZ()\ ==\ other.getZ());}
+\DoxyCodeLine{00152\ \ \ \ \ \}}
+\DoxyCodeLine{00153\ }
+\DoxyCodeLine{00154\ \ \ \ \ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{bool}\ operator!=(\textcolor{keyword}{const}\ Vector\ \&\ other)\ \{}
+\DoxyCodeLine{00155\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ !(*\textcolor{keyword}{this}\ ==\ other);}
+\DoxyCodeLine{00156\ \ \ \ \ \}}
+\DoxyCodeLine{00157\ }
+\DoxyCodeLine{00158\ \ \ \ \ \textcolor{keyword}{operator}\ \doxymbox{\hyperlink{class_point3_d}{Point3D}}()\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00159\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \doxymbox{\hyperlink{class_point3_d}{Point3D}}(getX(),\ getY(),\ getZ());}
+\DoxyCodeLine{00160\ \ \ \ \ \}}
+\DoxyCodeLine{00161\ }
+\DoxyCodeLine{00162\ }
+\DoxyCodeLine{00163\ \ \ \ \ \textcolor{comment}{//Get\ Methods}}
+\DoxyCodeLine{00164\ \ \ \ \ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{double}\ getX()\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00165\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ this-\/>x;}
+\DoxyCodeLine{00166\ \ \ \ \ \}}
+\DoxyCodeLine{00167\ }
+\DoxyCodeLine{00168\ \ \ \ \ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{double}\ getY()\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00169\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ this-\/>y;}
+\DoxyCodeLine{00170\ \ \ \ \ \}}
+\DoxyCodeLine{00171\ }
+\DoxyCodeLine{00172\ \ \ \ \ \textcolor{keyword}{inline}\ \textcolor{keywordtype}{double}\ getZ()\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00173\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ this-\/>z;}
+\DoxyCodeLine{00174\ \ \ \ \ \}}
+\DoxyCodeLine{00175\ }
+\DoxyCodeLine{00176\ \ \ \ \ \textcolor{comment}{//Legacy,\ don't\ use\ this,\ just\ use\ the\ Point3D\ constructor\ instead,\ but\ this\ is\ here\ for\ backward\ compatibility\ with\ old\ code\ that\ expects\ a\ Point3D\ conversion\ method\ asPoint()}}
+\DoxyCodeLine{00177\ \ \ \ \ \textcolor{keyword}{inline}\ \doxymbox{\hyperlink{class_point3_d}{Point3D}}\ asPoint()\textcolor{keyword}{\ const\ }\{}
+\DoxyCodeLine{00178\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \doxymbox{\hyperlink{class_point3_d}{Point3D}}(getX(),\ getY(),\ getZ());}
+\DoxyCodeLine{00179\ \ \ \ \ \}}
+\DoxyCodeLine{00180\ \};}
+
+\end{DoxyCode}

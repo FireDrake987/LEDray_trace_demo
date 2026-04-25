@@ -1,0 +1,63 @@
+\doxysection{Triangle Class Reference}
+\hypertarget{class_triangle}{}\label{class_triangle}\index{Triangle@{Triangle}}
+Inheritance diagram for Triangle:\+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=2.000000cm]{class_triangle}
+\end{center}
+\end{figure}
+\doxysubsubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\Hypertarget{class_triangle_a4fbb8284c65ecbfec943b705790331d9}\label{class_triangle_a4fbb8284c65ecbfec943b705790331d9} 
+{\bfseries Triangle} (\doxymbox{\hyperlink{class_material}{Material}} mat, \doxymbox{\hyperlink{class_point3_d}{Point3D}} p1, \doxymbox{\hyperlink{class_point3_d}{Point3D}} p2, \doxymbox{\hyperlink{class_point3_d}{Point3D}} p3)
+\item 
+virtual \doxymbox{\hyperlink{structintersection_info_struct}{intersection\+Info\+Struct}} \doxymbox{\hyperlink{class_triangle_a9f32ae1275f55ac510153974f50ba19e}{get\+Intersection}} (\doxymbox{\hyperlink{class_ray}{Ray}} ray)
+\end{DoxyCompactItemize}
+\doxysubsection*{Public Member Functions inherited from \doxymbox{\hyperlink{class_plane}{Plane}}}
+\begin{DoxyCompactItemize}
+\item 
+{\bfseries Plane} (\doxymbox{\hyperlink{class_material}{Material}} mat, \doxymbox{\hyperlink{class_point3_d}{Point3D}} p1, \doxymbox{\hyperlink{class_point3_d}{Point3D}} p2, \doxymbox{\hyperlink{class_point3_d}{Point3D}} p3)
+\item 
+{\bfseries Plane} (\doxymbox{\hyperlink{class_material}{Material}} mat, double a, double b, double c, double d)
+\item 
+double {\bfseries getA} () const
+\item 
+double {\bfseries getB} () const
+\item 
+double {\bfseries getC} () const
+\item 
+double {\bfseries getD} () const
+\item 
+\doxymbox{\hyperlink{class_material}{Material}} {\bfseries get\+Material} () const
+\item 
+\doxymbox{\hyperlink{class_point3_d}{Point3D}} {\bfseries get\+Point\+On\+Plane} () const
+\item 
+\doxymbox{\hyperlink{class_vector}{Vector}} {\bfseries get\+Normal} () const
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Static Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\Hypertarget{class_triangle_a9d348e9ecb2ca96a85128bf04385fdf1}\label{class_triangle_a9d348e9ecb2ca96a85128bf04385fdf1} 
+static double {\bfseries triangle\+Area} (\doxymbox{\hyperlink{class_point3_d}{Point3D}} p1, \doxymbox{\hyperlink{class_point3_d}{Point3D}} p2, \doxymbox{\hyperlink{class_point3_d}{Point3D}} p3)
+\end{DoxyCompactItemize}
+
+
+\label{doc-func-members}
+\Hypertarget{class_triangle_doc-func-members}
+\doxysubsection{Member Function Documentation}
+\Hypertarget{class_triangle_a9f32ae1275f55ac510153974f50ba19e}\index{Triangle@{Triangle}!getIntersection@{getIntersection}}
+\index{getIntersection@{getIntersection}!Triangle@{Triangle}}
+\doxysubsubsection{\texorpdfstring{getIntersection()}{getIntersection()}}
+{\footnotesize\ttfamily \label{class_triangle_a9f32ae1275f55ac510153974f50ba19e} 
+virtual \doxymbox{\hyperlink{structintersection_info_struct}{intersection\+Info\+Struct}} Triangle::\+get\+Intersection (\begin{DoxyParamCaption}\item[{\doxymbox{\hyperlink{class_ray}{Ray}}}]{ray}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [virtual]}}
+
+
+
+Reimplemented from \doxymbox{\hyperlink{class_plane}{Plane}}.
+
+
+
+The documentation for this class was generated from the following file:\+\begin{DoxyCompactItemize}
+\item 
+G:\+/\+\+LEDray\+\_\+trace\+\_\+demo/\+Triangle.\+h\end{DoxyCompactItemize}

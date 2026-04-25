@@ -1,0 +1,41 @@
+\doxysection{Material.\+h}
+\hypertarget{_material_8h_source}{}\label{_material_8h_source}\index{G:/LEDray\_trace\_demo/Material.h@{G:/LEDray\_trace\_demo/Material.h}}
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{preprocessor}{\#pragma\ once}}
+\DoxyCodeLine{00002\ \textcolor{preprocessor}{\#include\ "{}BGRPixel.h"{}}}
+\DoxyCodeLine{00003\ \textcolor{preprocessor}{\#include\ "{}Point3D.h"{}}}
+\DoxyCodeLine{00004\ \textcolor{preprocessor}{\#include\ <vector>}}
+\DoxyCodeLine{00005\ \textcolor{preprocessor}{\#include\ "{}Ray.h"{}}}
+\DoxyCodeLine{00006\ }
+\DoxyCodeLine{00007\ \textcolor{keyword}{class\ }\doxymbox{\hyperlink{class_plane}{Plane}};\textcolor{comment}{//Forward\ declaration}}
+\DoxyCodeLine{00008\ \textcolor{keyword}{class\ }\doxymbox{\hyperlink{class_camera}{Camera}};\textcolor{comment}{//Forward\ declaration}}
+\DoxyCodeLine{00009\ }
+\DoxyCodeLine{00010\ \textcolor{keyword}{class\ }Material\ \{}
+\DoxyCodeLine{00011\ \ \ \ \ \doxymbox{\hyperlink{struct_b_g_r_pixel}{BGRPixel}}\ col;}
+\DoxyCodeLine{00012\ }
+\DoxyCodeLine{00013\ \textcolor{keyword}{public}:\ }
+\DoxyCodeLine{00014\ \ \ \ \ \textcolor{comment}{//}}
+\DoxyCodeLine{00015\ \ \ \ \ \textcolor{comment}{//\ \ FUNCTION:\ Material(BGRPixel\ col)}}
+\DoxyCodeLine{00016\ \ \ \ \ \textcolor{comment}{//}}
+\DoxyCodeLine{00017\ \ \ \ \ \textcolor{comment}{//\ \ PURPOSE:\ Constructor\ for\ Material\ class.\ Takes\ in\ a\ BGRPixel\ that\ represents\ the\ base\ color\ of\ the\ material.\ This\ color\ will\ be\ returned\ by\ the\ getColAtPoint\ function\ for\ any\ point\ on\ the\ material,\ regardless\ of\ lighting\ or\ other\ factors.}}
+\DoxyCodeLine{00018\ \ \ \ \ \textcolor{comment}{//}}
+\DoxyCodeLine{00019\ \ \ \ \ Material(\doxymbox{\hyperlink{struct_b_g_r_pixel}{BGRPixel}}\ col);}
+\DoxyCodeLine{00020\ }
+\DoxyCodeLine{00021\ \ \ \ \ \textcolor{comment}{//}}
+\DoxyCodeLine{00022\ \ \ \ \ \textcolor{comment}{//\ \ FUNCTION:\ Material()}}
+\DoxyCodeLine{00023\ \ \ \ \ \textcolor{comment}{//}}
+\DoxyCodeLine{00024\ \ \ \ \ \textcolor{comment}{//\ \ PURPOSE:\ Default\ constructor\ for\ Material\ class.\ Initializes\ the\ base\ color\ to\ black\ (B=0,\ G=0,\ R=0).}}
+\DoxyCodeLine{00025\ \ \ \ \ \textcolor{comment}{//}}
+\DoxyCodeLine{00026\ \ \ \ \ Material();}
+\DoxyCodeLine{00027\ }
+\DoxyCodeLine{00028\ }
+\DoxyCodeLine{00029\ \ \ \ \ \textcolor{comment}{//}}
+\DoxyCodeLine{00030\ \ \ \ \ \textcolor{comment}{//\ \ FUNCTION:\ getColAtPoint(Point3D\ intPoint,\ Camera*\ cam,\ Ray\ \&ray,\ Plane\ *plane,\ int\ str)}}
+\DoxyCodeLine{00031\ \ \ \ \ \textcolor{comment}{//}}
+\DoxyCodeLine{00032\ \ \ \ \ \textcolor{comment}{//\ \ PURPOSE:\ Returns\ the\ color\ of\ the\ material\ at\ the\ given\ intersection\ point.\ For\ the\ base\ Material\ class,\ this\ simply\ returns\ the\ base\ color\ of\ the\ material,\ ignoring\ lighting,\ reflections,\ and\ other\ factors.\ This\ function\ can\ be\ overridden\ in\ subclasses\ to\ implement\ more\ complex\ shading\ models\ (e.g.,\ reflective\ materials,\ etc.)\ that\ take\ into\ account\ lighting\ and\ other\ factors\ to\ calculate\ the\ final\ color\ at\ the\ intersection\ point.}}
+\DoxyCodeLine{00033\ \ \ \ \ \textcolor{comment}{//}}
+\DoxyCodeLine{00034\ \ \ \ \ \textcolor{keyword}{virtual}\ \doxymbox{\hyperlink{struct_b_g_r_pixel}{BGRPixel}}\ getColAtPoint(\doxymbox{\hyperlink{class_point3_d}{Point3D}}\ intPoint,\ \doxymbox{\hyperlink{class_camera}{Camera}}\ *cam,\ \doxymbox{\hyperlink{class_ray}{Ray}}\ \&ray,\ \doxymbox{\hyperlink{class_plane}{Plane}}\ *plane,\ \textcolor{keywordtype}{int}\ str)\textcolor{keyword}{\ const\ }\{\ \textcolor{keywordflow}{return}\ col;\ \}}
+\DoxyCodeLine{00035\ \};}
+
+\end{DoxyCode}

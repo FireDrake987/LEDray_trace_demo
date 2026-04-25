@@ -1,0 +1,94 @@
+\doxysection{App\+State Struct Reference}
+\hypertarget{struct_app_state}{}\label{struct_app_state}\index{AppState@{AppState}}
+\doxysubsubsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\Hypertarget{struct_app_state_a241496b0a027267d04661a419450ec88}\label{struct_app_state_a241496b0a027267d04661a419450ec88} 
+const int {\bfseries scale} = 3
+\item 
+\Hypertarget{struct_app_state_ae8c9812a44c43ffc3b74f8b9ab3265ac}\label{struct_app_state_ae8c9812a44c43ffc3b74f8b9ab3265ac} 
+UINT {\bfseries framecount} = 0
+\item 
+\Hypertarget{struct_app_state_a28b114afbad311e29ddd1dc6ab4d4b58}\label{struct_app_state_a28b114afbad311e29ddd1dc6ab4d4b58} 
+bool {\bfseries mouse\+Captured} = false
+\item 
+\Hypertarget{struct_app_state_a5be988cffc1ed83bb3fcb34ce7fcbe24}\label{struct_app_state_a5be988cffc1ed83bb3fcb34ce7fcbe24} 
+POINT {\bfseries mouse\+Pos} = \{0, 0\}
+\item 
+\Hypertarget{struct_app_state_a585a2613358d78d2e7e1d6c601a0858b}\label{struct_app_state_a585a2613358d78d2e7e1d6c601a0858b} 
+std::\+wstring {\bfseries last\+Key\+Down} = L"{}"{}
+\item 
+\Hypertarget{struct_app_state_a8ecf853dff9909baa093a5f56b2a9ef2}\label{struct_app_state_a8ecf853dff9909baa093a5f56b2a9ef2} 
+std::\+wstring {\bfseries last\+Key\+Up} = L"{}"{}
+\item 
+\Hypertarget{struct_app_state_a29a6b2e8bc1744c3843dff35db9b5f40}\label{struct_app_state_a29a6b2e8bc1744c3843dff35db9b5f40} 
+long long {\bfseries fps\+Time} = START\+\_\+\+TIME
+\item 
+\Hypertarget{struct_app_state_a92f8239a18da32284b071593feb9924d}\label{struct_app_state_a92f8239a18da32284b071593feb9924d} 
+long {\bfseries frame\+Delay} = 1000 \texorpdfstring{$\ast$}{*} (1 /\+ 5.\+0)
+\item 
+\Hypertarget{struct_app_state_a68fa77516f14f8797ad3d924e20e061c}\label{struct_app_state_a68fa77516f14f8797ad3d924e20e061c} 
+HMENU {\bfseries h\+Main\+Menu} = nullptr
+\item 
+\Hypertarget{struct_app_state_aab27d6cfae9f0de4fe3afb5837a30633}\label{struct_app_state_aab27d6cfae9f0de4fe3afb5837a30633} 
+HMENU {\bfseries h\+Framerate\+Menu} = nullptr
+\item 
+\Hypertarget{struct_app_state_a69952231d4fba970fe03505db164c1ab}\label{struct_app_state_a69952231d4fba970fe03505db164c1ab} 
+HMENU {\bfseries h\+Render\+Mode\+Menu} = nullptr
+\item 
+\Hypertarget{struct_app_state_aac9a4bb17b96df5b6722f56297160b83}\label{struct_app_state_aac9a4bb17b96df5b6722f56297160b83} 
+HMENU {\bfseries h\+FOVMenu} = nullptr
+\item 
+\Hypertarget{struct_app_state_a144baa45bb90aa1d3c9c697cae41e48c}\label{struct_app_state_a144baa45bb90aa1d3c9c697cae41e48c} 
+HMENU {\bfseries h\+Threads\+Menu} = nullptr
+\item 
+\Hypertarget{struct_app_state_a845f7e9abaf2800d527c561faf6acaff}\label{struct_app_state_a845f7e9abaf2800d527c561faf6acaff} 
+std::\+mutex {\bfseries mut}
+\item 
+\Hypertarget{struct_app_state_afb87671476f026091e0c436de6871ebd}\label{struct_app_state_afb87671476f026091e0c436de6871ebd} 
+HDC {\bfseries hdesktop} = nullptr
+\item 
+\Hypertarget{struct_app_state_a965241923d611dc637a24ca5bca789c1}\label{struct_app_state_a965241923d611dc637a24ca5bca789c1} 
+HBITMAP {\bfseries output} = nullptr
+\item 
+\Hypertarget{struct_app_state_ae65513f7390bedda36c9fd75017e6869}\label{struct_app_state_ae65513f7390bedda36c9fd75017e6869} 
+HDC {\bfseries output\+DC} = nullptr
+\item 
+\Hypertarget{struct_app_state_abc12637c07f14b5ddb42df1dfb705d82}\label{struct_app_state_abc12637c07f14b5ddb42df1dfb705d82} 
+int {\bfseries num\+Threads} = 1
+\item 
+\Hypertarget{struct_app_state_a04838407c6a0cc81aa59eee785f379ec}\label{struct_app_state_a04838407c6a0cc81aa59eee785f379ec} 
+bool {\bfseries stopping} = false
+\item 
+\Hypertarget{struct_app_state_ace42fed156de0f7ecd5fd6e88c29cdc6}\label{struct_app_state_ace42fed156de0f7ecd5fd6e88c29cdc6} 
+std::\+thread {\bfseries game\+Loop} = std::\+thread(loop)
+\item 
+\Hypertarget{struct_app_state_a4a1a2265c2e115d6a3262eb3d5ad4213}\label{struct_app_state_a4a1a2265c2e115d6a3262eb3d5ad4213} 
+\doxymbox{\hyperlink{class_camera}{Camera}} {\bfseries cam} = \doxymbox{\hyperlink{class_camera}{Camera}}(-\/2, 1.\+5, -\/2, RAYTRACE\+\_\+\+WIDTH, RAYTRACE\+\_\+\+HEIGHT, \doxymbox{\hyperlink{class_quaternion}{Quaternion}}())
+\item 
+\Hypertarget{struct_app_state_a34c409b723d7910835170b7a9ada2a99}\label{struct_app_state_a34c409b723d7910835170b7a9ada2a99} 
+bool {\bfseries debug} = false
+\item 
+\Hypertarget{struct_app_state_a65d5945cd0265f178b8d20e1c85128ed}\label{struct_app_state_a65d5945cd0265f178b8d20e1c85128ed} 
+int {\bfseries tilesX} = 4
+\item 
+\Hypertarget{struct_app_state_aa772548c08ce28516aeb247ee44bbef2}\label{struct_app_state_aa772548c08ce28516aeb247ee44bbef2} 
+int {\bfseries tilesY} = 4
+\item 
+\Hypertarget{struct_app_state_afde49f37f1c174684900cf50db364d4c}\label{struct_app_state_afde49f37f1c174684900cf50db364d4c} 
+bool {\bfseries use\+Color} = false
+\item 
+\Hypertarget{struct_app_state_a9db7120192477321e14044a1f5e9f7a1}\label{struct_app_state_a9db7120192477321e14044a1f5e9f7a1} 
+int {\bfseries red} = 0
+\item 
+\Hypertarget{struct_app_state_abd43351aaf020e27e7910441cc8746b0}\label{struct_app_state_abd43351aaf020e27e7910441cc8746b0} 
+int {\bfseries green} = 255
+\item 
+\Hypertarget{struct_app_state_af973770e0cda579af81c1819b128203f}\label{struct_app_state_af973770e0cda579af81c1819b128203f} 
+int {\bfseries blue} = 255
+\end{DoxyCompactItemize}
+
+
+The documentation for this struct was generated from the following file:\+\begin{DoxyCompactItemize}
+\item 
+G:\+/\+\+LEDray\+\_\+trace\+\_\+demo/\+LEDray\+\_\+trace\+\_\+demo.\+cpp\end{DoxyCompactItemize}
