@@ -206,10 +206,10 @@ bool doPerformanceMetrics = true;
 //  PURPOSE: Runs game loop, automatically refreshes. Designed to be run on separate thread
 //
 void loop() {
-    auto lastTime = std::chrono::steady_clock::now();
-    const std::chrono::nanoseconds frameLength(state.frameDelay * 1000000);
+    auto lastTime = std::chrono::high_resolution_clock::now().time_since_epoch().count();
+    const long long frameLength(state.frameDelay);
     while(!state.stopping) {
-        auto currentTime = std::chrono::steady_clock::now();
+        auto currentTime = std::chrono::high_resolution_clock::now().time_since_epoch().count();
         auto deltaTime = currentTime - lastTime;
         lastTime = currentTime;
         {
@@ -266,9 +266,9 @@ void loop() {
                 }
             }
         }
-        auto timeTaken = std::chrono::steady_clock::now() - currentTime;
+        auto timeTaken = std::chrono::high_resolution_clock::now().time_since_epoch().count() - currentTime;
         if(timeTaken < frameLength) {
-            std::this_thread::sleep_for(frameLength - timeTaken);
+            std::this_thread::sleep_for(std::chrono::milliseconds(frameLength - timeTaken));
         }
     }
 }
@@ -638,7 +638,7 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow) {
 
     SetTimer(hWnd, 1, 200, NULL);
 
-    state.frameDelay = 200;
+    state.frameDelay = 20;
 
     Camera::type = Camera::FLAT;
 
