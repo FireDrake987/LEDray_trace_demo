@@ -199,7 +199,6 @@ void renderWork(HDC *hdc, RECT bounds, HDC buffer) {
 
 bool performanceMetricsSkipped = false;
 int performanceMetricsSkipFrames = 20;
-bool doPerformanceMetrics = true;
 //
 //  FUNCTION: loop()
 //
@@ -221,16 +220,15 @@ void loop() {
             }
             if(renderJobs.size() == 0) {//Only actually render when the previous frame is done
                 long long currentTime = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now().time_since_epoch()).count();
-                if(doPerformanceMetrics) {
+                if (state.frameTimes.size() < 501) {
                     state.frameTimes.push_back(currentTime - state.lastFrameTime);
                 }
-				if(doPerformanceMetrics && !performanceMetricsSkipped && state.frameTimes.size() >= performanceMetricsSkipFrames) {
+				if (!performanceMetricsSkipped && state.frameTimes.size() >= performanceMetricsSkipFrames) {
                     state.frameTimes.clear();
                     performanceMetricsSkipped = true;
+					state.lastFrameTime = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now().time_since_epoch()).count();
                 }
-                if(doPerformanceMetrics && state.frameTimes.size() == 501) {
-                    doPerformanceMetrics = false;
-                    state.frameTimes.erase(state.frameTimes.begin());
+                if(state.frameTimes.size() == 500) {
                     //Stats calculation for average frame time and SE
                     long long sum = 0;
                     long long max = 0;
